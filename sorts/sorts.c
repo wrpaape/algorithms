@@ -10,17 +10,31 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define LENGTH 1000
+#define LENGTH 100000
 #define PRINT_LENGTH 10
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                             PREPROCESSOR DIRECTIVES                              *
  ************************************************************************************/
 /************************************************************************************
+ *                               INTIIAL DECLARATIONS                               *
+ *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
+struct Node {
+  int i;
+  struct Node *next_ptr;
+};
+/*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
+ *                               INTIIAL DECLARATIONS                               *
+ ************************************************************************************/
+/************************************************************************************
  *                               FUNCTION PROTOTYPES                                *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-int *insert_sort_by(int length, int *data, int (*sort_by)(const int, const int));
-int *merge_sort_by(int length, int *data, int (*sort_by)(const int, const int));
-int *select_sort_by(int length, int *data, int (*sort_by)(const int, const int));
+/* top level */
+int *insert_sort_by(int *data, int length, int (*sort_by)(const int, const int));
+int *merge_sort_by(int *data, int length, int (*sort_by)(const int, const int));
+int *select_sort_by(int *data, int length, int (*sort_by)(const int, const int));
+/* helper */
+int *shuffle(int *dest, int *data, int length);
+int rand_btwn_inc(const int min, const int max);
 int desc(const int x, const int y);
 int asc(const int x, const int y);
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
@@ -31,7 +45,11 @@ int asc(const int x, const int y);
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 int main(void)
 {
-  int data[LENGTH];                     /* data to be sorted */
+
+  int asc_data[LENGTH];                 /* data in ascending order:  0..(N - 1) */
+  int desc_data[LENGTH];                /* data in descending order: (N - 1)..0 */
+  int shuf_data[LENGTH];                /* shuffled data composed of same range */
+  int data[LENGTH];                     /* */
   int data_insert[LENGTH];              /* identical copy */
   int data_merge[LENGTH];               /* identical copy */
   int data_select[LENGTH];              /* identical copy */
@@ -41,14 +59,24 @@ int main(void)
   clock_t time_select;
   int i;                                /* generic counter */
 
-  srand(time(NULL));                    /* seed RNG */
+
+
 
   for (i = 0; i < LENGTH; ++i) {
-    data[i]        = rand();
-    data_insert[i] = data[i];
+    asc_data[i] = i;
+    desc_data[i] = LENGTH - i;
+    shuf_data[i]   = rand();
+    data_insert[i] = rand_data[i];
     data_merge[i]  = data_insert[i];
     data_select[i] = data_merge[i];
   }
+
+  for (i = 0; i < LENGTH; ++i) {
+    asc_data[i] = i;
+    desc_data[i] = LENGTH - i;
+  }
+
+
 
   sort_by = &desc;
 
@@ -56,35 +84,41 @@ int main(void)
   printf("sort by: %s order\n\n", (sort_by == asc) ? "ASCENDING" : "DESCENDING");
 
   /* time insertion sort */
-  puts("timing insertion sort...");
+  fputs("timing insertion sort...", stdout);
   time_insert = clock();
   insert_sort_by(LENGTH, data_insert, sort_by);
   time_insert = clock() - time_insert;
-  puts("done\n");
+  fputs("done\n", stdout);
 
 
   /* time merge sort */
-  puts("timing merge sort...");
+  fputs("timing merge sort...", stdout);
   time_merge = clock();
   merge_sort_by(LENGTH, data_merge, sort_by);
   time_merge = clock() - time_merge;
-  puts("done\n");
+  fputs("done\n", stdout);
 
   /* time selection sort */
-  puts("timing selection sort...");
+  fputs("timing selection sort...", stdout);
   time_select = clock();
   select_sort_by(LENGTH, data_select, sort_by);
   time_select = clock() - time_select;
-  puts("done\n");
+  fputs("done\n", stdout);
 
 
-  printf("N:      %i\ninsert: %lu μs\nmerge:  %lu μs\nselect: %lu μs\n\n",
+  printf("\nN:         %i\ninsertion: %lu μs\nmerge:     %lu μs\nselection: %lu μs\n\n",
       LENGTH, time_insert, time_merge, time_select);
 
-  puts("unsorted       ┃ insertion sort ┃ merge sort     ┃ selection sort");
-  puts("━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━ ");
+  puts(" unsorted  ┃ insertion  ┃   merge    ┃ selection\n"
+       "━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━ ");
   for (i = 0; i < PRINT_LENGTH; ++i) {
-    printf("%-14i ┃ %-14i ┃ %-14i ┃ %-14i\n",
+    printf("%-10i ┃ %-10i ┃ %-10i ┃ %-10i\n",
+        data[i], data_insert[i], data_merge[i], data_select[i]); 
+  }
+  puts("     ⋮     ┃      ⋮     ┃      ⋮     ┃     ⋮");
+
+  for (i = LENGTH - PRINT_LENGTH; i < LENGTH; ++i) {
+    printf("%-10i ┃ %-10i ┃ %-10i ┃ %-10i\n",
         data[i], data_insert[i], data_merge[i], data_select[i]); 
   }
   
@@ -96,7 +130,7 @@ int main(void)
 /************************************************************************************
  *                               TOP LEVEL FUNCTIONS                                *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-int *insert_sort_by(int length, int *data, int (*sort_by)(const int, const int))
+int *insert_sort_by(int *data, int length, int (*sort_by)(const int, const int))
 {
   int temp;
   int j;
@@ -119,14 +153,14 @@ int *insert_sort_by(int length, int *data, int (*sort_by)(const int, const int))
   return data;
 }
 
-int *merge_sort_by(int length, int *data, int (*sort_by)(const int, const int))
+int *merge_sort_by(int *data, int length, int (*sort_by)(const int, const int))
 {
 
   return data;
 }
 
 
-int *select_sort_by(int length, int *data, int (*sort_by)(const int, const int))
+int *select_sort_by(int *data, int length, int (*sort_by)(const int, const int))
 {
   int sort_range;
   int j;
@@ -153,15 +187,39 @@ int *select_sort_by(int length, int *data, int (*sort_by)(const int, const int))
   return data;
 }
 
+/*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
+ *                               TOP LEVEL FUNCTIONS                                *
+ ************************************************************************************/
+/************************************************************************************
+ *                                 HELPER FUNCTIONS                                 *
+ *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
+int *shuffle(int *dest, int *data, int length)
+{
+  srand(time(NULL)); /* seed RNG */
+
+  return dest;
+}
+
+
+int rand_btwn_inc(const int min, const int max)
+{
+  int value;
+
+
+  return value;
+}
+
+
 int desc(const int x, const int y)
 {
   return (x > y);
 }
+
 
 int asc(const int x, const int y)
 {
   return (x < y);
 }
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
- *                               TOP LEVEL FUNCTIONS                                *
+ *                                 HELPER FUNCTIONS                                 *
  ************************************************************************************/
