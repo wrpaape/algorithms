@@ -199,10 +199,9 @@ int *shuffle(int *data, const unsigned long long length)
 
   srandom(time(NULL)); /* seed RNG */
 
-  main_index = length;
+  main_index = length - 1;
 
   while (main_index > 0) {
-    printf("%llu\n", main_index);
     rand_index       = rand_upto(main_index);
     temp             = data[main_index];
     data[main_index] = data[rand_index];
@@ -229,11 +228,7 @@ unsigned long long rand_upto(const unsigned long long max)
 
     rand_val = random();
 
-    printf("rand_val: %llu, max_valid: %llu, max: %llu\n", rand_val, max_valid, max);
-
   } while (rand_val > max_valid);
-
-  printf("rand_val: %llu\n", rand_val / bin_size);
 
   return (rand_val / bin_size);
 }
