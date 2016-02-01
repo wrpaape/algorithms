@@ -14,23 +14,35 @@
 #define BUFFER_SIZE 20
 #define LENGTH 100
 #define PRINT_LENGTH 10
-#define NUM_SORTS 3
+#define NUM_ALGS 3
+#define ORDS_PER_ALG 3
+#define DIRS_PER_ORD 2
+
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                             PREPROCESSOR DIRECTIVES                              *
  ************************************************************************************/
 /************************************************************************************
  *                               INTIIAL DECLARATIONS                               *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-struct Sorts {
-  char type[BUFFER_SIZE]; /* display string */
-  int (**func)(int *data, const size_t length, /* pointer to sorting function */
-      int (*sort_by)(const int arg1, const int arg2));
-  int asc_data[LENGTH];   /* data in ascending order:  0..(N - 1) */
-  int desc_data[LENGTH];  /* data in descending order: (N - 1)..0 */
-  int shuf_data[LENGTH];  /* shuffled data composed of same range */
+struct TestDir {
+  char sort_dir[BUFFER_SIZE]; /* sort direction */
+  int data[LENGTH];            /* positive ints in particular order */
+  clock_t time;               /* time elapsed sorting data */
 };
 
-const size_t SIZE_DATA = sizeof(((struct Sorts *) NULL) -> asc_data);
+struct TestOrder {
+  char init_ord[BUFFER_SIZE];       /* initial data order */
+  struct TestDir test_dirs[DIRS_PER_ORD]; /* holds initial data and place for time result */
+};
+
+struct Sort {
+  char name[BUFFER_SIZE];                  /* sorting algorithm */
+  struct TestOrder test_ords[ORDS_PER_ALG];            /* test data */
+  int *(*func)(int *data, const size_t length, /* pointer to sorting function */
+      int (*sort_by)(const int arg1, const int arg2));
+};
+
+const size_t SIZE_DATA = sizeof(((struct Sort *) NULL) -> data);
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               INTIIAL DECLARATIONS                               *
  ************************************************************************************/
@@ -44,6 +56,7 @@ int *merge_sort_by( int *data, const size_t length,
     int (*sort_by)(const int arg1, const int arg2));
 int *select_sort_by(int *data, const size_t length,
     int (*sort_by)(const int arg1, const int arg2));
+void test_sort(struct Sort sort);
 /* helper */
 int *shuffle(int *data, const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);
@@ -58,83 +71,47 @@ int asc( const int x, const int y);
 int main(void)
 {
   /* args for insertion, merger, and selection sort */
-  struct Sorts sorts[NUM_SORTS] = {{.type = "INSERTION", .func = &insert_sort_by},
-                                   {.type = "MERGE",     .func = &merge_sort_by},
-                                   {.type = "SELECTION", .func = &select_sort_by}};
-  /* struct Sorts sorts[NUM_SORTS] = {{.type = "INSERTION"}, */
-  /*                                  {.type = "MERGE"}, */
-  /*                                  {.type = "SELECTION"}}; */
-  int (*sort_by)(const int arg1, const int arg2); /* pointer to sorting condition */
-  clock_t time_insert;
-  clock_t time_merge;
-  clock_t time_select;
-  int i;                             /* generic counter */
+  struct Sort sorts[NUM_ALGS] =
+    {{.func     = insert_sort_by,
+      .name = "INSERTION",
+      .ords[ORDS_PER_ALG] = {{.init_ord = "ASCENDING",
+                    .test_dirs[DIRS_PER_ORD] = {{.sort_dir = "ASCENDING"},
+                                         {.sort_dir = "DESCENDING"}}},
+                   {.init_ord = "DESCENDING"},
+                    .test_dirs[DIRS_PER_ORD] = {{.sort_dir = "ASCENDING"},
+                                         {.sort_dir = "DESCENDING"}}},
+                   {.init_ord = "SHUFFLED",
+                    .test_dirs[DIRS_PER_ORD] = {{.sort_dir = "ASCENDING"},
+                                         {.sort_dir = "DESCENDING"}}}},
+     {.func = merge_sort_by,
+      .name = "MERGE"},
+     {.func = select_sort_by,
+      .name = "SELECTION"}};
 
   /* initialize common data */
+  int i; /* generic counter */
+
   for (i = 0; i < LENGTH; ++i) {
-    sorts[0].asc_data[i]  = i;
-    sorts[0].desc_data[i] = LENGTH - i;
-    sorts[0].shuf_data[i] = i;
-  }
-  shuffle(sorts[0].shuf_data, LENGTH); /* shuffle 'shuf_data' */
-
-
-
-  /* copy data to remaining sorts */
-  for (i = 1; i < NUM_SORTS; ++i) {
-    memcpy(sorts[i].asc_data,  sorts[0].asc_data,  SIZE_DATA);
-    memcpy(sorts[i].desc_data, sorts[0].desc_data, SIZE_DATA);
-    memcpy(sorts[i].shuf_data, sorts[0].shuf_data, SIZE_DATA);
+    sorts[0].data[0].ords[0].data[i] = i;          /* asc order:  0..(N - 1) */
+    sorts[0].data[1].ords[0].data[i] = LENGTH - i; /* desc order: (N - 1)..0 */
+    sorts[0].data[2].ords[0].data[i] = i;          /* shuffled order */
   }
 
+  shuffle(sorts[0].data[2].ords[0].data, LENGTH); /* shuffle data */
 
-  for (i = 0; i < PRINT_LENGTH; ++i) {
-    printf("%-10i ┃ %-10i\n",
-        sorts[0].shuf_data[i], sorts[1].shuf_data[i]);
+  /* copy arrays to 'DESCENDING' test case */
+  for (i = 0; i < DIRS_PER_ORD; ++i) {
+    memcpy(sorts[0].data[i].ords[1].data, sorts[0].data[i].ords[0].data);
   }
 
-  sort_by = &desc;
+  /* copy test data to remaining sorts */
+  for (i = 1; i < NUM_ALGS; ++i) {
+    memcpy(sorts[i].data, sorts[0].data, SIZE_DATA);
+  }
 
-  printf("sort by: %s order\n\n", (sort_by == asc) ? "ASCENDING" : "DESCENDING");
-
-/*   /1* time insertion sort *1/ */
-/*   fputs("timing insertion sort...", stdout); */
-/*   time_insert = clock(); */
-/*   insert_sort_by(LENGTH, data_insert, sort_by); */
-/*   time_insert = clock() - time_insert; */
-/*   fputs("done\n", stdout); */
-
-
-/*   /1* time merge sort *1/ */
-/*   fputs("timing merge sort...", stdout); */
-/*   time_merge = clock(); */
-/*   merge_sort_by(LENGTH, data_merge, sort_by); */
-/*   time_merge = clock() - time_merge; */
-/*   fputs("done\n", stdout); */
-
-/*   /1* time selection sort *1/ */
-/*   fputs("timing selection sort...", stdout); */
-/*   time_select = clock(); */
-/*   select_sort_by(LENGTH, data_select, sort_by); */
-/*   time_select = clock() - time_select; */
-/*   fputs("done\n", stdout); */
-
-
-/*   printf("\nN:         %i\ninsertion: %lu μs\nmerge:     %lu μs\nselection: %lu μs\n\n", */
-/*       LENGTH, time_insert, time_merge, time_select); */
-
-/*   puts(" unsorted  ┃ insertion  ┃   merge    ┃ selection\n" */
-/*        "━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━ "); */
-/*   for (i = 0; i < PRINT_LENGTH; ++i) { */
-/*     printf("%-10i ┃ %-10i ┃ %-10i ┃ %-10i\n", */
-/*         data[i], data_insert[i], data_merge[i], data_select[i]); */ 
-/*   } */
-/*   puts("     ⋮     ┃      ⋮     ┃      ⋮     ┃     ⋮"); */
-
-/*   for (i = LENGTH - PRINT_LENGTH; i < LENGTH; ++i) { */
-/*     printf("%-10i ┃ %-10i ┃ %-10i ┃ %-10i\n", */
-/*         data[i], data_insert[i], data_merge[i], data_select[i]); */ 
-/*   } */
+  /* for (i = 0; i < NUM_ALGS; ++i) { */
+  /*   test_sort(sorts[i]); */
+  /* } */
   
   return 0;
 }
@@ -177,20 +154,21 @@ int *merge_sort_by(int *data, const size_t length, int (*sort_by)(const int, con
 int *select_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
 {
   int sort_range;
+  int i;
   int j;
   int head;
   int head_index;
 
   sort_range = length - 1;
 
-  for (int i = 0; i < sort_range; ++i) {
+  for (i = 0; i < sort_range; ++i) {
     head_index = i;
     head       = data[head_index];
 
     for (j = i + 1; j < length; ++j) {
       if (sort_by(data[j], head)) {
         head_index = j;
-        head = data[head_index];
+        head       = data[head_index];
       }
     }
 
@@ -199,6 +177,54 @@ int *select_sort_by(int *data, const size_t length, int (*sort_by)(const int, co
   }
 
   return data;
+}
+
+void test_sort(struct Sort sort)
+{
+  int (*sort_by)(const int arg1, const int arg2); /* pointer to sorting condition */
+  sort_by = &desc;
+
+  printf("sort by: %s order\n\n", (sort_by == asc) ? "ASCENDING" : "DESCENDING");
+
+/*   /1* time insertion sort *1/ */
+/*   fputs("timing insertion sort...", stdout); */
+/*   time_insert = clock(); */
+/*   insert_sort_by(LENGTH, data_insert, sort_by); */
+/*   time_insert = clock() - time_insert; */
+/*   fputs("done\n", stdout); */
+
+
+/*   /1* time merge sort *1/ */
+/*   fputs("timing merge sort...", stdout); */
+/*   time_merge = clock(); */
+/*   merge_sort_by(LENGTH, data_merge, sort_by); */
+/*   time_merge = clock() - time_merge; */
+/*   fputs("done\n", stdout); */
+
+/*   /1* time selection sort *1/ */
+/*   fputs("timing selection sort...", stdout); */
+/*   time_select = clock(); */
+/*   select_sort_by(LENGTH, data_select, sort_by); */
+/*   time_select = clock() - time_select; */
+/*   fputs("done\n", stdout); */
+
+
+/*   printf("\nN:         %i\ninsertion: %lu μs\nmerge:     %lu μs\nselection: %lu μs\n\n", */
+/*       LENGTH, time_insert, time_merge, time_select); */
+
+/*   puts(" unsorted  ┃ insertion  ┃   merge    ┃ selection\n" */
+/*        "━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━ "); */
+/*   for (i = 0; i < PRINT_LENGTH; ++i) { */
+/*     printf("%-10i ┃ %-10i ┃ %-10i ┃ %-10i\n", */
+/*         data[i], data_insert[i], data_merge[i], data_select[i]); */ 
+/*   } */
+/*   puts("     ⋮     ┃      ⋮     ┃      ⋮     ┃     ⋮"); */
+
+/*   for (i = LENGTH - PRINT_LENGTH; i < LENGTH; ++i) { */
+/*     printf("%-10i ┃ %-10i ┃ %-10i ┃ %-10i\n", */
+/*         data[i], data_insert[i], data_merge[i], data_select[i]); */ 
+/*   } */
+
 }
 
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
