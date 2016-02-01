@@ -8,20 +8,29 @@
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
-#define LENGTH 10
+#define BUFFER_SIZE 20
+#define LENGTH 100
 #define PRINT_LENGTH 10
+#define NUM_SORTS 3
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                             PREPROCESSOR DIRECTIVES                              *
  ************************************************************************************/
 /************************************************************************************
  *                               INTIIAL DECLARATIONS                               *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-struct Node {
-  int i;
-  struct Node *next_ptr;
+struct Sorts {
+  char type[BUFFER_SIZE]; /* display string */
+  int *(*func)(int *data, const size_t length, /* pointer to sorting function */
+      int (*sort_by)(const int arg1, const int arg2));
+  int asc_data[LENGTH];   /* data in ascending order:  0..(N - 1) */
+  int desc_data[LENGTH];  /* data in descending order: (N - 1)..0 */
+  int shuf_data[LENGTH];  /* shuffled data composed of same range */
 };
+
+const size_t SIZE_DATA = sizeof(((struct Sorts *) NULL) -> asc_data);
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               INTIIAL DECLARATIONS                               *
  ************************************************************************************/
@@ -29,14 +38,17 @@ struct Node {
  *                               FUNCTION PROTOTYPES                                *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 /* top level */
-int *insert_sort_by(int *data, int length, int (*sort_by)(const int, const int));
-int *merge_sort_by(int *data, int length, int (*sort_by)(const int, const int));
-int *select_sort_by(int *data, int length, int (*sort_by)(const int, const int));
+int *insert_sort_by(int *data, const size_t length,
+    int (*sort_by)(const int arg1, const int arg2));
+int *merge_sort_by( int *data, const size_t length,
+    int (*sort_by)(const int arg1, const int arg2));
+int *select_sort_by(int *data, const size_t length,
+    int (*sort_by)(const int arg1, const int arg2));
 /* helper */
 int *shuffle(int *data, const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);
 int desc(const int x, const int y);
-int asc(const int x, const int y);
+int asc( const int x, const int y);
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               FUNCTION PROTOTYPES                                *
  ************************************************************************************/
@@ -45,41 +57,45 @@ int asc(const int x, const int y);
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 int main(void)
 {
-
-  int asc_data[LENGTH];                 /* data in ascending order:  0..(N - 1) */
-  int desc_data[LENGTH];                /* data in descending order: (N - 1)..0 */
-  int shuf_data[LENGTH];                /* shuffled data composed of same range */
-  int data[LENGTH];                     /* */
-  int data_insert[LENGTH];              /* identical copy */
-  int data_merge[LENGTH];               /* identical copy */
-  int data_select[LENGTH];              /* identical copy */
-  int (*sort_by)(const int, const int); /* pointer to sorting condition */
+  /* args for insertion, merger, and selection sort */
+  struct Sorts sorts[NUM_SORTS] = {{.type = "INSERTION", .func = &insert_sort_by},
+                                   {.type = "MERGE",     .func = &merge_sort_by},
+                                   {.type = "SELECTION", .func = &select_sort_by}};
+  /* struct Sorts sorts[NUM_SORTS] = {{.type = "INSERTION"}, */
+  /*                                  {.type = "MERGE"}, */
+  /*                                  {.type = "SELECTION"}}; */
+  int (*sort_by)(const int arg1, const int arg2); /* pointer to sorting condition */
   clock_t time_insert;
   clock_t time_merge;
   clock_t time_select;
-  int i;                                /* generic counter */
+  int i;                             /* generic counter */
 
-
+  /* initialize common data */
   for (i = 0; i < LENGTH; ++i) {
-    asc_data[i]    = i;
-    desc_data[i]   = LENGTH - i;
-    shuf_data[i]   = i;
-    /* data_insert[i] = rand_data[i]; */
-    /* data_merge[i]  = data_insert[i]; */
-    /* data_select[i] = data_merge[i]; */
+    sorts[0].asc_data[i]  = i;
+    sorts[0].desc_data[i] = LENGTH - i;
+    sorts[0].shuf_data[i] = i;
+  }
+  shuffle(sorts[0].shuf_data, LENGTH); /* shuffle 'shuf_data' */
+
+
+
+  /* copy data to remaining sorts */
+  for (i = 1; i < NUM_SORTS; ++i) {
+    memcpy(sorts[i].asc_data,  sorts[0].asc_data,  SIZE_DATA);
+    memcpy(sorts[i].desc_data, sorts[0].desc_data, SIZE_DATA);
+    memcpy(sorts[i].shuf_data, sorts[0].shuf_data, SIZE_DATA);
   }
 
-  shuffle(shuf_data, LENGTH);
 
   for (i = 0; i < PRINT_LENGTH; ++i) {
     printf("%-10i ┃ %-10i\n",
-        asc_data[i], shuf_data[i]);
+        sorts[0].shuf_data[i], sorts[1].shuf_data[i]);
   }
-
 
   sort_by = &desc;
 
-  printf("sort by: %s order\n\n", (sort_by == &asc) ? "ASCENDING" : "DESCENDING");
+  printf("sort by: %s order\n\n", (sort_by == asc) ? "ASCENDING" : "DESCENDING");
 
 /*   /1* time insertion sort *1/ */
 /*   fputs("timing insertion sort...", stdout); */
@@ -128,7 +144,7 @@ int main(void)
 /************************************************************************************
  *                               TOP LEVEL FUNCTIONS                                *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-int *insert_sort_by(int *data, int length, int (*sort_by)(const int, const int))
+int *insert_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
 {
   int temp;
   int j;
@@ -151,14 +167,14 @@ int *insert_sort_by(int *data, int length, int (*sort_by)(const int, const int))
   return data;
 }
 
-int *merge_sort_by(int *data, int length, int (*sort_by)(const int, const int))
+int *merge_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
 {
 
   return data;
 }
 
 
-int *select_sort_by(int *data, int length, int (*sort_by)(const int, const int))
+int *select_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
 {
   int sort_range;
   int j;
