@@ -9,10 +9,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 #include <time.h>
+#include <sys/ioctl.h>
+
 
 #define BUFFER_SIZE 20
-#define LENGTH 100
+#define LENGTH 10
 #define PRINT_LENGTH 10
 #define NUM_ALGS 3
 #define ORDS_PER_ALG 3
@@ -58,7 +61,9 @@ int *merge_sort_by( int *data, const size_t length,
     int (*sort_by)(const int el1, const int el2));
 int *select_sort_by(int *data, const size_t length,
     int (*sort_by)(const int el1, const int el2));
-void test_alg(struct SortAlg *sort_alg);
+
+void test_algs(struct SortAlg *alg_ptr, const size_t length);
+void report(struct SortAlg *alg_ptr, const size_t length);
 
 /* helper */
 int *shuffle(int *data, const unsigned long long length);
@@ -116,9 +121,13 @@ int main(void)
            SIZE_ORDS);
   }
 
-  for (i = 0; i < NUM_ALGS; ++i) {
-    test_alg(&sort_algs[i]);
-  }
+  /* test sorting algorithms */
+
+  test_algs(sort_algs, NUM_ALGS);
+
+  /* report results */
+
+  report(sort_algs, NUM_ALGS);
   
   return 0;
 }
@@ -186,42 +195,89 @@ int *select_sort_by(int *data, const size_t length, int (*sort_by)(const int, co
   return data;
 }
 
-void test_alg(struct SortAlg *sort_alg)
+void test_algs(struct SortAlg *alg_ptr, const size_t length)
 {
-
-  struct TestOrder *ord;
-  struct TestDir *dir;
+  struct TestOrder *ord_ptr;
+  struct TestDir *dir_ptr;
+  int alg_index; /* index of current sorting algorthim */
   int ord_index; /* index of current data ordering */
   int dir_index; /* index of current sort direction */
 
-  printf("testing sorting algorithm:    %s\e[5m...\e[25m\n", sort_alg -> alg_name);
+  /* for each sorting algorithm */
+  for (alg_index = 0; alg_index < length; ++alg_index, ++alg_ptr) {
 
+    printf("\e[2Jsorting algorithm: %s\e[5m...\e[25m\n", alg_ptr -> alg_name);
 
-  /* for each ordering of data */
-  for (ord_index = 0; ord_index < ORDS_PER_ALG; ++ord_index) {
+    ord_ptr = &(alg_ptr -> test_ords[0]);
 
-    ord = &(sort_alg -> test_ords[ord_index]);
+    /* for each ordering of data */
+    for (ord_index = 0; ord_index < ORDS_PER_ALG; ++ord_index, ++ord_ptr) {
 
-    printf("  for data initially ordered: %s\e[5m...\e[25m\n", ord -> init_ord);
+      printf("  data order: %s\e[5m...\e[25m\n", ord_ptr -> init_ord);
 
-    /* for each sort direction */
-    for (dir_index = 0; dir_index < DIRS_PER_ORD; ++dir_index) {
-      dir = &(ord -> test_dirs[dir_index]);
+      dir_ptr = &(ord_ptr -> test_dirs[0]);
 
-      printf("    sorting direction:        %s\e[5m...\e[25m", dir -> sort_dir);
-      dir -> sort_time = clock();
-      (sort_alg -> alg_func)(dir -> data, LENGTH, dir -> sort_by);
-      dir -> sort_time -= clock();
-    puts("done");
+      /* for each sort direction */
+      for (dir_index = 0; dir_index < DIRS_PER_ORD; ++dir_index, ++dir_ptr) {
+        printf("    sorting direction: %s\e[5m...\e[25m", dir_ptr -> sort_dir);
+
+        dir_ptr -> sort_time = clock();
+
+        (alg_ptr -> alg_func)(dir_ptr -> data, LENGTH, dir_ptr -> sort_by);
+
+        dir_ptr -> sort_time -= clock();
+
+        puts("done");
+      }
       
+      puts("  done");
     }
-    
-    puts("  done");
-  }
 
-  puts("done\n");
+    puts("done\n");
+  }
 }
 
+void report(struct SortAlg *alg_ptr, const size_t length)
+{
+  struct winsize window;
+  size_t pad_gutter;
+  size_t col_width;
+  size_t line_width;
+  size_t line_bytes;
+  /* wchar_t *line; */
+
+
+  /* ioctl(STDOUT_FILENO, TIOCGWINSZ, &window); */
+  ioctl(fileno(stdout), TIOCGWINSZ, &window);
+
+  pad_gutter  = (length * 3) + 1;
+  col_width   = (window.ws_col - pad_gutter) / length;
+  line_width = col_width * length + pad_gutter - 2;
+  line_bytes = line_width * 4 + 1;
+
+  /* line = (wchar_t *) malloc(line_bytes); */
+
+  wchar_t
+
+  char32_t line[line_width];
+
+  /* printf("pad_gutter: %lu\ncol_width: %lu\nline_width: %lu\nline_bytes: %lu\nsizeof(*line): %lu\nline == NULL: %i\n", */ 
+  /*     pad_gutter, col_width, line_width, line_bytes, sizeof(*line), line == NULL); */
+
+
+  /* memset_pattern4(line, "\u2550", line_bytes); */
+  memset_pattern4(line, "\u2550", line_bytes);
+  /* wmemset(line, L'\u2550', sizeof(line)); */
+  wmemset(line, U'\u9552', sizeof(line));
+  /* wmemset(line, "═", line_bytes); */
+  /* line[line_bytes - 1] = '\0'; */
+
+    /* ╔╦╗╠╬╣╚╩╝║═ */
+
+  /* clear window => inverse ANSI => print top border */
+  printf("\e[2J\e[7m╔%ls╗\nhi", line);
+
+}
   /* fputs("sorting \e[5m...\e[25m", stdout); */
   /* time_insert = clock(); */
   /* insert_sort_by(LENGTH, data_insert, sort_by); */
