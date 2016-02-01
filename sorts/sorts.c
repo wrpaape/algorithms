@@ -28,7 +28,7 @@ struct TestDir {
   int (*sort_by)(const int el1, const int el2); /* pointer to sorting condition */
   char sort_dir[BUFFER_SIZE]; /* sort direction */
   int data[LENGTH];           /* positive ints in particular order */
-  clock_t time;               /* time elapsed sorting data */
+  clock_t sort_time;          /* time elapsed sorting data */
 };
 
 struct TestOrder {
@@ -63,8 +63,8 @@ void test_alg(struct SortAlg *sort_alg);
 /* helper */
 int *shuffle(int *data, const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);
-int desc_ord(const int x, const int y);
-int asc_ord( const int x, const int y);
+int desc_ord(const int el1, const int el2);
+int asc_ord(const int el1, const int el2);
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               FUNCTION PROTOTYPES                                *
  ************************************************************************************/
@@ -188,12 +188,45 @@ int *select_sort_by(int *data, const size_t length, int (*sort_by)(const int, co
 
 void test_alg(struct SortAlg *sort_alg)
 {
-/*   /1* time insertion sort *1/ */
-/*   fputs("timing insertion sort...", stdout); */
-/*   time_insert = clock(); */
-/*   insert_sort_by(LENGTH, data_insert, sort_by); */
-/*   time_insert = clock() - time_insert; */
-/*   fputs("done\n", stdout); */
+
+  struct TestOrder *ord;
+  struct TestDir *dir;
+  int ord_index; /* index of current data ordering */
+  int dir_index; /* index of current sort direction */
+
+  printf("testing sorting algorithm:    %s\e[5m...\e[25m\n", sort_alg -> alg_name);
+
+
+  /* for each ordering of data */
+  for (ord_index = 0; ord_index < ORDS_PER_ALG; ++ord_index) {
+
+    ord = &(sort_alg -> test_ords[ord_index]);
+
+    printf("  for data initially ordered: %s\e[5m...\e[25m\n", ord -> init_ord);
+
+    /* for each sort direction */
+    for (dir_index = 0; dir_index < DIRS_PER_ORD; ++dir_index) {
+      dir = &(ord -> test_dirs[dir_index]);
+
+      printf("    sorting direction:        %s\e[5m...\e[25m", dir -> sort_dir);
+      dir -> sort_time = clock();
+      (sort_alg -> alg_func)(dir -> data, LENGTH, dir -> sort_by);
+      dir -> sort_time -= clock();
+    puts("done");
+      
+    }
+    
+    puts("  done");
+  }
+
+  puts("done\n");
+}
+
+  /* fputs("sorting \e[5m...\e[25m", stdout); */
+  /* time_insert = clock(); */
+  /* insert_sort_by(LENGTH, data_insert, sort_by); */
+  /* time_insert = clock() - time_insert; */
+  /* fputs("done\n", stdout); */
 
 
 /*   /1* time merge sort *1/ */
@@ -227,7 +260,7 @@ void test_alg(struct SortAlg *sort_alg)
 /*         data[i], data_insert[i], data_merge[i], data_select[i]); */ 
 /*   } */
 
-}
+/* } */
 
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               TOP LEVEL FUNCTIONS                                *
@@ -278,15 +311,15 @@ unsigned long long rand_upto(const unsigned long long max)
 }
 
 
-int desc_ord(const int x, const int y)
+int desc_ord(const int el1, const int el2)
 {
-  return (x > y);
+  return (el1 > el2);
 }
 
 
-int asc_ord(const int x, const int y)
+int asc_ord(const int el1, const int el2)
 {
-  return (x < y);
+  return (el1 < el2);
 }
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                                 HELPER FUNCTIONS                                 *
