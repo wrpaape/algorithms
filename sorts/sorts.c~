@@ -298,13 +298,15 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
   int line_index;
   int col_index;
   int byte_index;
-  size_t line_bytes;
   size_t row_bytes;
+  size_t col_bytes;
+  size_t line_bytes;
 	char **lines;
+  int col_byte_cutoff;
 
   row_bytes  = (sizeof(char *) * 3);
+  col_bytes  = (sizeof(char) * col_width * 3);
   line_bytes = (sizeof(char) * line_width * 3) + 1;
-
   lines      = (char **) malloc(row_bytes);
 
   if (lines == NULL) {
@@ -327,13 +329,27 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
 	}
 
 
-	lines[0][2] = '\x94';
-	lines[1][2] = '\xA0';
-	lines[2][2] = '\x9A';
+	lines[0][2]     = '\x94';
+	lines[1][2]     = '\xA0';
+	lines[2][2]     = '\x9A';
+  col_byte_cutoff = col_bytes + 3;
 
-	lines[0][2] = '\x00';
-	lines[1][2] = '\x00';
-	lines[2][2] = '\x00';
+	for (line_index = 0; line_index < 3; ++line_index) {
+    byte_index = 3;
+    while (byte_index < col_byte_cutoff) {
+      lines[line_index][byte_index] = '\xE2';
+      ++byte_index;
+      lines[line_index][byte_index] = '\x95';
+      ++byte_index;
+      lines[line_index][byte_index] = '\x90';
+      ++byte_index;
+    }
+	}
+
+
+	lines[0][col_byte_cutoff + 1] = '\x00';
+	lines[1][col_byte_cutoff + 1] = '\x00';
+	lines[2][col_byte_cutoff + 1] = '\x00';
 
   /* for (byte_index = 0; byte_index < col_bytes; byte_index += 3) { */
 
