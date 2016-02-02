@@ -67,7 +67,7 @@ void test_algs(struct SortAlg *alg_ptr, const size_t length);
 void report(struct SortAlg *alg_ptr, const int length);
 
 /* helper */
-void build_lines(char **lines, const int col_bytes, const int num_cols);
+char **build_lines(char **lines, const int col_width, const int num_cols);
 int *shuffle(int *data, const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);
 int desc_ord(const int el1, const int el2);
@@ -258,10 +258,8 @@ void report(struct SortAlg *alg_ptr, const int length)
   pad_gutter = (num_cols * 3) + 1;
   col_width  = (window.ws_col - pad_gutter) / num_cols;
   line_width = (col_width * num_cols) + pad_gutter;
-  line_bytes = (line_width * 3) + 1;
-  lines      = (char **) malloc(line_bytes * 3);
 
-  build_lines(lines, col_width * 3, num_cols);
+  lines = build_lines(line_width, col_width, num_cols);
 
 
   /* clear window => inverse ANSI => print top border */
@@ -280,11 +278,20 @@ void report(struct SortAlg *alg_ptr, const int length)
 
 /* ╔╦╗╠╬╣╣╚╩╝║═ */
 /* ┏┳┓┣╋┫┗┻┛ ━ ┃ */
-void build_lines(char **lines, const int col_bytes, const int num_cols)
+/* [{"╔", <<226, 149, 148, 0>>}, {"╦", <<226, 149, 166, 0>>}, */
+/*  {"╗", <<226, 149, 151, 0>>}, {"╠", <<226, 149, 160, 0>>}, */
+/*  {"╬", <<226, 149, 172, 0>>}, {"╣", <<226, 149, 163, 0>>}, */
+/*  {"╣", <<226, 149, 163, 0>>}, {"╚", <<226, 149, 154, 0>>}, */
+/*  {"╩", <<226, 149, 169, 0>>}, {"╝", <<226, 149, 157, 0>>}, */
+/*  {"║", <<226, 149, 145, 0>>}, {"═", <<226, 149, 144, 0>>}] */
+char **build_lines(char **lines, const int col_width, const int num_cols)
 {
   int line_index;
   int col_index;
   int byte_index;
+
+  line_bytes = (line_width * 3) + 1;
+  lines      = (char **) malloc(line_bytes * 3);
 
   stpncpy(lines[0], "╔", 3);
   stpncpy(lines[1], "╠", 3);
@@ -301,6 +308,8 @@ void build_lines(char **lines, const int col_bytes, const int num_cols)
   puts(lines[0]);
   puts(lines[1]);
   puts(lines[2]);
+
+  return lines;
 }
 
 
