@@ -253,29 +253,39 @@ void report(struct SortAlg *alg_ptr, const size_t length)
   pad_gutter  = (length * 3) + 1;
   col_width   = (window.ws_col - pad_gutter) / length;
   line_width = col_width * length + pad_gutter - 2;
-  line_bytes = line_width * 4 + 1;
+  line_bytes = col_width * length + pad_gutter - 2;
 
-  /* line = (wchar_t *) malloc(line_bytes); */
 
-  wchar_t
 
-  char32_t line[line_width];
+  /* wchar_t line[line_width]; */
+  char line[line_width * 4];
+  /* line = (wchar_t *) malloc(line_width * sizeof(wchar_t)); */
 
   /* printf("pad_gutter: %lu\ncol_width: %lu\nline_width: %lu\nline_bytes: %lu\nsizeof(*line): %lu\nline == NULL: %i\n", */ 
   /*     pad_gutter, col_width, line_width, line_bytes, sizeof(*line), line == NULL); */
 
-
-  /* memset_pattern4(line, "\u2550", line_bytes); */
-  memset_pattern4(line, "\u2550", line_bytes);
-  /* wmemset(line, L'\u2550', sizeof(line)); */
-  wmemset(line, U'\u9552', sizeof(line));
-  /* wmemset(line, "═", line_bytes); */
+  printf("sizeof(wchar_t): %lu\n", sizeof(wchar_t)); 
+  printf("sizeof(line): %lu\n", sizeof(line)); 
+  printf("sizeof(*line): %lu\n", sizeof(*line)); 
+  printf("line_width: %lu\n", line_width); 
+  /* wmemset(line, *(wchar_t *) {0xe2, 0x95, 0x90, 0x00}, 48); */
   /* line[line_bytes - 1] = '\0'; */
 
     /* ╔╦╗╠╬╣╚╩╝║═ */
+  while (line_width > 0) {
+
+  }
+  memset_pattern4(line, "\xe2\x95\x90", 48);
 
   /* clear window => inverse ANSI => print top border */
-  printf("\e[2J\e[7m╔%ls╗\nhi", line);
+  /* printf("\e[2J\e[7m╔%lc╗\nhi", L'\u2550'); */
+  char string[4] = {0xe2, 0x95, 0x90, 0x00};
+  printf("╔%s╗\nhi\n", "═");
+  printf("╔%s╗\nhi\n", string);
+  printf("╔%s╗\nhi\n", line);
+  printf("╔%s╗\nhi\n", "\xe2\x95\x90");
+
+  fflush(stdout);
 
 }
   /* fputs("sorting \e[5m...\e[25m", stdout); */
