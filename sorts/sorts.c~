@@ -298,62 +298,95 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
   int line_index;
   int col_index;
   int byte_index;
+  int col_byte_cutoff;
   size_t row_bytes;
   size_t col_bytes;
   size_t line_bytes;
 	char **lines;
-  int col_byte_cutoff;
+  char byte_char;
 
-  row_bytes  = (sizeof(char *) * 3);
-  col_bytes  = (sizeof(char) * col_width * 3);
+  row_bytes  = sizeof(char *) * 3;
+  /* bytes to a column of box char lines plus its joiner char */
+  col_bytes  = (sizeof(char) * col_width + 1) * 3;
   line_bytes = (sizeof(char) * line_width * 3) + 1;
-  lines      = (char **) malloc(row_bytes);
 
+  /* allocate memory for 3 line pointers */
+  lines = (char **) malloc(row_bytes);
   if (lines == NULL) {
     fprintf(stderr, "failed of allocate %lu bytes for line rows\n",
         row_bytes);
     exit(1);
   }
 
+/* ┏┳┓┣╋┫┗┻┛ ━ ┃ */
 	for (line_index = 0; line_index < 3; ++line_index) {
+    /* allocate memory for each line */
     lines[line_index] = (char *) malloc(line_bytes);
-
     if (lines[line_index] == NULL) {
       fprintf(stderr, "failed of allocate %lu bytes for line: %i\n",
           line_bytes, line_index);
       exit(1);
     }
-
+    /* all lines' first box chars share first 2 bytes */
 		lines[line_index][0] = '\xE2';
-		lines[line_index][1] = '\x95';
+		lines[line_index][1] = '\x94';
 	}
+	lines[0][2] = '\x94'; /* set left edge of top line to "┏" */
+	lines[1][2] = '\xA3'; /* set left edge of mid line to "┣" */
+	lines[2][2] = '\x97'; /* set left edge of bot line to "┗" */
 
-
-	lines[0][2]     = '\x94';
-	lines[1][2]     = '\xA0';
-	lines[2][2]     = '\x9A';
-  col_byte_cutoff = col_bytes + 3;
-
+  /* all lines share first col of "━" box chars */
+  col_byte_cutoff = col_bytes;
 	for (line_index = 0; line_index < 3; ++line_index) {
     byte_index = 3;
     while (byte_index < col_byte_cutoff) {
       lines[line_index][byte_index] = '\xE2';
       ++byte_index;
-      lines[line_index][byte_index] = '\x95';
+      lines[line_index][byte_index] = '\x94';
       ++byte_index;
-      lines[line_index][byte_index] = '\x90';
+      lines[line_index][byte_index] = '\x81';
       ++byte_index;
     }
 	}
 
+  /* set all first bytes to shared '\xE2'*/
+	for (line_index = 0; line_index < 3; ++line_index) {
+    lines[line_index][byte_index] = '\xE2';
+  }
 
-	lines[0][col_byte_cutoff + 1] = '\x00';
-	lines[1][col_byte_cutoff + 1] = '\x00';
-	lines[2][col_byte_cutoff + 1] = '\x00';
+  /* set left edge of top line to "┳" */
+	lines[0][byte_index + 1] = '\x94';
+	lines[0][byte_index + 2] = '\xB3';
+  /* set left edge of top line to "╉" */
+	lines[1][byte_index + 1] = '\x95';
+	lines[1][byte_index + 2] = '\x89';
+  /* set left edge of top line to "┻" */
+	lines[2][byte_index + 1] = '\x94';
+	lines[2][byte_index + 2] = '\xBB';
 
-  /* for (byte_index = 0; byte_index < col_bytes; byte_index += 3) { */
+  byte_index += 3;
 
-  /* } */
+	for (col_index = 1; col_index < num_cols; ++col_index) {
+    /* all lines share col of "━" box chars */
+    ─
+    col_byte_cutoff += col_bytes;
+    for (line_index = 0; line_index < 3; ++line_index) {
+      byte_index = 3;
+      byte_char = (line_index == 1) ? '\x80' : '\x81';
+      while (byte_index < col_byte_cutoff) {
+        lines[line_index][byte_index] = '\xE2';
+        ++byte_index;
+        lines[line_index][byte_index] = '\x94';
+        ++byte_index;
+        lines[line_index][byte_index] = byte_char;
+        ++byte_index;
+      }
+    }
+  }
+
+	lines[0][col_byte_cutoff] = '\x00';
+	lines[1][col_byte_cutoff] = '\x00';
+	lines[2][col_byte_cutoff] = '\x00';
 
   puts(lines[0]);
   puts(lines[1]);
