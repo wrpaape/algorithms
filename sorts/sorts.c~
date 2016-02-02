@@ -240,36 +240,29 @@ void test_algs(struct SortAlg *alg_ptr, const size_t length)
 void report(struct SortAlg *alg_ptr, const size_t length)
 {
   struct winsize window;
+  size_t num_cols;
   size_t pad_gutter;
-  size_t col_width;
+  int col_width;
   size_t line_width;
   size_t seg_bytes;
   size_t byte_index;
-  char *line;
+  size_t alg_index;
+  char *top_line;
+  char *bot_line;
+  char *mid_line;
 
 
 
   /* ioctl(STDOUT_FILENO, TIOCGWINSZ, &window); */
   ioctl(fileno(stdout), TIOCGWINSZ, &window);
 
-  pad_gutter = (length * 3) + 1;
-  col_width  = (window.ws_col - pad_gutter) / length;
-  line_width = (col_width * length) + pad_gutter - 2;
-  seg_bytes = (line_width * 3);
-
-  line       = (char *) malloc(seg_bytes + 1);
-
-  /* printf("pad_gutter: %lu\ncol_width: %lu\nline_width: %lu\nline_bytes: %lu\nsizeof(*line): %lu\nline == NULL: %i\n", */ 
-  /*     pad_gutter, col_width, line_width, line_bytes, sizeof(*line), line == NULL); */
-
-  /* printf("sizeof(wchar_t): %lu\n", sizeof(wchar_t)); */ 
-  /* printf("sizeof(line): %lu\n", sizeof(line)); */ 
-  /* printf("sizeof(*line): %lu\n", sizeof(*line)); */ 
-  /* printf("line_width: %lu\n", line_width); */ 
-  /* wmemset(line, *(wchar_t *) {0xe2, 0x95, 0x90, 0x00}, 48); */
-  /* line[line_bytes - 1] = '\0'; */
-
-    /* ╔╦╗╠╬╣╚╩╝║═ */
+  num_cols   = length + 1;
+  pad_gutter = (num_cols * 3) + 1;
+  col_width  = (window.ws_col - pad_gutter) / num_cols;
+  line_width = (col_width * num_cols) + pad_gutter - 2;
+  seg_bytes  = (line_width * 3);
+  top_bot_line = (char *) malloc(seg_bytes + 1);
+  mid_line     = (char *) malloc(seg_bytes + 1);
   byte_index = 0;
 
   while (byte_index < seg_bytes) {
@@ -281,19 +274,18 @@ void report(struct SortAlg *alg_ptr, const size_t length)
     ++byte_index;
   }
 
-  line[seg_bytes] = 0x00;
+  line[byte_index] = 0x00;
 
   /* clear window => inverse ANSI => print top border */
-  /* printf("\e[2J\e[7m╔%lc╗\nhi", L'\u2550'); */
-  char string[4] = {0xe2, 0x95, 0x90, 0x00};
-  printf("╔%s╗\nhi\n", "═");
-  printf("╔%s╗\nhi\n", string);
-  printf("╔%s╗\nhi\n", line);
-  printf("╔%s╗\nhi\n", "\xe2\x95\x90");
+  printf("\e[2J\e[7m╔%s╗\n║ %-*s ", line, col_width, "sorting algorithm");
 
-  fflush(stdout);
-
+  for (alg_index = 0; alg_index < length; ++alg_index) {
+    printf("┃ %-*s ", col_width, alg_ptr[alg_index].alg_name);
+  }
 }
+
+/* ╔╦╗╠╬╣╣╚╩╝║═ */
+/* ┏┳┓┣╋┫┗┻┛ ━ ┃ */
   /* fputs("sorting \e[5m...\e[25m", stdout); */
   /* time_insert = clock(); */
   /* insert_sort_by(LENGTH, data_insert, sort_by); */
