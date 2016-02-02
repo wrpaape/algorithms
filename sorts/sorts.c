@@ -35,7 +35,7 @@ struct TestDir {
   clock_t sort_time;          /* time elapsed sorting data */
 };
 
-struct TestOrder {
+struct TestOrd {
   char init_ord[BUFFER_SIZE];       /* initial data order */
   struct TestDir test_dirs[DIRS_PER_ORD]; /* holds initial data and place for time result */
 };
@@ -44,7 +44,7 @@ struct SortAlg {
   int *(*alg_func)(int *data, const size_t length, /* pointer to sorting function */
       int (*sort_by)(const int el1, const int el2));
   char alg_name[BUFFER_SIZE];                  /* sorting algorithm */
-  struct TestOrder test_ords[ORDS_PER_ALG];    /* test orders */
+  struct TestOrd test_ords[ORDS_PER_ALG];    /* test orders */
 };
 
 const size_t SIZE_DATA = sizeof(((struct TestDir *) NULL) -> data);
@@ -64,10 +64,10 @@ int *select_sort_by(int *data, const size_t length,
     int (*sort_by)(const int el1, const int el2));
 
 void test_algs(struct SortAlg *alg_ptr, const size_t length);
-void report(struct SortAlg *alg_ptr, const int length);
+void report(struct SortAlg *alg_ptr, const int num_algs);
 
 /* helper */
-char **build_lines(char **lines, const int col_width, const int num_cols);
+char **build_lines(const int line_width, const int col_width, const int num_cols);
 int *shuffle(int *data, const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);
 int desc_ord(const int el1, const int el2);
@@ -199,7 +199,7 @@ int *select_sort_by(int *data, const size_t length, int (*sort_by)(const int, co
 
 void test_algs(struct SortAlg *alg_ptr, const size_t length)
 {
-  struct TestOrder *ord_ptr;
+  struct TestOrd *ord_ptr;
   struct TestDir *dir_ptr;
   int alg_index; /* index of current sorting algorthim */
   int ord_index; /* index of current data ordering */
@@ -239,7 +239,7 @@ void test_algs(struct SortAlg *alg_ptr, const size_t length)
   }
 }
 
-void report(struct SortAlg *alg_ptr, const int length)
+void report(struct SortAlg *alg_ptr, const int num_algs)
 {
   struct winsize window;
   int num_cols;
@@ -254,7 +254,7 @@ void report(struct SortAlg *alg_ptr, const int length)
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
   /* ioctl(fileno(stdout), TIOCGWINSZ, &window); */
 
-  num_cols   = length + 1;
+  num_cols   = num_algs + 1;
   pad_gutter = (num_cols * 3) + 1;
   col_width  = (window.ws_col - pad_gutter) / num_cols;
   line_width = (col_width * num_cols) + pad_gutter;
@@ -277,33 +277,67 @@ void report(struct SortAlg *alg_ptr, const int length)
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 
 /* ╔╦╗╠╬╣╣╚╩╝║═ */
-/* ┏┳┓┣╋┫┗┻┛ ━ ┃ */
 /* [{"╔", <<226, 149, 148, 0>>}, {"╦", <<226, 149, 166, 0>>}, */
 /*  {"╗", <<226, 149, 151, 0>>}, {"╠", <<226, 149, 160, 0>>}, */
 /*  {"╬", <<226, 149, 172, 0>>}, {"╣", <<226, 149, 163, 0>>}, */
 /*  {"╣", <<226, 149, 163, 0>>}, {"╚", <<226, 149, 154, 0>>}, */
 /*  {"╩", <<226, 149, 169, 0>>}, {"╝", <<226, 149, 157, 0>>}, */
 /*  {"║", <<226, 149, 145, 0>>}, {"═", <<226, 149, 144, 0>>}] */
-char **build_lines(char **lines, const int col_width, const int num_cols)
+
+/* ┏┳┓┣╋┫┗┻┛ ━ ┃ */
+/* [{"┏", <<226, 148, 143, 0>>}, {"┳", <<226, 148, 179, 0>>}, */
+/*  {"┓", <<226, 148, 147, 0>>}, {"┣", <<226, 148, 163, 0>>}, */
+/*  {"╋", <<226, 149, 139, 0>>}, {"┫", <<226, 148, 171, 0>>}, */
+/*  {"┗", <<226, 148, 151, 0>>}, {"┻", <<226, 148, 187, 0>>}, */
+/*  {"┛", <<226, 148, 155, 0>>}, {"━", <<226, 148, 129, 0>>}, */
+/*  {"┃", <<226, 148, 131, 0>>}] */
+
+/* [{"╉", <<226, 149, 137, 0>>}, {"┨", <<226, 148, 168, 0>>}] */
+char **build_lines(const int line_width, const int col_width, const int num_cols)
 {
   int line_index;
   int col_index;
   int byte_index;
+  size_t line_bytes;
+  size_t row_bytes;
+	char **lines;
 
-  line_bytes = (line_width * 3) + 1;
-  lines      = (char **) malloc(line_bytes * 3);
+  row_bytes  = (sizeof(char *) * 3);
+  line_bytes = (sizeof(char) * line_width * 3) + 1;
 
-  stpncpy(lines[0], "╔", 3);
-  stpncpy(lines[1], "╠", 3);
-  stpncpy(lines[2], "╚", 3);
+  lines      = (char **) malloc(row_bytes);
 
-  byte_index = 0;
-
-  for (byte_index = 0; byte_index < col_bytes; byte_index += 3) {
-    for (line_index = 0; line_index < 3; ++line_index) {
-      stpncpy(lines[line_index], "═", 3);
-    }
+  if (lines == NULL) {
+    fprintf(stderr, "failed of allocate %lu bytes for line rows\n",
+        row_bytes);
+    exit(1);
   }
+
+	for (line_index = 0; line_index < 3; ++line_index) {
+    lines[line_index] = (char *) malloc(line_bytes);
+
+    if (lines[line_index] == NULL) {
+      fprintf(stderr, "failed of allocate %lu bytes for line: %i\n",
+          line_bytes, line_index);
+      exit(1);
+    }
+
+		lines[line_index][0] = '\xE2';
+		lines[line_index][1] = '\x95';
+	}
+
+
+	lines[0][2] = '\x94';
+	lines[1][2] = '\xA0';
+	lines[2][2] = '\x9A';
+
+	lines[0][3] = '\x00';
+	lines[1][3] = '\x00';
+	lines[2][3] = '\x00';
+
+  /* for (byte_index = 0; byte_index < col_bytes; byte_index += 3) { */
+
+  /* } */
 
   puts(lines[0]);
   puts(lines[1]);
