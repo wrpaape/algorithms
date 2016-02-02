@@ -243,38 +243,45 @@ void report(struct SortAlg *alg_ptr, const size_t length)
   size_t pad_gutter;
   size_t col_width;
   size_t line_width;
-  size_t line_bytes;
-  /* wchar_t *line; */
+  size_t seg_bytes;
+  size_t byte_index;
+  char *line;
+
 
 
   /* ioctl(STDOUT_FILENO, TIOCGWINSZ, &window); */
   ioctl(fileno(stdout), TIOCGWINSZ, &window);
 
-  pad_gutter  = (length * 3) + 1;
-  col_width   = (window.ws_col - pad_gutter) / length;
-  line_width = col_width * length + pad_gutter - 2;
+  pad_gutter = (length * 3) + 1;
+  col_width  = (window.ws_col - pad_gutter) / length;
+  line_width = (col_width * length) + pad_gutter - 2;
+  seg_bytes = (line_width * 3);
 
-
-
-  /* wchar_t line[line_width]; */
-  char line[line_width * 4];
-  /* line = (wchar_t *) malloc(line_width * sizeof(wchar_t)); */
+  line       = (char *) malloc(seg_bytes + 1);
 
   /* printf("pad_gutter: %lu\ncol_width: %lu\nline_width: %lu\nline_bytes: %lu\nsizeof(*line): %lu\nline == NULL: %i\n", */ 
   /*     pad_gutter, col_width, line_width, line_bytes, sizeof(*line), line == NULL); */
 
-  printf("sizeof(wchar_t): %lu\n", sizeof(wchar_t)); 
-  printf("sizeof(line): %lu\n", sizeof(line)); 
-  printf("sizeof(*line): %lu\n", sizeof(*line)); 
-  printf("line_width: %lu\n", line_width); 
+  /* printf("sizeof(wchar_t): %lu\n", sizeof(wchar_t)); */ 
+  /* printf("sizeof(line): %lu\n", sizeof(line)); */ 
+  /* printf("sizeof(*line): %lu\n", sizeof(*line)); */ 
+  /* printf("line_width: %lu\n", line_width); */ 
   /* wmemset(line, *(wchar_t *) {0xe2, 0x95, 0x90, 0x00}, 48); */
   /* line[line_bytes - 1] = '\0'; */
 
     /* ╔╦╗╠╬╣╚╩╝║═ */
-  while (line_width > 0) {
+  byte_index = 0;
 
+  while (byte_index < seg_bytes) {
+    line[byte_index] = 0xe2;
+    ++byte_index;
+    line[byte_index] = 0x95;
+    ++byte_index;
+    line[byte_index] = 0x90;
+    ++byte_index;
   }
-  memset_pattern4(line, "\xe2\x95\x90", 48);
+
+  line[seg_bytes] = 0x00;
 
   /* clear window => inverse ANSI => print top border */
   /* printf("\e[2J\e[7m╔%lc╗\nhi", L'\u2550'); */
