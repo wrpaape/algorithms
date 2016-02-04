@@ -350,6 +350,7 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
   ++byte_index;
 
 
+  /* build body of lines with cols and joiners */
   col_cutoff = num_cols - 1;
 
 	for (col_index = 1; col_index < col_cutoff; ++col_index) {
@@ -378,9 +379,9 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
     lines[1][byte_index] = '\x94';
     lines[2][byte_index] = '\x94';
     ++byte_index;
-    lines[0][byte_index] = '\xAF'; /* set left edge of top line to "┯" */
-    lines[1][byte_index] = '\xBC'; /* set left edge of mid line to "┼" */
-    lines[2][byte_index] = '\xB7'; /* set left edge of bot line to "┷" */
+    lines[0][byte_index] = '\xAF'; /* set right edge of top line to "┯" */
+    lines[1][byte_index] = '\xBC'; /* set right edge of mid line to "┼" */
+    lines[2][byte_index] = '\xB7'; /* set right edge of bot line to "┷" */
     ++byte_index;
   }
 
@@ -403,16 +404,6 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
     ++byte_index;
   }
 
-
-/* ┏┳┓┣╋┫┗┻┛ ━ ┃ */
-/* [{"┏", <<226, 148, 143, 0>>}, {"┳", <<226, 148, 179, 0>>}, */
-/*  {"┓", <<226, 148, 147, 0>>}, {"┣", <<226, 148, 163, 0>>}, */
-/*  {"╋", <<226, 149, 139, 0>>}, {"┫", <<226, 148, 171, 0>>}, */
-/*  {"┗", <<226, 148, 151, 0>>}, {"┻", <<226, 148, 187, 0>>}, */
-/*  {"┛", <<226, 148, 155, 0>>}, {"━", <<226, 148, 129, 0>>}, */
-/*  {"┃", <<226, 148, 131, 0>>}] */
-
-/* [{"╉", <<226, 149, 137, 0>>}, {"┨", <<226, 148, 168, 0>>}] */
 
   /* set final joiners */
 	lines[0][byte_index] = '\xE2';
