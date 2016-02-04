@@ -331,7 +331,7 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
 		lines[line_index][0] = '\xE2';
 		lines[line_index][1] = '\x94';
 	}
-	lines[0][2] = '\x94'; /* set left edge of top line to "┏" */
+	lines[0][2] = '\x8F'; /* set left edge of top line to "┏" */
 	lines[1][2] = '\xA3'; /* set left edge of mid line to "┣" */
 	lines[2][2] = '\x97'; /* set left edge of bot line to "┗" */
 
@@ -357,31 +357,54 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
   /* set left edge of top line to "┳" */
 	lines[0][byte_index + 1] = '\x94';
 	lines[0][byte_index + 2] = '\xB3';
-  /* set left edge of top line to "╉" */
+  /* set left edge of mid line to "╉" */
 	lines[1][byte_index + 1] = '\x95';
 	lines[1][byte_index + 2] = '\x89';
-  /* set left edge of top line to "┻" */
+  /* set left edge of bot line to "┻" */
 	lines[2][byte_index + 1] = '\x94';
 	lines[2][byte_index + 2] = '\xBB';
 
-  byte_index += 3;
+  col_byte_cutoff += 3;
+
 
 	for (col_index = 1; col_index < num_cols; ++col_index) {
     /* all lines share col of "━" box chars */
-    ─
+
+    /* for (line_index = 0; line_index < 3; ++line_index) { */
+    printf("byte_index      start: %i\n", byte_index);
+    printf("col_byte_cutoff start: %i\n", col_byte_cutoff);
+
+    byte_index      =  col_byte_cutoff;
     col_byte_cutoff += col_bytes;
-    for (line_index = 0; line_index < 3; ++line_index) {
-      byte_index = 3;
-      byte_char = (line_index == 1) ? '\x80' : '\x81';
-      while (byte_index < col_byte_cutoff) {
-        lines[line_index][byte_index] = '\xE2';
-        ++byte_index;
-        lines[line_index][byte_index] = '\x94';
-        ++byte_index;
-        lines[line_index][byte_index] = byte_char;
-        ++byte_index;
-      }
+    /* byte_char = (line_index == 1) ? '\x80' : '\x81'; */
+
+    while (byte_index < col_byte_cutoff) {
+      lines[0][byte_index] = '\xE2';
+      lines[1][byte_index] = '\xE2';
+      lines[2][byte_index] = '\xE2';
+      ++byte_index;
+      lines[0][byte_index] = '\x94';
+      lines[1][byte_index] = '\x94';
+      lines[2][byte_index] = '\x94';
+      ++byte_index;
+      lines[0][byte_index] = '\x81'; /* top line has col of heavy box char '━' */
+      lines[1][byte_index] = '\x80'; /* mid line has col of light box char '─' */
+      lines[2][byte_index] = '\x81'; /* bot line has col of heavy box char '━' */
+      ++byte_index;
     }
+    lines[line_index][byte_index]     = '\xE2';
+    lines[line_index][byte_index + 1] = '\x94';
+    /* } */
+    /* set left edge of top line to "┯" */
+    lines[0][byte_index + 2] = '\xAF';
+    /* set left edge of mid line to "┼" */
+    lines[1][byte_index + 2] = '\xBC';
+    /* set left edge of bot line to "┷" */
+    lines[2][byte_index + 2] = '\xB7';
+
+
+    printf("byte_index      end: %i\n", byte_index);
+    printf("col_byte_cutoff end: %i\n", col_byte_cutoff);
   }
 
 	lines[0][col_byte_cutoff] = '\x00';
