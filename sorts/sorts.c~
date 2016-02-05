@@ -20,7 +20,7 @@ int *insert_sort_by(int *data, const size_t length, int (*sort_by)(const int, co
 
   for (int i = 1; i < length; ++i) {
     temp = data[i];
-    j = i - 1;
+    j    = i - 1;
     
    /* if current el should be ordered ahead of next previous el */
     while ((j > -1) && sort_by(temp, data[j])) {
@@ -39,28 +39,35 @@ int *insert_sort_by(int *data, const size_t length, int (*sort_by)(const int, co
 int *merge_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
 {
   /* determine sentinel value ("least" value according to sort_by) */
-  const int sent = sort_by(INT_MIN, INT_MAX) ? INT_MIN : INT_MAX;
+  const int sentinel = sort_by(INT_MIN, INT_MAX) ? INT_MAX : INT_MIN;
 
-  do_split(data, 0, length - 1, sort_by, sent)
+  printf("sentinel: %d\n", sentinel);
+  fflush(stdout);
+
+  do_split(data, 0, length - 1, sort_by, sentinel);
 
   return data;
 }
 
-void do_split(int *data, const size_t i_start, const size_t i_end, int (*sort_by)(const int, const int), const int sent)
+void do_split(int *data, const size_t i_start, const size_t i_end, int (*sort_by)(const int, const int), const int sentinel)
 {
+  printf("doing split: %d\n", sentinel);
+  printf("  i_start: %zu\n", i_start);
+  printf("  i_end:   %zu\n", i_end);
+  fflush(stdout);
   /* if sub-array is longer than 1 element, recurse */
   if (i_start < i_end) {
     /* split current sub-array into left and right sub-sub-arrays */
     int i_split;
     i_split = (i_end - i_start) / 2;
 
-    do_split(data, i_start,     i_split, sort_by); /* sort left sub-sub-array */
-    do_split(data, i_split + 1, i_end,   sort_by); /* sort right sub-sub-array */
-    merge(data, i_start, i_split, i_end, sort_by); /* merge sorted sub-sub-arrays */
+    do_split(data, i_start,     i_split, sort_by, sentinel); /* sort left */
+    do_split(data, i_split + 1, i_end,   sort_by, sentinel); /* sort right */
+    merge(data, i_start, i_split, i_end, sort_by, sentinel); /* merge sorted */
   }
 }
 
-void merge(int *data, const size_t i_start, const size_t i_split, const size_t i_end, int (*sort_by)(const int, const int), const int sent)
+void merge(int *data, const size_t i_start, const size_t i_split, const size_t i_end, int (*sort_by)(const int, const int), const int sentinel)
 {
   size_t i_left;
   size_t i_right;
@@ -84,31 +91,31 @@ void merge(int *data, const size_t i_start, const size_t i_split, const size_t i
   for (i_left = 0; i_left < copy_cutoff; ++i_left) {
     left_sub[i_left] = data[i_start + i_left];
   }
-  left_sub[i_left] = last_val;  /* append sentinel value */
+  left_sub[i_left] = sentinel;  /* append sentinel value */
 
   /* copy right sub-array data to 'right_sub' */
   copy_cutoff = length_right_arr - 1;
   for (i_right = 0; i_right < copy_cutoff; ++i_right) {
     right_sub[i_right] = data[i_start_right + i_right];
   }
-  right_sub[i] = last_val; /* append sentinel value */
+  right_sub[i_right] = sentinel; /* append sentinel value */
 
   i_left  = i_start;
   i_right = i_start_right;
 
   for (i_merge = i_start; i_merge < i_end; ++i_merge) {
     if (sort_by(left_sub[i_left], right_sub[i_right])) {
-      
+      data[i_merge] = left_sub[i_left];
+      ++i_left;
+
     } else {
-      
+      data[i_merge] = right_sub[i_right];
+      ++i_right;
     }
-    
   }
 
-
-
-  /* free(left_sub); */
-  /* free(right_sub); */
+  free(left_sub);
+  free(right_sub);
 }
 
 int *select_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
