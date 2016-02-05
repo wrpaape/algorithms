@@ -1,12 +1,12 @@
-../sorts : sorts.o tester.o
+/tester : tester.o sorts.o
 				gcc -o $@ $^
 
-sorts.o : sorts.c sorts.h tester.h
-				gcc -c sorts.c
-
-tester.o : tester.c tester.h
+tester.o : tester.c tester.h sorts.h
 				gcc -c tester.c
 
+sorts.o : sorts.c sorts.h
+				gcc -c sorts.c
+
 clean :
-				rm sorts sorts.o tester.o
+				rm tester tester.o sorts.o
 
