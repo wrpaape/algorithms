@@ -16,39 +16,73 @@
 int main(void)
 {
   /* args for insertion, merger, and selection sort */
-  struct SortAlg sort_algs[] = {{.alg_func = insert_sort_by,
-                               .alg_name = "INSERTION",
-                               .test_ords = {{.init_ord = "ASCENDING"},
-                                             {.init_ord = "DESCENDING"},
-                                             {.init_ord = "SHUFFLED"}}},
-                              {.alg_func = merge_sort_by,
-                               .alg_name = "MERGE"},
-                              {.alg_func = select_sort_by,
-                               .alg_name = "SELECTION"}};
+  struct SortAlg sort_algs[NUM_ALGS] = {{.alg_func = insert_sort_by,
+                                         .alg_name = "INSERTION",
+                                         .test_ords = {{.init_ord = "ASCENDING"},
+                                                       {.init_ord = "DESCENDING"},
+                                                       {.init_ord = "SHUFFLED"}}},
+                                        {.alg_func = merge_sort_by,
+                                         .alg_name = "MERGE"},
+                                        {.alg_func = select_sort_by,
+                                         .alg_name = "SELECTION"}};
 
 
   /* initialize common data */
-  int i; /* generic counter */
+  size_t order_index;   /* generic counter */
+  size_t length_index;   /* generic counter */
+  int data_index;     /* generic counter */
+  size_t length_data; /* generic counter */
+  size_t size_data;   /* generic counter */
+  int **data_matrix;
 
-  for (i = 0; i < LENGTH; ++i) {
-    sort_algs[0].test_ords[0].test_dirs[0].data[i] = i;          /* asc_ord order:  0..(N - 1) */
-    sort_algs[0].test_ords[1].test_dirs[0].data[i] = LENGTH - i; /* desc_ord order: (N - 1)..0 */
-    sort_algs[0].test_ords[2].test_dirs[0].data[i] = i;          /* shuffled order */
+  size_data_matrix  = sizeof(int **) * ORDS_PER_ALG;
+  data_matrix       = (int **) malloc(size_data_matrix);
+  if (data_matrix == NULL) {
+    fprintf(stderr, "failed of allocate %lu bytes for data matrix\n",
+        size_data_matrix);
+    exit(1);
   }
 
-  shuffle(sort_algs[0].test_ords[2].test_dirs[0].data, LENGTH); /* shuffle data */
+  for (length_index = 0;  length_index < NUM_LENS; ++length_index) {
+    length_data = LENS_DATA[length_index];
+    size_data   = sizeof(int) * length_data;
+
+    for (order_index = 0; order_index < ORDS_PER_ALG; ++order_index) {
+      data_matrix[order_index] = (int *) malloc(size_data);
+      if (data_matrix[order_index] == NULL) {
+        fprintf(stderr, "failed of allocate %lu bytes for data of length N = %lu\n",
+            size_data, length_data);
+        exit(1);
+      }
+
+      for (data_index = 0; data_index < length_data; ++data_index) {
+        data_matrix[0][data_index] = data_index;               /* asc_ord order:  0..(N - 1) */
+        data_matrix[1][data_index] = length_data - data_index; /* desc_ord order: (N - 1)..0 */
+        data_matrix[2][data_index] = data_index;               /* shuffled order */
+      }
+
+      shuffle(data_matrix[2], length_data); /* shuffle data */
+    }
+
+
+    for (order_index = 0; order_index < ORDS_PER_ALG; ++order_index) {
+      sort_algs[0].test_ords[order_index]
+                  .test_dirs[0]
+                  .test_data -> data_matrix[order_index]; /* point first alg to data_matrix */
+    }
+  }
 
   /* assign name strings and copy data from 'ASCENDING' to 'DESCENDING' test dir */ 
-  for (i = 0; i < ORDS_PER_ALG; ++i) {
-    sort_algs[0].test_ords[i].test_dirs[0].sort_by = &asc_ord;
-    sort_algs[0].test_ords[i].test_dirs[1].sort_by = &desc_ord;
+  for (order_index = 0; order_index < ORDS_PER_ALG; ++order_index) {
+    sort_algs[0].test_ords[order_index].test_dirs[0].sort_by = &asc_ord;
+    sort_algs[0].test_ords[order_index].test_dirs[1].sort_by = &desc_ord;
 
-    strcpy(sort_algs[0].test_ords[i].test_dirs[0].sort_dir, "ASCENDING");
-    strcpy(sort_algs[0].test_ords[i].test_dirs[1].sort_dir, "DESCENDING");
+    strcpy(sort_algs[0].test_ords[order_index].test_dirs[0].sort_dir, "ASCENDING");
+    strcpy(sort_algs[0].test_ords[order_index].test_dirs[1].sort_dir, "DESCENDING");
 
-    memcpy(sort_algs[0].test_ords[i].test_dirs[1].data,
-           sort_algs[0].test_ords[i].test_dirs[0].data,
-           SIZE_DATA);
+    memcpy(sort_algs[0].test_ords[order_index].test_dirs[1].test_data.data,
+           sort_algs[0].test_ords[order_index].test_dirs[0].test_data.data,
+           );
   }
 
   /* copy test data to remaining sorts */

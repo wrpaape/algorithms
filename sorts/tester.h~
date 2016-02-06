@@ -25,11 +25,16 @@
 /************************************************************************************
  *                               INTIIAL DECLARATIONS                               *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
+struct TestData {
+  size_t length;     /* length of data (N) */
+  clock_t sort_time; /* time elapsed sorting data */
+  int *data;         /* positive ints in particular order */
+};
+
 struct TestDir {
   int (*sort_by)(const int el1, const int el2); /* pointer to sorting condition */
-  char sort_dir[BUFFER_SIZE]; /* sort direction */
-  int data[LENGTH];           /* positive ints in particular order */
-  clock_t sort_time;          /* time elapsed sorting data */
+  char sort_dir[BUFFER_SIZE];                   /* sort direction */
+  struct TestData test_data[NUM_LENS];          /* data info and timing results */
 };
 
 struct TestOrd {
@@ -41,7 +46,7 @@ struct SortAlg {
   int *(*alg_func)(int *data, const size_t length, /* pointer to sorting function */
       int (*sort_by)(const int el1, const int el2));
   char alg_name[BUFFER_SIZE];                  /* sorting algorithm */
-  struct TestOrd test_ords[ORDS_PER_ALG];    /* test orders */
+  struct TestOrd test_ords[ORDS_PER_ALG];     /* test orders */
 };
 
 struct LinesInfo {
@@ -49,8 +54,9 @@ struct LinesInfo {
   size_t line_size;
 };
 
-const size_t SIZE_DATA = sizeof(((struct TestDir *) NULL) -> data);
-const size_t SIZE_ORDS = sizeof(((struct SortAlg *) NULL) -> test_ords);
+const size_t SIZE_DATA           = sizeof(((struct TestData *) NULL) -> data);
+/* const size_t SIZE_LENS           = sizeof(((struct TestDir *) NULL) -> data); */
+const size_t SIZE_ORDS           = sizeof(((struct SortAlg *) NULL) -> test_ords);
 const size_t[NUM_LENS] LENS_DATA = {10, 100, 1000, 10000};
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               INTIIAL DECLARATIONS                               *
