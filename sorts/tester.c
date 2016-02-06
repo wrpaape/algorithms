@@ -208,47 +208,77 @@ char **build_lines(const size_t line_width, const size_t col_width, const size_t
 		lines[line_index][0] = '\xE2';
 		lines[line_index][1] = '\x94';
 	}
+
 	lines[0][2] = '\x8F'; /* set left edge of top line to "┏" */
-	lines[1][2] = '\xA3'; /* set left edge of mid line to "┣" */
+	lines[1][2] = '\xA0'; /* set left edge of mid line to "┠" */
 	lines[2][2] = '\x97'; /* set left edge of bot line to "┗" */
 
 
   /* set first cols of horiz lines */
+  byte_index = 3;
   byte_cutoff = col_bytes + 3;
 
-	for (line_index = 0; line_index < 3; ++line_index) {
-    byte_index = 3;
-    while (byte_index < byte_cutoff) {
-      /* all lines share first col of heavy box char "━" */
-      lines[line_index][byte_index] = '\xE2';
-      ++byte_index;
-      lines[line_index][byte_index] = '\x94';
-      ++byte_index;
-      lines[line_index][byte_index] = '\x81';
-      ++byte_index;
-    }
-	}
+  while (byte_index < byte_cutoff) {
+    lines[0][byte_index] = '\xE2';
+    lines[1][byte_index] = '\xE2';
+    lines[2][byte_index] = '\xE2';
+    ++byte_index;
+    lines[0][byte_index] = '\x94';
+    lines[1][byte_index] = '\x94';
+    lines[2][byte_index] = '\x94';
+    ++byte_index;
+    lines[0][byte_index] = '\x81'; /* top line has col of heavy box char '━' */
+    lines[1][byte_index] = '\x80'; /* mid line has col of light box char '─' */
+    lines[2][byte_index] = '\x81'; /* bot line has col of heavy box char '━' */
+    ++byte_index;
+  }
+
+	/* for (line_index = 0; line_index < 3; ++line_index) { */
+    /* byte_index = 3; */
+    /* while (byte_index < byte_cutoff) { */
+      /* /1* all lines share first col of heavy box char "━" *1/ */
+      /* lines[line_index][byte_index] = '\xE2'; */
+      /* ++byte_index; */
+      /* lines[line_index][byte_index] = '\x94'; */
+      /* ++byte_index; */
+      /* lines[line_index][byte_index] = '\x81'; */
+      /* ++byte_index; */
+    /* } */
+	/* } */
 
 
-  /* set first joiners */
-	lines[0][byte_index] = '\xE2';
-	lines[1][byte_index] = '\xE2';
-	lines[2][byte_index] = '\xE2';
-  ++byte_index;
-	lines[0][byte_index] = '\x94';
-	lines[1][byte_index] = '\x95';
-	lines[2][byte_index] = '\x94';
-  ++byte_index;
-	lines[0][byte_index] = '\xB3'; /* set left edge of top line to "┳" */
-	lines[1][byte_index] = '\x89'; /* set left edge of mid line to "╉" */
-	lines[2][byte_index] = '\xBB'; /* set left edge of bot line to "┻" */
-  ++byte_index;
+/*   /1* set first joiners *1/ */
+/* 	lines[0][byte_index] = '\xE2'; */
+/* 	lines[1][byte_index] = '\xE2'; */
+/* 	lines[2][byte_index] = '\xE2'; */
+/*   ++byte_index; */
+/* 	lines[0][byte_index] = '\x94'; */
+/* 	lines[1][byte_index] = '\x95'; */
+/* 	lines[2][byte_index] = '\x94'; */
+/*   ++byte_index; */
+/* 	lines[0][byte_index] = '\xB3'; /1* set left edge of top line to "┳" *1/ */
+/* 	lines[1][byte_index] = '\x89'; /1* set left edge of mid line to "╉" *1/ */
+/* 	lines[2][byte_index] = '\xBB'; /1* set left edge of bot line to "┻" *1/ */
+/*   ++byte_index; */
 
 
   /* build body of lines with cols and joiners */
-  col_cutoff = num_cols - 1;
+  /* col_cutoff = num_cols - 1; */
 
-	for (col_index = 1; col_index < col_cutoff; ++col_index) {
+	for (col_index = 1; col_index < num_cols; ++col_index) {
+    lines[0][byte_index] = '\xE2';
+    lines[1][byte_index] = '\xE2';
+    lines[2][byte_index] = '\xE2';
+    ++byte_index;
+    lines[0][byte_index] = '\x94';
+    lines[1][byte_index] = '\x94';
+    lines[2][byte_index] = '\x94';
+    ++byte_index;
+    lines[0][byte_index] = '\xAF'; /* set right edge of top line to "┯" */
+    lines[1][byte_index] = '\xBC'; /* set right edge of mid line to "┼" */
+    lines[2][byte_index] = '\xB7'; /* set right edge of bot line to "┷" */
+    ++byte_index;
+
     byte_cutoff = byte_index + col_bytes;
 
     while (byte_index < byte_cutoff) {
@@ -265,39 +295,26 @@ char **build_lines(const size_t line_width, const size_t col_width, const size_t
       lines[2][byte_index] = '\x81'; /* bot line has col of heavy box char '━' */
       ++byte_index;
     }
-
-    lines[0][byte_index] = '\xE2';
-    lines[1][byte_index] = '\xE2';
-    lines[2][byte_index] = '\xE2';
-    ++byte_index;
-    lines[0][byte_index] = '\x94';
-    lines[1][byte_index] = '\x94';
-    lines[2][byte_index] = '\x94';
-    ++byte_index;
-    lines[0][byte_index] = '\xAF'; /* set right edge of top line to "┯" */
-    lines[1][byte_index] = '\xBC'; /* set right edge of mid line to "┼" */
-    lines[2][byte_index] = '\xB7'; /* set right edge of bot line to "┷" */
-    ++byte_index;
   }
 
 
-  /* set final col of box char lines */
-  byte_cutoff = byte_index + col_bytes;
+/*   /1* set final col of box char lines *1/ */
+/*   byte_cutoff = byte_index + col_bytes; */
 
-  while (byte_index < byte_cutoff) {
-    lines[0][byte_index] = '\xE2';
-    lines[1][byte_index] = '\xE2';
-    lines[2][byte_index] = '\xE2';
-    ++byte_index;
-    lines[0][byte_index] = '\x94';
-    lines[1][byte_index] = '\x94';
-    lines[2][byte_index] = '\x94';
-    ++byte_index;
-    lines[0][byte_index] = '\x81'; /* top line has col of heavy box char '━' */
-    lines[1][byte_index] = '\x80'; /* mid line has col of light box char '─' */
-    lines[2][byte_index] = '\x81'; /* bot line has col of heavy box char '━' */
-    ++byte_index;
-  }
+/*   while (byte_index < byte_cutoff) { */
+/*     lines[0][byte_index] = '\xE2'; */
+/*     lines[1][byte_index] = '\xE2'; */
+/*     lines[2][byte_index] = '\xE2'; */
+/*     ++byte_index; */
+/*     lines[0][byte_index] = '\x94'; */
+/*     lines[1][byte_index] = '\x94'; */
+/*     lines[2][byte_index] = '\x94'; */
+/*     ++byte_index; */
+/*     lines[0][byte_index] = '\x81'; /1* top line has col of heavy box char '━' *1/ */
+/*     lines[1][byte_index] = '\x80'; /1* mid line has col of light box char '─' *1/ */
+/*     lines[2][byte_index] = '\x81'; /1* bot line has col of heavy box char '━' *1/ */
+/*     ++byte_index; */
+/*   } */
 
 
   /* set final joiners */
@@ -318,6 +335,10 @@ char **build_lines(const size_t line_width, const size_t col_width, const size_t
 	lines[0][byte_index] = '\x00';
 	lines[1][byte_index] = '\x00';
 	lines[2][byte_index] = '\x00';
+
+  puts(lines[0]);
+  puts(lines[1]);
+  puts(lines[2]);
 
   return lines;
 }
