@@ -131,7 +131,9 @@ void report(struct SortAlg *algs, const size_t num_algs)
   struct winsize window;
   int cont_width;
   char *buffer;
+  struct LinesInfo lines_info;
   char **lines;
+  size_t line_size;
 
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
 
@@ -142,26 +144,37 @@ void report(struct SortAlg *algs, const size_t num_algs)
   cont_byte_offset = col_width + 3;
   line_width = (col_width * num_cols) + pad_gutter;
 
-  buffer_size = line_width + (2 * (num_cols + 1)) + 1;
+  lines_info = build_lines(line_width, col_width, num_cols);
+  lines      = lines_info.lines;
+  line_size  = lines_info.line_size;
 
-  buffer = (char *) malloc(sizeof(char) * buffer_size);
+  buffer_size = line_width + (2 * (num_cols + 1)) + 2;
+  buffer      = (char *) malloc(sizeof(char) * buffer_size);
 
-  sprintf(buffer, "┃ %-*s┃", cont_width, "ALGORITHM");
+  printf("sizeof(*lines[0]): %lu\n", line_size);
 
-  lines = build_lines(line_width, col_width, num_cols);
 
-  puts(lines[0]); /* print top border line */
+  fwrite(lines[0], 1, line_size, stdout);
+  fwrite(lines[1], 1, line_size, stdout);
+  fwrite(lines[2], 1, line_size, stdout);
+  /* print top border line */
+  fwrite(lines[0], sizeof(char), line_size, stdout);
 
-  buf_index = cont_byte_offset + 3;
+  /* print algorithm names */
+  sprintf(buffer, "┃ %-*s", cont_width, "ALGORITHM");
+  buf_index = cont_byte_offset;
 
   for (alg_index = 0; alg_index < num_algs; ++alg_index) {
 
-    sprintf(&buffer[buf_index], " %-*s│", cont_width, algs[alg_index].alg_name);
+    sprintf(&buffer[buf_index], "│ %-*s", cont_width, algs[alg_index].alg_name);
 
     buf_index += cont_byte_offset;
   }
-  puts(buffer);
+  strcpy(&buffer[buf_index], "┃\n");
+  fwrite(buffer, sizeof(char), buffer_size, stdout);
+
   puts(lines[1]); /* print bottom border line */
+
   puts(lines[2]); /* print bottom border line */
 }
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
@@ -170,22 +183,22 @@ void report(struct SortAlg *algs, const size_t num_algs)
 /************************************************************************************
  *                                 HELPER FUNCTIONS                                 *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-char **build_lines(const size_t line_width, const size_t col_width, const size_t num_cols)
+struct LineInfo build_lines(const size_t line_width, const size_t col_width, const size_t num_cols)
 {
   int line_index;
   int col_index;
   int byte_index;
-  int col_cutoff;
   int byte_cutoff;
   size_t row_bytes;
   size_t col_bytes;
   size_t line_bytes;
 	char **lines;
+  struct LinesInfo lines_info;
 
   row_bytes  = sizeof(char *) * 3;
   /* bytes to a column of box char lines */
   col_bytes  = sizeof(char) * col_width * 3;
-  line_bytes = (sizeof(char) * line_width * 3) + 1;
+  line_bytes = (sizeof(char) * line_width * 3) + 2;
 
   /* allocate memory for 3 line pointers */
   lines = (char **) malloc(row_bytes);
@@ -233,38 +246,6 @@ char **build_lines(const size_t line_width, const size_t col_width, const size_t
     ++byte_index;
   }
 
-	/* for (line_index = 0; line_index < 3; ++line_index) { */
-    /* byte_index = 3; */
-    /* while (byte_index < byte_cutoff) { */
-      /* /1* all lines share first col of heavy box char "━" *1/ */
-      /* lines[line_index][byte_index] = '\xE2'; */
-      /* ++byte_index; */
-      /* lines[line_index][byte_index] = '\x94'; */
-      /* ++byte_index; */
-      /* lines[line_index][byte_index] = '\x81'; */
-      /* ++byte_index; */
-    /* } */
-	/* } */
-
-
-/*   /1* set first joiners *1/ */
-/* 	lines[0][byte_index] = '\xE2'; */
-/* 	lines[1][byte_index] = '\xE2'; */
-/* 	lines[2][byte_index] = '\xE2'; */
-/*   ++byte_index; */
-/* 	lines[0][byte_index] = '\x94'; */
-/* 	lines[1][byte_index] = '\x95'; */
-/* 	lines[2][byte_index] = '\x94'; */
-/*   ++byte_index; */
-/* 	lines[0][byte_index] = '\xB3'; /1* set left edge of top line to "┳" *1/ */
-/* 	lines[1][byte_index] = '\x89'; /1* set left edge of mid line to "╉" *1/ */
-/* 	lines[2][byte_index] = '\xBB'; /1* set left edge of bot line to "┻" *1/ */
-/*   ++byte_index; */
-
-
-  /* build body of lines with cols and joiners */
-  /* col_cutoff = num_cols - 1; */
-
 	for (col_index = 1; col_index < num_cols; ++col_index) {
     lines[0][byte_index] = '\xE2';
     lines[1][byte_index] = '\xE2';
@@ -297,26 +278,6 @@ char **build_lines(const size_t line_width, const size_t col_width, const size_t
     }
   }
 
-
-/*   /1* set final col of box char lines *1/ */
-/*   byte_cutoff = byte_index + col_bytes; */
-
-/*   while (byte_index < byte_cutoff) { */
-/*     lines[0][byte_index] = '\xE2'; */
-/*     lines[1][byte_index] = '\xE2'; */
-/*     lines[2][byte_index] = '\xE2'; */
-/*     ++byte_index; */
-/*     lines[0][byte_index] = '\x94'; */
-/*     lines[1][byte_index] = '\x94'; */
-/*     lines[2][byte_index] = '\x94'; */
-/*     ++byte_index; */
-/*     lines[0][byte_index] = '\x81'; /1* top line has col of heavy box char '━' *1/ */
-/*     lines[1][byte_index] = '\x80'; /1* mid line has col of light box char '─' *1/ */
-/*     lines[2][byte_index] = '\x81'; /1* bot line has col of heavy box char '━' *1/ */
-/*     ++byte_index; */
-/*   } */
-
-
   /* set final joiners */
 	lines[0][byte_index] = '\xE2';
 	lines[1][byte_index] = '\xE2';
@@ -331,16 +292,23 @@ char **build_lines(const size_t line_width, const size_t col_width, const size_t
 	lines[2][byte_index] = '\x9B'; /* set right edge of bot line to "┛" */
   ++byte_index;
 
+
+  /* append newlines */
+	lines[0][byte_index] = '\n';
+	lines[1][byte_index] = '\n';
+	lines[2][byte_index] = '\n';
+  ++byte_index;
+
   /* terminate lines with null byte */
-	lines[0][byte_index] = '\x00';
-	lines[1][byte_index] = '\x00';
-	lines[2][byte_index] = '\x00';
+	lines[0][byte_index] = '\0';
+	lines[1][byte_index] = '\0';
+	lines[2][byte_index] = '\0';
 
-  puts(lines[0]);
-  puts(lines[1]);
-  puts(lines[2]);
+  lines_info.lines     = lines;
+  lines_info.line_size = sizeof(char) * (byte_index + 2);
 
-  return lines;
+  return lines_info;
+
 }
 
 

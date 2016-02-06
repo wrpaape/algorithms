@@ -45,6 +45,11 @@ struct SortAlg {
   struct TestOrd test_ords[ORDS_PER_ALG];    /* test orders */
 };
 
+struct LinesInfo {
+  char **lines;
+  size_t line_size;
+}
+
 const size_t SIZE_DATA = sizeof(((struct TestDir *) NULL) -> data);
 const size_t SIZE_ORDS = sizeof(((struct SortAlg *) NULL) -> test_ords);
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
@@ -55,10 +60,10 @@ const size_t SIZE_ORDS = sizeof(((struct SortAlg *) NULL) -> test_ords);
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 /* top level */
 void test_algs(struct SortAlg *alg_ptr, const size_t length);
-void report(struct SortAlg *alg_ptr, const size_t num_algs);
+void report(struct SortAlg *algs, const size_t num_algs);
 
 /* helper */
-char **build_lines(const size_t line_width, const size_t col_width, const size_t num_cols);
+struct LinesInfo build_lines(const size_t line_width, const size_t col_width, const size_t num_cols);
 int *shuffle(int *data, const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);
 int desc_ord(const int el1, const int el2);
