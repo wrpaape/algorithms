@@ -55,10 +55,10 @@ const size_t SIZE_ORDS = sizeof(((struct SortAlg *) NULL) -> test_ords);
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 /* top level */
 void test_algs(struct SortAlg *alg_ptr, const size_t length);
-void report(struct SortAlg *alg_ptr, const int num_algs);
+void report(struct SortAlg *algs, const size_t num_algs);
 
 /* helper */
-char **build_lines(const int line_width, const int col_width, const int num_cols);
+char **build_lines(const size_t line_width, const size_t col_width, const size_t num_cols);
 int *shuffle(int *data, const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);
 int desc_ord(const int el1, const int el2);

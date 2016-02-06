@@ -117,16 +117,20 @@ void test_algs(struct SortAlg *alg_ptr, const size_t length)
 }
 
 
-void report(struct SortAlg *alg_ptr, const int num_algs)
+void report(struct SortAlg *algs, const size_t num_algs)
 {
-  struct winsize window;
-  int num_cols;
+  size_t num_cols;
   size_t pad_gutter;
-  int col_width;
-  int col_index;
   size_t line_width;
-  size_t line_bytes;
   size_t alg_index;
+  size_t buf_index;
+  size_t col_width;
+  size_t col_index;
+  size_t cont_byte_offset;
+  size_t buffer_size;
+  struct winsize window;
+  int cont_width;
+  char *buffer;
   char **lines;
 
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
@@ -134,9 +138,31 @@ void report(struct SortAlg *alg_ptr, const int num_algs)
   num_cols   = num_algs + 1;
   pad_gutter = (num_cols * 3) + 1;
   col_width  = (window.ws_col - pad_gutter) / num_cols;
+  cont_width = col_width - 1;
+  cont_byte_offset = col_width + 3;
   line_width = (col_width * num_cols) + pad_gutter;
 
+  buffer_size = line_width + (2 * (num_cols + 1)) + 1;
+
+  buffer = (char *) malloc(sizeof(char) * buffer_size);
+
+  sprintf(buffer, "┃ %-*s┃", cont_width, "ALGORITHM");
+
   lines = build_lines(line_width, col_width, num_cols);
+
+  puts(lines[0]); /* print top border line */
+
+  buf_index = cont_byte_offset + 3;
+
+  for (alg_index = 0; alg_index < num_algs; ++alg_index) {
+
+    sprintf(&buffer[buf_index], " %-*s│", cont_width, algs[alg_index].alg_name);
+
+    buf_index += cont_byte_offset;
+  }
+  puts(buffer);
+  puts(lines[1]); /* print bottom border line */
+  puts(lines[2]); /* print bottom border line */
 }
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               TOP LEVEL FUNCTIONS                                *
@@ -144,7 +170,7 @@ void report(struct SortAlg *alg_ptr, const int num_algs)
 /************************************************************************************
  *                                 HELPER FUNCTIONS                                 *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-char **build_lines(const int line_width, const int col_width, const int num_cols)
+char **build_lines(const size_t line_width, const size_t col_width, const size_t num_cols)
 {
   int line_index;
   int col_index;
@@ -292,10 +318,6 @@ char **build_lines(const int line_width, const int col_width, const int num_cols
 	lines[0][byte_index] = '\x00';
 	lines[1][byte_index] = '\x00';
 	lines[2][byte_index] = '\x00';
-
-  puts(lines[0]);
-  puts(lines[1]);
-  puts(lines[2]);
 
   return lines;
 }

@@ -7,14 +7,14 @@
  *                             PREPROCESSOR DIRECTIVES                              *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 #include "sorts.h"
-#include <stdio.h>
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                             PREPROCESSOR DIRECTIVES                              *
  ************************************************************************************/
 /************************************************************************************
  *                               TOP LEVEL FUNCTIONS                                *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-int *insert_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
+int *insert_sort_by(int *data, const size_t length,
+    int (*sort_by)(const int, const int))
 {
   int temp;
   int j;
@@ -37,59 +37,34 @@ int *insert_sort_by(int *data, const size_t length, int (*sort_by)(const int, co
   return data;
 }
 
-int *merge_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
+int *merge_sort_by(int *data, const size_t length,
+    int (*sort_by)(const int, const int))
 {
   /* determine sentinel value ("least" value according to sort_by) */
   const int sentinel = sort_by(INT_MIN, INT_MAX) ? INT_MAX : INT_MIN;
 
-  for (int i = 0; i < length; ++i) {
-    printf("%i\n", data[i]);
-  }
-
   do_split(data, 0, length - 1, sort_by, sentinel);
-
-  for (int i = 0; i < length; ++i) {
-    printf("%i\n", data[i]);
-  }
 
   return data;
 }
 
-void do_split(int *data, const size_t i_start, const size_t i_end, int (*sort_by)(const int, const int), const int sentinel)
+void do_split(int *data, const size_t i_start, const size_t i_end,
+    int (*sort_by)(const int, const int), const int sentinel)
 {
-  /* printf("doing split:\n"); */
-  /* printf("  i_start: %zu\n", i_start); */
-  /* printf("  i_end:   %zu\n", i_end); */
-  /* fflush(stdout); */
   /* if sub-array is longer than 1 element, recurse */
   if (i_start < i_end) {
     /* split current sub-array into left and right sub-sub-arrays */
-    size_t i_split;
-    i_split = i_start + (i_end - i_start) / 2;
+    const size_t i_split = i_start + (i_end - i_start) / 2;
 
-  /* printf("  split_left:\n"); */
-  /* printf("    i_start: %zu\n", i_start); */
-  /* printf("    i_end:   %zu\n", i_split); */
-  /* fflush(stdout); */
     do_split(data, i_start,     i_split, sort_by, sentinel); /* sort left */
-  /* printf("  split_right:\n"); */
-  /* printf("    i_start: %zu\n", i_split + 1); */
-  /* printf("    i_end:   %zu\n", i_end); */
-  /* fflush(stdout); */
     do_split(data, i_split + 1, i_end,   sort_by, sentinel); /* sort right */
     merge(data, i_start, i_split, i_end, sort_by, sentinel); /* merge sorted */
   }
 }
 
-void merge(int *data, const size_t i_start, const size_t i_split, const size_t i_end, int (*sort_by)(const int, const int), const int sentinel)
+void merge(int *data, const size_t i_start, const size_t i_split, const size_t i_end,
+    int (*sort_by)(const int, const int), const int sentinel)
 {
-  printf("*****************\n");
-  printf("doing merge:\n");
-  printf("  i_start: %zu\n", i_start);
-  printf("  i_split: %zu\n", i_split);
-  printf("  i_end:   %zu\n", i_end);
-  printf("*****************\n");
-  fflush(stdout);
   size_t i_left;
   size_t i_right;
   size_t i_merge;
