@@ -15,8 +15,7 @@
 #include "sorts.h"
 
 #define BUFFER_SIZE 20
-#define LENGTH 10
-#define PRINT_LENGTH 10
+#define NUM_LENS 4
 #define NUM_ALGS 3
 #define ORDS_PER_ALG 3
 #define DIRS_PER_ORD 2
@@ -48,10 +47,11 @@ struct SortAlg {
 struct LinesInfo {
   char **lines;
   size_t line_size;
-}
+};
 
 const size_t SIZE_DATA = sizeof(((struct TestDir *) NULL) -> data);
 const size_t SIZE_ORDS = sizeof(((struct SortAlg *) NULL) -> test_ords);
+const size_t[NUM_LENS] LENS_DATA = {10, 100, 1000, 10000};
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               INTIIAL DECLARATIONS                               *
  ************************************************************************************/

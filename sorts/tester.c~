@@ -126,7 +126,7 @@ void report(struct SortAlg *algs, const size_t num_algs)
   size_t buf_index;
   size_t col_width;
   size_t col_index;
-  size_t cont_byte_offset;
+  size_t byte_offset;
   size_t buffer_size;
   struct winsize window;
   int cont_width;
@@ -137,12 +137,12 @@ void report(struct SortAlg *algs, const size_t num_algs)
 
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
 
-  num_cols   = num_algs + 1;
-  pad_gutter = (num_cols * 3) + 1;
-  col_width  = (window.ws_col - pad_gutter) / num_cols;
-  cont_width = col_width - 1;
-  cont_byte_offset = col_width + 3;
-  line_width = (col_width * num_cols) + pad_gutter;
+  num_cols    = num_algs + 1;
+  pad_gutter  = (num_cols * 3) + 1;
+  col_width   = (window.ws_col - pad_gutter) / num_cols;
+  cont_width  = col_width - 1;
+  byte_offset = col_width + 3;
+  line_width  = (col_width * num_cols) + pad_gutter;
 
   lines_info = build_lines(line_width, col_width, num_cols);
   lines      = lines_info.lines;
@@ -151,7 +151,6 @@ void report(struct SortAlg *algs, const size_t num_algs)
   buffer_size = line_width + (2 * (num_cols + 1)) + 2;
   buffer      = (char *) malloc(sizeof(char) * buffer_size);
 
-  printf("sizeof(*lines[0]): %lu\n", line_size);
 
 
   fwrite(lines[0], 1, line_size, stdout);
@@ -162,13 +161,13 @@ void report(struct SortAlg *algs, const size_t num_algs)
 
   /* print algorithm names */
   sprintf(buffer, "┃ %-*s", cont_width, "ALGORITHM");
-  buf_index = cont_byte_offset;
+  buf_index = byte_offset;
 
   for (alg_index = 0; alg_index < num_algs; ++alg_index) {
 
     sprintf(&buffer[buf_index], "│ %-*s", cont_width, algs[alg_index].alg_name);
 
-    buf_index += cont_byte_offset;
+    buf_index += byte_offset;
   }
   strcpy(&buffer[buf_index], "┃\n");
   fwrite(buffer, sizeof(char), buffer_size, stdout);
@@ -183,7 +182,7 @@ void report(struct SortAlg *algs, const size_t num_algs)
 /************************************************************************************
  *                                 HELPER FUNCTIONS                                 *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-struct LineInfo build_lines(const size_t line_width, const size_t col_width, const size_t num_cols)
+struct LinesInfo build_lines(const size_t line_width, const size_t col_width, const size_t num_cols)
 {
   int line_index;
   int col_index;
@@ -308,7 +307,6 @@ struct LineInfo build_lines(const size_t line_width, const size_t col_width, con
   lines_info.line_size = sizeof(char) * (byte_index + 2);
 
   return lines_info;
-
 }
 
 
