@@ -1,61 +1,29 @@
 /************************************************************************************
- *                                     tester.h                                     *
+ *                                    builder.h                                     *
  *                                                                                  *
- * Header file for 'tester.c', a module for testing basic merge and insertion       *
- * sorts.                                                                           *
+ * Header file for 'builder.c', a module for intializing arrays of numerical data.  *
  ************************************************************************************/
 /************************************************************************************
  *                             PREPROCESSOR DIRECTIVES                              *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
+#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include "sorts.h"
-
-#define BUFFER_SIZE 20
-#define NUM_LENS 4
-#define NUM_ALGS 3
-#define ORDS_PER_ALG 3
-#define DIRS_PER_ORD 2
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                             PREPROCESSOR DIRECTIVES                              *
  ************************************************************************************/
 /************************************************************************************
  *                               INTIIAL DECLARATIONS                               *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
-struct TestData {
-  size_t length;     /* length of data (N) */
-  int *data;         /* positive ints in particular order */
+enum NumType {
+  INTEGER,
+  DECIMAL
 };
 
-struct TestDir {
-  int (*sort_by)(const int el1, const int el2); /* pointer to sorting condition */
-  char sort_dir[BUFFER_SIZE];                   /* sort direction */
-  clock_t sort_time; /* time elapsed sorting data */
-  struct TestData test_data[NUM_LENS];          /* data info and timing results */
+enum DataOrder {
+  ASCENDING,
+  DESCENDING,
+  SHUFFLED
 };
-
-struct TestOrd {
-  char init_ord[BUFFER_SIZE];       /* initial data order */
-  struct TestDir test_dirs[DIRS_PER_ORD]; /* holds initial data and place for time result */
-};
-
-struct SortAlg {
-  int *(*alg_func)(int *data, const size_t length, /* pointer to sorting function */
-      int (*sort_by)(const int el1, const int el2));
-  char alg_name[BUFFER_SIZE];                  /* sorting algorithm */
-  struct TestOrd test_ords[ORDS_PER_ALG];     /* test orders */
-};
-
-struct LinesInfo {
-  char **lines;
-  size_t line_size;
-};
-
-const size_t SIZE_ORDS           = sizeof(((struct SortAlg *) NULL) -> test_ords);
-const size_t[NUM_LENS] LENS_DATA = {10, 100, 1000, 10000};
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               INTIIAL DECLARATIONS                               *
  ************************************************************************************/
@@ -63,17 +31,13 @@ const size_t[NUM_LENS] LENS_DATA = {10, 100, 1000, 10000};
  *                               FUNCTION PROTOTYPES                                *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 /* top level */
-void test_algs(struct SortAlg *alg_ptr, const size_t length);
-void report(struct SortAlg *algs, const size_t num_algs);
+void *build_data(enum DataOrder order,
+                 enum NumType type,
+
+                 const size_t count,
+                 const size_t size)
 
 /* helper */
-struct LinesInfo build_lines(const size_t line_width,
-                             const size_t col_width,
-                             const size_t num_cols);
-int desc_ord(const int el1,
-             const int el2);
-int asc_ord(const int el1,
-            const int el2);
 int *shuffle(int *data,
              const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);

@@ -27,13 +27,13 @@
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 struct TestData {
   size_t length;     /* length of data (N) */
-  clock_t sort_time; /* time elapsed sorting data */
   int *data;         /* positive ints in particular order */
 };
 
 struct TestDir {
   int (*sort_by)(const int el1, const int el2); /* pointer to sorting condition */
   char sort_dir[BUFFER_SIZE];                   /* sort direction */
+  clock_t sort_time; /* time elapsed sorting data */
   struct TestData test_data[NUM_LENS];          /* data info and timing results */
 };
 
@@ -54,8 +54,6 @@ struct LinesInfo {
   size_t line_size;
 };
 
-const size_t SIZE_DATA           = sizeof(((struct TestData *) NULL) -> data);
-/* const size_t SIZE_LENS           = sizeof(((struct TestDir *) NULL) -> data); */
 const size_t SIZE_ORDS           = sizeof(((struct SortAlg *) NULL) -> test_ords);
 const size_t[NUM_LENS] LENS_DATA = {10, 100, 1000, 10000};
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
@@ -69,11 +67,16 @@ void test_algs(struct SortAlg *alg_ptr, const size_t length);
 void report(struct SortAlg *algs, const size_t num_algs);
 
 /* helper */
-struct LinesInfo build_lines(const size_t line_width, const size_t col_width, const size_t num_cols);
-int *shuffle(int *data, const unsigned long long length);
+struct LinesInfo build_lines(const size_t line_width,
+                             const size_t col_width,
+                             const size_t num_cols);
+int desc_ord(const int el1,
+             const int el2);
+int asc_ord(const int el1,
+            const int el2);
+int *shuffle(int *data,
+             const unsigned long long length);
 unsigned long long rand_upto(const unsigned long long max);
-int desc_ord(const int el1, const int el2);
-int asc_ord(const int el1, const int el2);
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
  *                               FUNCTION PROTOTYPES                                *
  ************************************************************************************/

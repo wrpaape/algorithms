@@ -14,7 +14,7 @@
  *                               TOP LEVEL FUNCTIONS                                *
  *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 int *insert_sort_by(int *data, const size_t length,
-    int (*sort_by)(const int, const int))
+                    int (*sort_by)(const int, const int))
 {
   int temp;
   int j;
@@ -37,8 +37,9 @@ int *insert_sort_by(int *data, const size_t length,
   return data;
 }
 
+
 int *merge_sort_by(int *data, const size_t length,
-    int (*sort_by)(const int, const int))
+                   int (*sort_by)(const int, const int))
 {
   /* determine sentinel value ("least" value according to sort_by) */
   const int sentinel = sort_by(INT_MIN, INT_MAX) ? INT_MAX : INT_MIN;
@@ -48,6 +49,41 @@ int *merge_sort_by(int *data, const size_t length,
   return data;
 }
 
+
+int *select_sort_by(int *data, const size_t length,
+                    int (*sort_by)(const int, const int))
+{
+  size_t sort_range;
+  size_t i;
+  size_t j;
+  size_t head;
+  size_t head_index;
+
+  sort_range = length - 1;
+
+  for (i = 0; i < sort_range; ++i) {
+    head_index = i;
+    head       = data[head_index];
+
+    for (j = i + 1; j < length; ++j) {
+      if (sort_by(data[j], head)) {
+        head_index = j;
+        head       = data[head_index];
+      }
+    }
+
+    data[head_index] = data[i];
+    data[i]          = head;
+  }
+
+  return data;
+}
+/*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
+ *                               TOP LEVEL FUNCTIONS                                *
+ ************************************************************************************/
+/************************************************************************************
+ *                                 HELPER FUNCTIONS                                 *
+ *▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼*/
 void do_split(int *data, const size_t i_start, const size_t i_end,
     int (*sort_by)(const int, const int), const int sentinel)
 {
@@ -112,34 +148,6 @@ void merge(int *data, const size_t i_start, const size_t i_split, const size_t i
   free(left_arr);
   free(right_arr);
 }
-
-int *select_sort_by(int *data, const size_t length, int (*sort_by)(const int, const int))
-{
-  size_t sort_range;
-  size_t i;
-  size_t j;
-  size_t head;
-  size_t head_index;
-
-  sort_range = length - 1;
-
-  for (i = 0; i < sort_range; ++i) {
-    head_index = i;
-    head       = data[head_index];
-
-    for (j = i + 1; j < length; ++j) {
-      if (sort_by(data[j], head)) {
-        head_index = j;
-        head       = data[head_index];
-      }
-    }
-
-    data[head_index] = data[i];
-    data[i]          = head;
-  }
-
-  return data;
-}
 /*▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲*
- *                               TOP LEVEL FUNCTIONS                                *
+ *                                 HELPER FUNCTIONS                                 *
  ************************************************************************************/
