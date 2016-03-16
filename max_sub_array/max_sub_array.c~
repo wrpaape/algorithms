@@ -8,6 +8,7 @@
 #include <time.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct SubArrayTup {
 	int start;
@@ -15,15 +16,15 @@ struct SubArrayTup {
 	int sum;
 };
 
-struct SubArrayTup *max_sub_array(const int *data, const int length);
-
-void max_between(const int *sub_data,
-		 const int length,
-		 struct SubArrayTup *max_tup);
-void max_crossing_mid(const int *mid,
-		      const int length_left,
-		      const int length_right,
-		      struct SubArrayTup *max_tup);
+void max_within(const int *data,
+		const int start,
+		const int finish,
+		struct SubArrayTup *max_tup);
+void max_across(const int *data,
+		const int start,
+		const int mid,
+		const int finish,
+		struct SubArrayTup *max_tup);
 
 int main(void)
 {
@@ -35,11 +36,11 @@ int main(void)
 	clock_t time_start;
 	clock_t time_stop;
 	clock_t time_elapsed;
-	struct SubArrayTup *max_tup;
+	struct SubArrayTup max_tup;
 
 	time_start = clock();
 
-	max_tup = max_sub_array(DATA, 16);
+	max_within(DATA, 0, 15, &max_tup);
 
 	time_stop  = clock();
 
@@ -50,36 +51,55 @@ int main(void)
 	       "finish:       %d\n"
 	       "max sum:      %d\n"
 	       "time_elapsed: %lu\n",
-	       max_tup->start, max_tup->finish, max_tup->sum, time_elapsed);
+	       max_tup.start, max_tup.finish, max_tup.sum, time_elapsed);
 
 	return 0;
 }
 
 
-struct SubArrayTup *max_sub_array(const int *data, const int length)
+void max_within(const int *data,
+		const int start,
+		const int finish,
+		struct SubArrayTup *max_tup)
 {
-	struct SubArrayTup max_tup = malloc(sizeof(struct SubArrayTup));
+	if (start == finish) {
+		max_tup->start  = start;
+		max_tup->finish = finish;
+		max_tup->sum	= data[start];
+		return;
+	}
 
-	max_tup->sum = INT_MIN;
+	struct SubArrayTup max_left;
+	struct SubArrayTup max_right;
+	struct SubArrayTup max_span;
 
-	const int mid = length / 2;
 
-	max_crossing_mid(data, mid, length, max_tup);
+	const int mid = (start + finish) / 2;
 
-	return max_tup;
+	max_within(data, start,   mid,    &max_left);
+	max_within(data, mid + 1, finish, &max_right);
+	max_across(data, start, mid, finish, &max_span);
+
+	if (max_left.sum >= max_right.sum &&
+	    max_left.sum >= max_span.sum) {
+
+		memcpy(max_tup, &max_left,  sizeof(struct SubArrayTup));
+
+	} else if (max_right.sum >= max_left.sum &&
+		   max_right.sum >= max_span.sum) {
+
+		memcpy(max_tup, &max_right, sizeof(struct SubArrayTup));
+
+	} else {
+		memcpy(max_tup, &max_span, sizeof(struct SubArrayTup));
+	}
 }
 
-void max_between(const int *sub_data,
-		 const int length,
-		 struct SubArrayTup *max_tup)
-{
-
-}
-
-void max_crossing_mid(const int *data,
-		      const int mid,
-		      const int length,
-		      struct SubArrayTup *max_tup)
+void max_across(const int *data,
+		const int start,
+		const int mid,
+		const int finish,
+		struct SubArrayTup *max_tup)
 {
 
 	int i_max;
@@ -87,7 +107,7 @@ void max_crossing_mid(const int *data,
 	int max_sum;
 	int sum;
 
-	for (i = mid, sum = 0, max_sum = INT_MIN; i > -1; --i) {
+	for (i = mid, sum = 0, max_sum = INT_MIN; i >= start; --i) {
 		sum += data[i];
 		if (sum > max_sum) {
 			max_sum = sum;
@@ -98,7 +118,7 @@ void max_crossing_mid(const int *data,
 	max_tup->start = i_max;
 	max_tup->sum	 = max_sum;
 
-	for (i = mid + 1, sum = 0, max_sum = INT_MIN; i < length; ++i) {
+	for (i = mid + 1, sum = 0, max_sum = INT_MIN; i <= finish; ++i) {
 		sum += data[i];
 		if (sum > max_sum) {
 			max_sum = sum;
@@ -108,15 +128,4 @@ void max_crossing_mid(const int *data,
 
 	max_tup->finish = i_max;
 	max_tup->sum   += max_sum;
-
-
 }
-
-
-
-
-
-
-
-
-
