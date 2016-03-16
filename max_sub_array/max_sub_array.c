@@ -30,7 +30,7 @@ int main(void)
 {
 	int DATA[16] = {
 		13,  -3, -25,  20,  -3, -16, -23,  18,
-		20,  -7,  12,  -5,  22,  15,  -4,   7
+		20,  -7,  12,  -5, -22,  15,  -4,   7
 	};
 
 	clock_t time_start;
@@ -91,7 +91,7 @@ void max_within(const int *data,
 		memcpy(max_tup, &max_right, sizeof(struct SubArrayTup));
 
 	} else {
-		memcpy(max_tup, &max_span, sizeof(struct SubArrayTup));
+		memcpy(max_tup, &max_span,  sizeof(struct SubArrayTup));
 	}
 }
 

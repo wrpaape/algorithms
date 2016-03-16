@@ -91,7 +91,7 @@ void max_within(const int *data,
 		memcpy(max_tup, &max_right, sizeof(struct SubArrayTup));
 
 	} else {
-		memcpy(max_tup, &max_span, sizeof(struct SubArrayTup));
+		memcpy(max_tup, &max_span,  sizeof(struct SubArrayTup));
 	}
 }
 
