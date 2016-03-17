@@ -69,12 +69,9 @@ void max_linear(const int *data,
 	int max_start;
 	int max_finish;
 	int max_sum;
-	int max_head;
-	int max_last;
 	int next_start;
 	int next_finish;
 	int next_sum;
-	int i;
 
 	max_start  = start;
 	max_finish = start;
@@ -104,6 +101,7 @@ void max_linear(const int *data,
 	max_tup->finish = max_finish;
 	max_tup->sum	= max_sum;
 }
+
 
 void max_within(const int *data,
 		const int start,
