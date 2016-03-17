@@ -16,6 +16,10 @@ struct SubArrayTup {
 	int sum;
 };
 
+void max_linear(const int *data,
+		const int start,
+		const int finish,
+		struct SubArrayTup *max_tup);
 void max_within(const int *data,
 		const int start,
 		const int finish,
@@ -30,7 +34,7 @@ int main(void)
 {
 	int DATA[16] = {
 		13,  -3, -25,  20,  -3, -16, -23,  18,
-		20,  -7,  12,  -5,  22,  15,  -4,   7
+		20,  -7,  12,  -5, -22,  15,  -4,   7
 	};
 
 	clock_t time_start;
@@ -40,7 +44,8 @@ int main(void)
 
 	time_start = clock();
 
-	max_within(DATA, 0, 15, &max_tup);
+	/* max_within(DATA, 0, 15, &max_tup); */
+	max_linear(DATA, 0, 15, &max_tup);
 
 	time_stop  = clock();
 
@@ -56,6 +61,49 @@ int main(void)
 	return 0;
 }
 
+void max_linear(const int *data,
+		const int start,
+		const int finish,
+		struct SubArrayTup *max_tup)
+{
+	int max_start;
+	int max_finish;
+	int max_sum;
+	int max_head;
+	int max_last;
+	int next_start;
+	int next_finish;
+	int next_sum;
+	int i;
+
+	max_start  = start;
+	max_finish = start;
+	max_sum    = data[start];
+
+	for (next_finish = start + 1; next_finish <= finish; ++next_finish) {
+
+		next_sum = 0;
+
+		for (next_start = next_finish;
+		     next_start >= max_start;
+		     --next_start) {
+
+			next_sum += data[next_start];
+
+			if (next_sum > max_sum) {
+				max_start  = next_start;
+				max_finish = next_finish;
+				max_sum	   = next_sum;
+				break;
+			}
+
+		}
+	}
+
+	max_tup->start  = max_start;
+	max_tup->finish = max_finish;
+	max_tup->sum	= max_sum;
+}
 
 void max_within(const int *data,
 		const int start,
