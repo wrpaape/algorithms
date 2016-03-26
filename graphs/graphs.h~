@@ -60,7 +60,7 @@ enum NodeID {
 	DEAD1, DEAD2, DEAD3, DEAD4, DEAD5, DEAD6, DEAD7, DEAD8, DEAD9
 };
 
-const char *NODE_LABELS[] = {
+const char *NodeLabels[] = {
 	[START] = "start",  [GOAL ] = "goal!",  [NODE1] = "node 1",
 	[NODE2] = "node 2", [NODE3] = "node 3", [NODE4] = "node 4",
 	[NODE5] = "node 5", [NODE6] = "node 6", [NODE7] = "node 7",
