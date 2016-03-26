@@ -60,6 +60,17 @@ enum NodeID {
 	DEAD1, DEAD2, DEAD3, DEAD4, DEAD5, DEAD6, DEAD7, DEAD8, DEAD9
 };
 
+struct Node {
+	enum NodeID id;
+	int edge_count;
+	struct Edge **edges;
+};
+
+struct Edge {
+	int cost;
+	struct Node *next;
+};
+
 const char *NODE_LABELS[] = {
 	[START] = "start",  [GOAL ] = "goal!",  [NODE1] = "node 1",
 	[NODE2] = "node 2", [NODE3] = "node 3", [NODE4] = "node 4",
@@ -73,17 +84,6 @@ const char *NODE_LABELS[] = {
 	[DEAD1] = "dead end 1", [DEAD2] = "dead end 2", [DEAD3] = "dead end 3",
 	[DEAD4] = "dead end 4", [DEAD5] = "dead end 5", [DEAD6] = "dead end 6",
 	[DEAD7] = "dead end 7", [DEAD8] = "dead end 8", [DEAD9] = "dead end 9"
-};
-
-struct Node {
-	enum NodeID id;
-	int edge_count;
-	struct Edge **edges;
-};
-
-struct Edge {
-	int cost;
-	struct Node *next;
 };
 
 struct Node *init_graph(void);
