@@ -1,6 +1,34 @@
-#include "graphs.h"
+#include "graphs.h"  /* typedefs, HANDLE_MALLOC */
+#include "builder.h" /* protoypes */
 
-/*
+#define INIT(NODE, ID, EDGE_COUNT)					\
+do {									\
+	HANDLE_MALLOC(NODE, sizeof(struct Node));			\
+	NODE->id	  = ID;						\
+	NODE->edge_count  = EDGE_COUNT;					\
+	if (EDGE_COUNT > 0) {						\
+		HANDLE_MALLOC(NODE->edges,				\
+			      sizeof(struct Edge*) * EDGE_COUNT);	\
+	} else {							\
+		NODE->edges = NULL;					\
+	}								\
+} while (0)
+
+
+#define SET_EDGES(NODE, COSTS, NEXTS)					\
+do {									\
+	int costs[] = COSTS;						\
+	struct Node *nexts[] = NEXTS;					\
+	set_edges(NODE, costs, nexts);					\
+} while (0)
+
+#define WRAP(...) __VA_ARGS__
+
+#define TELEPORT_COST 5
+
+/*				graph1
+ *
+ * currently 1 way from start to goal at cost of 42
  * ╔═══════╦═══════╦═══════╦═══════╦═══════╦═══════╦═══════╦═══════╦═══════╗
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
  * ║               ║ TEL4B ║ DEAD6 ║ DEAD2           TEL5B ║         TEL2B ║
@@ -36,7 +64,7 @@
  * ╚═══════╩═══════╩═══════╩═══════╩═══════╩═══════╩═══════╩═══════╩═══════╝
  */
 
-struct Node *init_graph(void)
+struct Node *build_graph1(void)
 {
 	struct Node *start, *goal,
 		    *node1, *node2, *node3, *node4, *node5, *node6, *node7,
@@ -83,8 +111,8 @@ struct Node *init_graph(void)
 void set_edges(struct Node *node, int *costs, struct Node **nexts)
 {
 	const int edge_count = node->edge_count;
-
 	struct Edge *edge;
+
 	for (int i = 0; i < edge_count; ++i) {
 
 		HANDLE_MALLOC(edge, sizeof(struct Edge));
@@ -94,58 +122,4 @@ void set_edges(struct Node *node, int *costs, struct Node **nexts)
 
 		node->edges[i] = edge;
 	}
-}
-
-int main(void)
-{
-
-	struct Node *node = init_graph();
-	struct Edge **edges;
-
-	int edge_count, i, choice, total;
-
-	char buffer[32];
-
-	edge_count = node->edge_count;
-	edges      = node->edges;
-	total = 0;
-
-	while (1) {
-
-		printf("current node: %s\noptions (cost):\n",
-		       NODE_LABELS[node->id]);
-
-		for (i = 0; i < edge_count; ++i) {
-			printf("%d. %-25s (%d)\n",
-			       i, NODE_LABELS[edges[i]->next->id],
-			       edges[i]->cost);
-		}
-
-		fgets(buffer, sizeof(char) * 4llu, stdin);
-
-		if (buffer[0] == 'q')
-			exit(0);
-
-		choice = (int) strtol(buffer, NULL, 10);
-
-		if ((choice < 0) ||
-		    (choice >= edge_count)) {
-			puts("invalid selection");
-			continue;
-		}
-
-		total	  += edges[choice]->cost;
-		node       = edges[choice]->next;
-		edge_count = node->edge_count;
-
-		if (edge_count == 0)
-			break;
-
-		edges = node->edges;
-	}
-
-	printf("YOU %s!\n\ntotal cost: %d\n",
-	       (node->id == GOAL) ? "WIN" : "LOSE", total);
-
-	return 0;
 }

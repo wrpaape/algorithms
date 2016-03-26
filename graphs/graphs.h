@@ -1,10 +1,9 @@
-#ifndef GRAPHS_H_
-#define GRAPHS_H_ value
-#include <stdlib.h>	/* malloc, free, exit */
-#include <stdio.h>	/* fprintf, printf */
+#ifndef GRAPHS_GRAPHS_H_
+#define GRAPHS_GRAPHS_H_
+#include <stdlib.h>	/* malloc */
+#include <stdio.h>	/* fprintf */
 #include <errno.h>	/* errno */
 #include <string.h>	/* strerror */
-#include <limits.h>	/* max word value */
 
 #define EXIT_ON_FAILURE(format, ...)					\
 do {									\
@@ -26,32 +25,6 @@ do {									\
 		EXIT_ON_FAILURE("failed to allocate %lu bytes", size);	\
 } while (0)
 
-#define INIT(NODE, ID, EDGE_COUNT)					\
-do {									\
-	HANDLE_MALLOC(NODE, sizeof(struct Node));			\
-	NODE->id	  = ID;						\
-	NODE->edge_count  = EDGE_COUNT;					\
-	if (EDGE_COUNT > 0) {						\
-		HANDLE_MALLOC(NODE->edges,				\
-			      sizeof(struct Edge*) * EDGE_COUNT);	\
-	} else {							\
-		NODE->edges = NULL;					\
-	}								\
-} while (0)
-
-
-#define WRAP(...) __VA_ARGS__
-
-#define SET_EDGES(NODE, COSTS, NEXTS)					\
-do {									\
-	int costs[] = COSTS;						\
-	struct Node *nexts[] = NEXTS;					\
-	set_edges(NODE, costs, nexts);					\
-} while (0)
-
-#define TELEPORT_COST 5
-
-
 enum NodeID {
 	START, GOAL,
 	NODE1, NODE2, NODE3, NODE4, NODE5, NODE6, NODE7,
@@ -70,22 +43,4 @@ struct Edge {
 	int cost;
 	struct Node *next;
 };
-
-const char *NODE_LABELS[] = {
-	[START] = "start",  [GOAL ] = "goal!",  [NODE1] = "node 1",
-	[NODE2] = "node 2", [NODE3] = "node 3", [NODE4] = "node 4",
-	[NODE5] = "node 5", [NODE6] = "node 6", [NODE7] = "node 7",
-	[TEL1A] = "teleporter entrance 1", [TEL2A] = "teleporter entrance 2",
-	[TEL3A] = "teleporter entrance 3", [TEL4A] = "teleporter entrance 4",
-	[TEL5A] = "teleporter entrance 5", [TEL6A] = "teleporter entrance 6",
-	[TEL1B] = "teleporter exit 1",	   [TEL2B] = "teleporter exit 2",
-	[TEL3B] = "teleporter exit 3",	   [TEL4B] = "teleporter exit 4",
-	[TEL5B] = "teleporter exit 5",	   [TEL6B] = "teleporter exit 6",
-	[DEAD1] = "dead end 1", [DEAD2] = "dead end 2", [DEAD3] = "dead end 3",
-	[DEAD4] = "dead end 4", [DEAD5] = "dead end 5", [DEAD6] = "dead end 6",
-	[DEAD7] = "dead end 7", [DEAD8] = "dead end 8", [DEAD9] = "dead end 9"
-};
-
-struct Node *init_graph(void);
-void set_edges(struct Node *node, int *costs, struct Node **next_nodes);
-#endif /* ifndef GRAPHS_H_ */
+#endif /* ifndef GRAPHS_GRAPHS_H_ */
