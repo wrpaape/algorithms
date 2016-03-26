@@ -100,11 +100,52 @@ int main(void)
 {
 
 	struct Node *node = init_graph();
+	struct Edge **edges;
+
+	int edge_count, i, choice, total;
+
+	char buffer[32];
+
+	edge_count = node->edge_count;
+	edges      = node->edges;
+	total = 0;
 
 	while (1) {
+
+		printf("current node: %s\noptions (cost):\n",
+		       NODE_LABELS[node->id]);
+
+		for (i = 0; i < edge_count; ++i) {
+			printf("%d. %-25s (%d)\n",
+			       i, NODE_LABELS[edges[i]->next->id],
+			       edges[i]->cost);
+		}
+
+		fgets(buffer, sizeof(char) * 4llu, stdin);
+
+		if (buffer[0] == 'q')
+			exit(0);
+
+		choice = (int) strtol(buffer, NULL, 10);
+
+		if ((choice < 0) ||
+		    (choice >= edge_count)) {
+			puts("invalid selection");
+			continue;
+		}
+
+		total	  += edges[choice]->cost;
+		node       = edges[choice]->next;
+		edge_count = node->edge_count;
+
+		if (edge_count == 0)
+			break;
+
+		edges = node->edges;
 	}
 
-	printf("cost: %d\n", node->edges[2]->cost);
+	printf("YOU %s!\n\ntotal cost: %d\n",
+	       (node->id == GOAL) ? "WIN" : "LOSE", total);
 
 	return 0;
 }
