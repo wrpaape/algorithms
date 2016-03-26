@@ -26,12 +26,12 @@ do {									\
 		EXIT_ON_FAILURE("failed to allocate %lu bytes", size);	\
 } while (0)
 
-#define INIT(NODE, ID, EDGE_COUNT)					\
+#define ININ(NODE, ID, EDGE_COUNT)					\
 do {									\
 	HANDLE_MALLOC(NODE, sizeof(struct Node));			\
 	NODE->id	  = ID;						\
 	NODE->edge_count  = EDGE_COUNT;					\
-	HANDLE_MALLOC(NODE->edges, sizeof(struct Edge) * EDGE_COUNT);	\
+	HANDLE_MALLOC(NODE->edges, sizeof(struct Edge*) * EDGE_COUNT);	\
 } while (0)
 
 
@@ -49,7 +49,7 @@ enum NodeID {
 struct Node {
 	enum NodeID id;
 	int edge_count;
-	struct Edge *edges;
+	struct Edge **edges;
 };
 
 struct Edge {
@@ -59,4 +59,5 @@ struct Edge {
 
 
 struct Node *init_graph(void);
+void set_edges(struct Node *node, int *costs, struct Node **next_nodes);
 #endif /* ifndef GRAPHS_H_ */
