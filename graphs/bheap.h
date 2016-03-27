@@ -43,11 +43,11 @@ void bheap_insert_array(struct BHeap *heap,
 			const size_t length,
 			void **array);
 
-void insert_next(void **nodes,
-		 void *next,
-		 const size_t base_i,
-		 int (*compare)(const void *,
-				const void *));
+void do_insert(void **nodes,
+	       void *next,
+	       const size_t next_i,
+	       int (*compare)(const void *,
+			      const void *));
 
 
 
@@ -55,6 +55,18 @@ void insert_next(void **nodes,
 /* extraction
  ******************************************************************************/
 void *bheap_extract(struct BHeap *heap);
+
+void do_shift(void **nodes,
+	      void *next,
+	      const size_t next_i,
+	      const size_t penult_i,
+	      int (*compare)(const void *,
+			     const void *));
+
+
+
+/* display
+ ******************************************************************************/
 
 
 

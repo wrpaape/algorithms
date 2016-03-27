@@ -3,26 +3,36 @@
 #include "inspect.h"
 #include "bheap.h"
 
-int max_integer(const void *num1, const void *num2)
+int max_cost(const void *edge1, const void *edge2)
 {
-	return ((size_t) num1) > ((size_t) num2);
+	return (((struct Edge *) edge1)->cost) >
+	       (((struct Edge *) edge2)->cost);
 }
 
 int main(void)
 {
 
+
 	/* tour_graph(build_graph1()); */
 
-	size_t array[] = {4, 28, 5, 7, 10, 1, 2, 3, 7};
+	int costs[] = {12, 1, 3, 55, 98, -10, 2293};
 
-	struct BHeap *heap = array_into_bheap(9lu,
-					      (void **) array,
-					      max_integer);
+	struct Edge *edges[7lu];
+
+	for (int i = 0; i < 7; ++i) {
+		HANDLE_MALLOC(edges[i], sizeof(struct Edge));
+		edges[i]->cost = costs[i];
+	}
+
+
+	struct BHeap *heap = array_into_bheap(7lu,
+					      (void **) edges,
+					      max_cost);
 
 	void **nodes = heap->nodes;
 
-	for (size_t i = 1; i < 10; ++i) {
-		printf("nodes[%zu]: %zu\n", i, (size_t) nodes[i]);
+	for (size_t i = 1; i < 8lu; ++i) {
+		printf("nodes[%zu]: %d\n", i, ((struct Edge *) nodes[i])->cost);
 		fflush(stdout);
 	}
 

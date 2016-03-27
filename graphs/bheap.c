@@ -42,7 +42,7 @@ void bheap_insert_array(struct BHeap *heap,
 void bheap_insert(struct BHeap *heap,
 		  void *next)
 {
-	insert_next(heap->nodes, next, heap->count, heap->compare);
+	do_insert(heap->nodes, next, heap->count, heap->compare);
 
 	++(heap->count);
 
@@ -51,28 +51,28 @@ void bheap_insert(struct BHeap *heap,
 }
 
 
-void insert_next(void **nodes,
-		 void *next,
-		 const size_t base_i,
-		 int (*compare)(const void *,
-				const void *))
+void do_insert(void **nodes,
+	       void *next,
+	       const size_t next_i,
+	       int (*compare)(const void *,
+			      const void *))
 {
-	/* sentinel node has been reached, 'next' is new root */
-	if (base_i == 1lu) {
+	/* sentinel node has been reached, 'next' is new root node */
+	if (next_i == 1lu) {
 		nodes[1lu] = next;
 		return;
 	}
 
-	const size_t par_i = base_i / 2lu;
-	void *parent = nodes[par_i];
+	const size_t parent_i = next_i / 2lu;
+	void *parent	      = nodes[parent_i];
 
 	if (compare(parent, next)) {
-		nodes[base_i] = next;
+		nodes[next_i] = next;
 		return;
 	}
 
-	nodes[base_i] = parent;
-	insert_next(nodes, next, par_i, compare);
+	nodes[next_i] = parent;
+	do_insert(nodes, next, parent_i, compare);
 }
 
 
@@ -86,12 +86,48 @@ void *bheap_extract(struct BHeap *heap)
 
 	void **nodes = heap->nodes;
 	void *root   = nodes[1lu];
-	void *next   = nodes[heap->count];
 
+	do_shift(nodes, root, 1lu, heap->count, heap->compare);
 
 	return root;
 }
 
+void do_shift(void **nodes,
+	      void *next,
+	      const size_t next_i,
+	      const size_t penult_i,
+	      int (*compare)(const void *,
+			     const void *))
+{
+	/* base level of heap has been reached (no more children), replace */
+	if (next_i >= penult_i) {
+		nodes[next_i] = next;
+		return;
+	}
+
+	size_t child_i = next_i * 2lu;
+	void *child    = nodes[child_i];
+
+	/* compare with left child */
+	if (compare(child, next)) {
+		nodes[next_i] = child;
+		do_shift(nodes, next, child_i, penult_i, compare);
+		return;
+	}
+
+	++child_i;
+	child = nodes[child_i];
+
+	/* compare with right child */
+	if (compare(child, next)) {
+		nodes[next_i] = child;
+		do_shift(nodes, next, child_i, penult_i, compare);
+		return;
+	}
+
+	/* otherwise, 'next' belongs at index 'next_i' */
+	nodes[next_i] = next;
+}
 
 
 
