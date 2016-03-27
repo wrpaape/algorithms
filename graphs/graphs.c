@@ -33,9 +33,7 @@ int main(void)
 
 	struct BHeap *heap = array_into_bheap(7lu, (void **) edges, max_cost);
 
-	/* print_edge_bheap(heap); */
-
-	/* printf("%d\n", ((struct Edge *) heap->nodes[1lu])->cost); */
+	print_edge_bheap(heap);
 
 	return 0;
 }

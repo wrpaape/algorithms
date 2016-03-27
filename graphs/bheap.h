@@ -1,5 +1,4 @@
 struct BHeap {
-	/* size_t node_size; */
 	size_t count;
 	size_t alloc;
 	void **nodes;
@@ -78,3 +77,5 @@ struct BHeap *array_into_bheap(const size_t length,
 			       void **array,
 			       int (*compare)(const void *,
 					      const void *));
+
+static inline size_t next_pow_two(size_t num);
