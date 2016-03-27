@@ -1,5 +1,5 @@
 #ifndef GRAPHS_BUILDER_H_
 #define GRAPHS_BUILDER_H_
-struct Node *build_graph1(void);
-void set_edges(struct Node *node, int *costs, struct Node **next_nodes);
+struct Vertex *build_graph1(void);
+void set_edges(struct Vertex *vert, int *costs, struct Vertex **nexts);
 #endif /* ifndef GRAPHS_BUILDER_H_ */

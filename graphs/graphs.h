@@ -25,22 +25,22 @@ do {									\
 		EXIT_ON_FAILURE("failed to allocate %lu bytes", size);	\
 } while (0)
 
-enum NodeID {
+enum VertexID {
 	START, GOAL,
-	NODE1, NODE2, NODE3, NODE4, NODE5, NODE6, NODE7,
+	VERT1, VERT2, VERT3, VERT4, VERT5, VERT6, VERT7,
 	TEL1A, TEL2A, TEL3A, TEL4A, TEL5A, TEL6A,
 	TEL1B, TEL2B, TEL3B, TEL4B, TEL5B, TEL6B,
 	DEAD1, DEAD2, DEAD3, DEAD4, DEAD5, DEAD6, DEAD7, DEAD8, DEAD9
 };
 
-struct Node {
-	enum NodeID id;
+struct Vertex {
+	enum VertexID id;
 	int edge_count;
 	struct Edge **edges;
 };
 
 struct Edge {
 	int cost;
-	struct Node *next;
+	struct Vertex *next;
 };
 #endif /* ifndef GRAPHS_GRAPHS_H_ */

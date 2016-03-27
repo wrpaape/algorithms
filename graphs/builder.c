@@ -1,25 +1,25 @@
 #include "graphs.h"  /* typedefs, HANDLE_MALLOC */
 #include "builder.h" /* protoypes */
 
-#define INIT(NODE, ID, EDGE_COUNT)					\
+#define INIT(VERT, ID, EDGE_COUNT)					\
 do {									\
-	HANDLE_MALLOC(NODE, sizeof(struct Node));			\
-	NODE->id	  = ID;						\
-	NODE->edge_count  = EDGE_COUNT;					\
+	HANDLE_MALLOC(VERT, sizeof(struct Vertex));			\
+	VERT->id	  = ID;						\
+	VERT->edge_count  = EDGE_COUNT;					\
 	if (EDGE_COUNT > 0) {						\
-		HANDLE_MALLOC(NODE->edges,				\
+		HANDLE_MALLOC(VERT->edges,				\
 			      sizeof(struct Edge*) * EDGE_COUNT);	\
 	} else {							\
-		NODE->edges = NULL;					\
+		VERT->edges = NULL;					\
 	}								\
 } while (0)
 
 
-#define SET_EDGES(NODE, COSTS, NEXTS)					\
+#define SET_EDGES(VERT, COSTS, NEXTS)					\
 do {									\
 	int costs[] = COSTS;						\
-	struct Node *nexts[] = NEXTS;					\
-	set_edges(NODE, costs, nexts);					\
+	struct Vertex *nexts[] = NEXTS;					\
+	set_edges(VERT, costs, nexts);					\
 } while (0)
 
 #define WRAP(...) __VA_ARGS__
@@ -35,7 +35,7 @@ do {									\
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
  * ╠══   ══╬══   ══╬══   ══╬══   ══╬═══════╬═══════╬═══════╬══   ══╬═══════╣
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
- * ║       ║               ║ TEL3B ║         NODE1         ║         DEAD9 ║
+ * ║       ║               ║ TEL3B ║         VERT1         ║         DEAD9 ║
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
  * ╠══   ══╬═══════╬═══════╬═══════╬══   ══╬══   ══╬══   ══╬═══════╬═══════╣
  * ║       ║       ║*     *║       ║       ║       ║       ║       ║       ║
@@ -43,39 +43,39 @@ do {									\
  * ║       ║       ║*     *║       ║       ║       ║       ║       ║       ║
  * ╠═══════╬══   ══╬══   ══╬══   ══╬═══════╬══   ══╬═══════╬═══════╬══   ══╣
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
- * ║ TEL5A   NODE4         ║       ║ TEL3A ║       ║ DEAD7         ║ TEL4A ║
+ * ║ TEL5A   VERT4         ║       ║ TEL3A ║       ║ DEAD7         ║ TEL4A ║
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
  * ╠═══════╬═══════╬═══════╬══   ══╬══   ══╬══   ══╬═══════╬══   ══╬═══════╣
  * ║       ║       ║       ║       ║       ║*     *║       ║       ║       ║
- * ║ TEL1B ║         TEL6A ║               ║ START           NODE2   DEAD1 ║
+ * ║ TEL1B ║         TEL6A ║               ║ START           VERT2   DEAD1 ║
  * ║       ║       ║       ║       ║       ║*     *║       ║       ║       ║
  * ╠══   ══╬══   ══╬═══════╬═══════╬═══════╬══   ══╬═══════╬═══════╬═══════╣
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
- * ║       ║       ║ TEL2A   NODE6         ║       ║         NODE5         ║
+ * ║       ║       ║ TEL2A   VERT6         ║       ║         VERT5         ║
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
  * ╠══   ══╬══   ══╬═══════╬══   ══╬══   ══╬══   ══╬══   ══╬══   ══╬══   ══╣
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
- * ║         NODE7 ║ DEAD4 ║       ║       ║       ║ DEAD3 ║       ║       ║
+ * ║         VERT7 ║ DEAD4 ║       ║       ║       ║ DEAD3 ║       ║       ║
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
  * ╠═══════╬══   ══╬══   ══╬══   ══╬══   ══╬══   ══╬═══════╬══   ══╬══   ══╣
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
- * ║ DEAD5         ║               ║         NODE3                 ║ TEL1A ║
+ * ║ DEAD5         ║               ║         VERT3                 ║ TEL1A ║
  * ║       ║       ║       ║       ║       ║       ║       ║       ║       ║
  * ╚═══════╩═══════╩═══════╩═══════╩═══════╩═══════╩═══════╩═══════╩═══════╝
  */
 
-struct Node *build_graph1(void)
+struct Vertex *build_graph1(void)
 {
-	struct Node *start, *goal,
-		    *node1, *node2, *node3, *node4, *node5, *node6, *node7,
+	struct Vertex *start, *goal,
+		    *vert1, *vert2, *vert3, *vert4, *vert5, *vert6, *vert7,
 		    *tel1a, *tel2a, *tel3a, *tel4a, *tel5a, *tel6a,
 		    *tel1b, *tel2b, *tel3b, *tel4b, *tel5b, *tel6b,
 		    *dead1, *dead2, *dead3, *dead4, *dead5, *dead6, *dead7,
 		    *dead8, *dead9;
 
-	INIT(start, START, 3); INIT(goal,  GOAL,  0); INIT(node1, NODE1, 2);
-	INIT(node2, NODE2, 2); INIT(node3, NODE3, 2); INIT(node4, NODE4, 2);
-	INIT(node5, NODE5, 2); INIT(node6, NODE6, 2); INIT(node7, NODE7, 2);
+	INIT(start, START, 3); INIT(goal,  GOAL,  0); INIT(vert1, VERT1, 2);
+	INIT(vert2, VERT2, 2); INIT(vert3, VERT3, 2); INIT(vert4, VERT4, 2);
+	INIT(vert5, VERT5, 2); INIT(vert6, VERT6, 2); INIT(vert7, VERT7, 2);
 	INIT(tel1a, TEL1A, 1); INIT(tel2a, TEL2A, 1); INIT(tel3a, TEL3A, 1);
 	INIT(tel4a, TEL4A, 1); INIT(tel5a, TEL5A, 1); INIT(tel6a, TEL6A, 1);
 	INIT(tel1b, TEL1B, 1); INIT(tel2b, TEL2B, 1); INIT(tel3b, TEL3B, 1);
@@ -84,33 +84,33 @@ struct Node *build_graph1(void)
 	INIT(dead4, DEAD4, 0); INIT(dead5, DEAD5, 0); INIT(dead6, DEAD6, 0);
 	INIT(dead7, DEAD7, 0); INIT(dead8, DEAD8, 0); INIT(dead9, DEAD9, 0);
 
-	SET_EDGES(start, WRAP({2, 3, 3}),	WRAP({node2, node1, node3}));
-	SET_EDGES(node1, WRAP({2, 7}),		WRAP({dead8, tel3a}));
-	SET_EDGES(node2, WRAP({1, 2}),		WRAP({dead1, dead7}));
-	SET_EDGES(node3, WRAP({4, 4}),		WRAP({node5, node6}));
-	SET_EDGES(node4, WRAP({1, 2}),		WRAP({tel5a, goal }));
-	SET_EDGES(node5, WRAP({2, 3}),		WRAP({dead3, tel1a}));
-	SET_EDGES(node6, WRAP({1, 4}),		WRAP({tel2a, dead4}));
-	SET_EDGES(node7, WRAP({2, 3}),		WRAP({dead5, tel6a}));
+	SET_EDGES(start, WRAP({2, 3, 3}),	WRAP({vert2, vert1, vert3}));
+	SET_EDGES(vert1, WRAP({2, 7}),		WRAP({dead8, tel3a}));
+	SET_EDGES(vert2, WRAP({1, 2}),		WRAP({dead1, dead7}));
+	SET_EDGES(vert3, WRAP({4, 4}),		WRAP({vert5, vert6}));
+	SET_EDGES(vert4, WRAP({1, 2}),		WRAP({tel5a, goal }));
+	SET_EDGES(vert5, WRAP({2, 3}),		WRAP({dead3, tel1a}));
+	SET_EDGES(vert6, WRAP({1, 4}),		WRAP({tel2a, dead4}));
+	SET_EDGES(vert7, WRAP({2, 3}),		WRAP({dead5, tel6a}));
 	SET_EDGES(tel1a, WRAP({TELEPORT_COST}), WRAP({tel1b}));
 	SET_EDGES(tel2a, WRAP({TELEPORT_COST}), WRAP({tel2b}));
 	SET_EDGES(tel3a, WRAP({TELEPORT_COST}), WRAP({tel3b}));
 	SET_EDGES(tel4a, WRAP({TELEPORT_COST}), WRAP({tel4b}));
 	SET_EDGES(tel5a, WRAP({TELEPORT_COST}), WRAP({tel5b}));
 	SET_EDGES(tel6a, WRAP({TELEPORT_COST}), WRAP({tel6b}));
-	SET_EDGES(tel1b, WRAP({3}),		WRAP({node7}));
+	SET_EDGES(tel1b, WRAP({3}),		WRAP({vert7}));
 	SET_EDGES(tel2b, WRAP({3}),		WRAP({dead9}));
 	SET_EDGES(tel3b, WRAP({1}),		WRAP({dead6}));
-	SET_EDGES(tel4b, WRAP({7}),		WRAP({node4}));
+	SET_EDGES(tel4b, WRAP({7}),		WRAP({vert4}));
 	SET_EDGES(tel5b, WRAP({2}),		WRAP({dead2}));
 	SET_EDGES(tel6b, WRAP({2}),		WRAP({tel4a}));
 
 	return start;
 }
 
-void set_edges(struct Node *node, int *costs, struct Node **nexts)
+void set_edges(struct Vertex *vert, int *costs, struct Vertex **nexts)
 {
-	const int edge_count = node->edge_count;
+	const int edge_count = vert->edge_count;
 	struct Edge *edge;
 
 	for (int i = 0; i < edge_count; ++i) {
@@ -120,6 +120,6 @@ void set_edges(struct Node *node, int *costs, struct Node **nexts)
 		edge->cost = costs[i];
 		edge->next = nexts[i];
 
-		node->edges[i] = edge;
+		vert->edges[i] = edge;
 	}
 }

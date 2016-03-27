@@ -2,9 +2,9 @@
 #include "tour.h"
 
 const char *LABELS[] = {
-	[START] = "start",  [GOAL ] = "goal!",  [NODE1] = "node 1",
-	[NODE2] = "node 2", [NODE3] = "node 3", [NODE4] = "node 4",
-	[NODE5] = "node 5", [NODE6] = "node 6", [NODE7] = "node 7",
+	[START] = "start",    [GOAL ] = "goal!",    [VERT1] = "vertex 1",
+	[VERT2] = "vertex 2", [VERT3] = "vertex 3", [VERT4] = "vertex 4",
+	[VERT5] = "vertex 5", [VERT6] = "vertex 6", [VERT7] = "vertex 7",
 	[TEL1A] = "teleporter entrance 1", [TEL2A] = "teleporter entrance 2",
 	[TEL3A] = "teleporter entrance 3", [TEL4A] = "teleporter entrance 4",
 	[TEL5A] = "teleporter entrance 5", [TEL6A] = "teleporter entrance 6",
@@ -17,24 +17,24 @@ const char *LABELS[] = {
 };
 
 
-void tour(struct Node *node)
+void tour(struct Vertex *vert)
 {
 	struct Edge **edges;
 
 	int edge_count, i, choice, total;
 	char buffer[32];
 
-	edge_count = node->edge_count;
-	edges      = node->edges;
+	edge_count = vert->edge_count;
+	edges      = vert->edges;
 	total = 0;
 
 	while (1) {
 
-		printf("current node: %s\noptions (cost):\n",
-		       LABELS[node->id]);
+		printf("current vertex:\n   %s\noptions (cost):\n",
+		       LABELS[vert->id]);
 
 		for (i = 0; i < edge_count; ++i) {
-			printf("%d. %-25s (%d)\n",
+			printf("    %d. %-25s (%d)\n",
 			       i, LABELS[edges[i]->next->id], edges[i]->cost);
 		}
 
@@ -52,15 +52,15 @@ void tour(struct Node *node)
 		}
 
 		total	  += edges[choice]->cost;
-		node       = edges[choice]->next;
-		edge_count = node->edge_count;
+		vert       = edges[choice]->next;
+		edge_count = vert->edge_count;
 
 		if (edge_count == 0)
 			break;
 
-		edges = node->edges;
+		edges = vert->edges;
 	}
 
 	printf("YOU %s!\n\ntotal cost: %d\n",
-	       (node->id == GOAL) ? "WIN" : "LOSE", total);
+	       (vert->id == GOAL) ? "WIN" : "LOSE", total);
 }
