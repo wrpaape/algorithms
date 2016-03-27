@@ -3,28 +3,28 @@
 #include <limits.h>
 
 
-struct BinaryHeap *init_binary_heap(int (*compare)(const node_t,
-						   const node_t))
+struct BinaryHeap *init_binary_heap(const size_t node_size,
+				    int (*compare)(const void *,
+						   const void *))
 {
 	struct BinaryHeap *heap;
 
 	HANDLE_MALLOC(heap, sizeof(struct BinaryHeap));
-	HANDLE_MALLOC(heap->nodes, sizeof(int) * 2);
+	HANDLE_MALLOC(heap->nodes, node_size * 1lu);
 
-	/* set first node as sentinel, will never move */
-	heap->nodes[0]	  = compare(INT_MIN, INT_MAX) ? INT_MIN : INT_MAX;
-	heap->count = 1lu;
-	heap->alloc = 2lu;
+	heap->count   = 0lu;
+	heap->alloc   = 1lu;
+	heap->compare = compare;
 
 	return heap;
 }
 
 
 
-struct BinaryHeap *array_into_binary_heap(int length,
-					  node_t *array,
-					  int (*compare)(const node_t,
-							 const node_t))
+struct BinaryHeap *array_into_binary_heap(const size_t length,
+					  const void **array,
+					  int (*compare)(const void *,
+							 const void *))
 {
 	struct BinaryHeap *heap = init_binary_heap(compare);
 
@@ -35,14 +35,14 @@ struct BinaryHeap *array_into_binary_heap(int length,
 
 void binary_heap_insert_array(struct BinaryHeap *heap,
 			      const size_t length,
-			      node_t *array)
+			      const void **array)
 {
-	for (int i = 0; i < length; ++i)
+	for (size_t i = 0; i < length; ++i)
 		binary_heap_insert_value(heap, array[i]);
 }
 
 
-void binary_heap_insert_value(struct BinaryHeap *heap, const node_t value)
+void binary_heap_insert_value(struct BinaryHeap *heap, const void *next)
 {
 	insert(heap->nodes, heap->count, value, heap->compare);
 
@@ -51,22 +51,25 @@ void binary_heap_insert_value(struct BinaryHeap *heap, const node_t value)
 
 }
 
-void insert(int *nodes, int base_i, int value, int (*compare)(int, int))
+static void insert(void **nodes,
+		   const size_t base_i,
+		   const void *next,
+		   int (*compare)(const void *,
+				  const void *))
 {
-	int par_i  = base_i / 2;
-	int parent = nodes[par_i];
+	const size_t par_i  = base_i / 2;
+	const void *parent = nodes[par_i];
 
-	if (compare(parent, value)) {
-
-		nodes[base_i] = value;
+	if (compare(parent, next)) {
+		nodes[base_i] = next;
 		return;
 	}
 
 	nodes[base_i] = parent;
-	insert(nodes, par_i, value, compare);
+	insert(nodes, par_i, parent, compare);
 }
 
-inline void resize_binary_heap(struct BinaryHeap *heap, size_t size)
+inline void resize_binary_heap(struct BinaryHeap *heap, const size_t size)
 {
 	if (realloc(heap->nodes, sizeof(int) * size) == NULL) {
 		EXIT_ON_FAILURE("failed to reallocate number of words"
