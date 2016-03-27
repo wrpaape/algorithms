@@ -1,6 +1,5 @@
 #include "graphs.h"
 #include "heaps.h"
-#include <limits.h>
 
 
 struct BinaryHeap *init_binary_heap(const size_t node_size,
@@ -10,10 +9,10 @@ struct BinaryHeap *init_binary_heap(const size_t node_size,
 	struct BinaryHeap *heap;
 
 	HANDLE_MALLOC(heap, sizeof(struct BinaryHeap));
-	HANDLE_MALLOC(heap->nodes, node_size * 1lu);
+	HANDLE_MALLOC(heap->nodes, node_size * 2lu);
 
-	heap->count   = 0lu;
-	heap->alloc   = 1lu;
+	heap->count   = 1lu;
+	heap->alloc   = 2lu;
 	heap->compare = compare;
 
 	return heap;
@@ -22,11 +21,12 @@ struct BinaryHeap *init_binary_heap(const size_t node_size,
 
 
 struct BinaryHeap *array_into_binary_heap(const size_t length,
-					  const void **array,
+					  const size_t node_size,
+					  void **array,
 					  int (*compare)(const void *,
 							 const void *))
 {
-	struct BinaryHeap *heap = init_binary_heap(compare);
+	struct BinaryHeap *heap = init_binary_heap(node_size, compare);
 
 	binary_heap_insert_array(heap, length, array);
 
@@ -35,30 +35,37 @@ struct BinaryHeap *array_into_binary_heap(const size_t length,
 
 void binary_heap_insert_array(struct BinaryHeap *heap,
 			      const size_t length,
-			      const void **array)
+			      void **array)
 {
 	for (size_t i = 0; i < length; ++i)
 		binary_heap_insert_value(heap, array[i]);
 }
 
 
-void binary_heap_insert_value(struct BinaryHeap *heap, const void *next)
+void binary_heap_insert_value(struct BinaryHeap *heap, void *next)
 {
-	insert(heap->nodes, heap->count, value, heap->compare);
+	insert(heap->nodes, next, heap->count, heap->compare);
+
+	++(heap->count);
 
 	if (heap->count == heap->alloc)
-		resize_binary_heap(heap, heap->alloc * 2);
+		resize_binary_heap(heap, heap->alloc * 2lu);
 
 }
 
-static void insert(void **nodes,
-		   const size_t base_i,
-		   const void *next,
-		   int (*compare)(const void *,
-				  const void *))
+void insert(void **nodes,
+	    void *next,
+	    const size_t base_i,
+	    int (*compare)(const void *,
+			   const void *))
 {
-	const size_t par_i  = base_i / 2;
-	const void *parent = nodes[par_i];
+	/* sentinel node has been reached, 'next' is new root */
+	if (base_i == 1lu) {
+		nodes[1lu] = next;
+		return;
+	}
+	const size_t par_i = base_i / 2lu;
+	void *parent = nodes[par_i];
 
 	if (compare(parent, next)) {
 		nodes[base_i] = next;
@@ -66,8 +73,10 @@ static void insert(void **nodes,
 	}
 
 	nodes[base_i] = parent;
-	insert(nodes, par_i, parent, compare);
+	insert(nodes, parent, par_i, compare);
 }
+
+
 
 inline void resize_binary_heap(struct BinaryHeap *heap, const size_t size)
 {

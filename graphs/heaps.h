@@ -1,9 +1,9 @@
 struct BinaryHeap {
-	int (*compare)(const void *,
-		       const void *);
-	void **nodes;
 	size_t count;
 	size_t alloc;
+	void **nodes;
+	int (*compare)(const void *,
+		       const void *);
 };
 
 struct BinaryHeap *init_binary_heap(const size_t node_size,
@@ -11,20 +11,21 @@ struct BinaryHeap *init_binary_heap(const size_t node_size,
 						   const void *));
 
 struct BinaryHeap *array_into_binary_heap(const size_t length,
-					  const void **array,
+					  const size_t node_size,
+					  void **array,
 					  int (*compare)(const void *,
 							 const void *));
 
 void binary_heap_insert_array(struct BinaryHeap *heap,
 			      const size_t length,
-			      const void **array);
+			      void **array);
 
-void binary_heap_insert_value(struct BinaryHeap *heap, const void *next);
+void binary_heap_insert_value(struct BinaryHeap *heap, void *next);
 
-static void insert(void **nodes,
-		   const size_t base_i,
-		   const void *next,
-		   int (*compare)(const void *,
-				  const void *));
+void insert(void **nodes,
+	    void *next,
+	    const size_t base_i,
+	    int (*compare)(const void *,
+			   const void *));
 
 static inline void resize_binary_heap(struct BinaryHeap *heap, const size_t size);

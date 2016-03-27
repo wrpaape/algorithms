@@ -66,7 +66,7 @@ void tour_graph(struct Vertex *vert)
 	       (vert->id == GOAL) ? "WIN" : "LOSE", total);
 }
 
-void print_binary_heap(struct BinaryHeap *heap)
-{
-	print_nodes(heap->count, heap->nodes, )
-}
+/* void print_binary_heap(struct BinaryHeap *heap) */
+/* { */
+/* 	print_nodes(heap->count, heap->nodes, ) */
+/* } */
