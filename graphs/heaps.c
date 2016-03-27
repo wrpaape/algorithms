@@ -42,7 +42,6 @@ void binary_heap_insert_array(struct BinaryHeap *heap,
 
 void binary_heap_insert(struct BinaryHeap *heap, void *next)
 {
-	printf("next:   %d\n", (int) next);
 	insert(heap->nodes, next, heap->count, heap->compare);
 
 	++(heap->count);
@@ -58,7 +57,6 @@ void insert(void **nodes,
 	    int (*compare)(const void *,
 			   const void *))
 {
-	printf("base_i: %lu\n", base_i);
 	/* sentinel node has been reached, 'next' is new root */
 	if (base_i == 1lu) {
 		nodes[1lu] = next;
@@ -67,10 +65,6 @@ void insert(void **nodes,
 
 	const size_t par_i = base_i / 2lu;
 	void *parent = nodes[par_i];
-
-	printf("par_i:  %lu\n", par_i);
-	printf("parent: %d\n", (int) parent);
-	fflush(stdout);
 
 	if (compare(parent, next)) {
 		nodes[base_i] = next;

@@ -13,13 +13,11 @@ int main(void)
 
 	/* tour_graph(build_graph1()); */
 
-	size_t array[] = {4, 5, 1, 2, 3};
+	size_t array[] = {4, 28, 5, 7, 10, 1, 2, 3, 7};
 
 	struct BinaryHeap *heap = array_into_binary_heap(5lu,
 							 (void **) array,
 							 max_integer);
-
-	puts("hi");
 
 	void **nodes = heap->nodes;
 
