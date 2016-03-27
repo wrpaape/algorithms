@@ -1,5 +1,5 @@
 #include "graphs.h"
-#include "heaps.h"
+#include "bheap.h"
 #include "inspect.h"
 
 const char *LABELS[] = {
