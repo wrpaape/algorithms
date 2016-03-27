@@ -1,7 +1,7 @@
 #include "graphs.h"
 #include "builder.h"
-#include "inspect.h"
 #include "bheap.h"
+#include "inspect.h"
 
 int max_cost(const void *edge1, const void *edge2)
 {
@@ -15,28 +15,27 @@ int main(void)
 
 	/* tour_graph(build_graph1()); */
 
+	printf("sizeof(Edge)    %lu\n", sizeof(struct Edge));
+	printf("sizeof(Edge *)  %lu\n", sizeof(struct Edge *));
+	printf("sizeof(Edge **) %lu\n", sizeof(struct Edge **));
+
 	int costs[] = {12, 1, 3, 55, 98, -10, 2293};
 
-	struct Edge *edges[7lu];
+	struct Edge **edges;
 
-	for (int i = 0; i < 7; ++i) {
+	HANDLE_MALLOC(edges, sizeof(struct Edge *) * 7lu);
+
+	for (size_t i = 0lu; i < 7lu; ++i) {
 		HANDLE_MALLOC(edges[i], sizeof(struct Edge));
 		edges[i]->cost = costs[i];
 	}
 
 
-	struct BHeap *heap = array_into_bheap(7lu,
-					      (void **) edges,
-					      max_cost);
+	struct BHeap *heap = array_into_bheap(7lu, (void **) edges, max_cost);
 
-	void **nodes = heap->nodes;
+	/* print_edge_bheap(heap); */
 
-	for (size_t i = 1; i < 8lu; ++i) {
-		printf("nodes[%zu]: %d\n", i, ((struct Edge *) nodes[i])->cost);
-		fflush(stdout);
-	}
-
-
+	/* printf("%d\n", ((struct Edge *) heap->nodes[1lu])->cost); */
 
 	return 0;
 }

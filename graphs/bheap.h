@@ -1,4 +1,5 @@
 struct BHeap {
+	/* size_t node_size; */
 	size_t count;
 	size_t alloc;
 	void **nodes;

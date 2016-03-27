@@ -66,7 +66,15 @@ void tour_graph(struct Vertex *vert)
 	       (vert->id == GOAL) ? "WIN" : "LOSE", total);
 }
 
-/* void print_edge_bheap(struct BHeap *heap) */
-/* { */
-/* } */
+void print_edge_bheap(struct BHeap *heap)
+{
+	void **nodes = heap->nodes;
+	const size_t nodes_count = heap->count;
+
+	for (size_t i = 1; i < nodes_count; ++i) {
+		printf("nodes[%zu]: %d\n", i,
+		       ((struct Edge *) nodes[i])->cost);
+		fflush(stdout);
+	}
+}
 
