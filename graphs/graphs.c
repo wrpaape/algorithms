@@ -15,7 +15,18 @@ int main(void)
 
 	int array[] = {4, 5, 1, 2, 3};
 
-	array_into_binary_heap(5lu, sizeof(int), (void **) array, max_integer);
+	struct BinaryHeap *heap = array_into_binary_heap(5lu,
+							 (void **) array,
+							 max_integer);
+
+	puts("hi");
+
+	int **nodes = (int **) heap->nodes;
+
+	for (int i = 1; i < 6; ++i) {
+		printf("nodes[%d]: %d\n", i, *nodes[i]);
+		fflush(stdout);
+	}
 
 
 
