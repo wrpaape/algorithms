@@ -15,7 +15,7 @@ struct BinaryHeap *array_into_binary_heap(int length,
 							 const node_t));
 
 void binary_heap_insert_array(struct BinaryHeap *heap,
-			      const size_t length,
+			      const size_tlength,
 			      node_t *array);
 
 void binary_heap_insert_value(struct BinaryHeap *heap, const node_t value);

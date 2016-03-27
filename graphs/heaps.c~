@@ -34,7 +34,7 @@ struct BinaryHeap *array_into_binary_heap(int length,
 }
 
 void binary_heap_insert_array(struct BinaryHeap *heap,
-			      const size_t length,
+			      size_t int length,
 			      node_t *array)
 {
 	for (int i = 0; i < length; ++i)

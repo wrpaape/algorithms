@@ -1,11 +1,12 @@
 #include "graphs.h"
 #include "builder.h"
-#include "tour.h"
+#include "inspect.h"
+#include "heaps.h"
 
 int main(void)
 {
 
-	tour(build_graph1());
+	/* tour_graph(build_graph1()); */
 
 	return 0;
 }

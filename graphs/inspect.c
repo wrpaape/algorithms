@@ -1,5 +1,6 @@
 #include "graphs.h"
-#include "tour.h"
+#include "heaps.h"
+#include "inspect.h"
 
 const char *LABELS[] = {
 	[START] = "start",    [GOAL ] = "goal!",    [VERT1] = "vertex 1",
@@ -17,7 +18,7 @@ const char *LABELS[] = {
 };
 
 
-void tour(struct Vertex *vert)
+void tour_graph(struct Vertex *vert)
 {
 	struct Edge **edges;
 
@@ -63,4 +64,9 @@ void tour(struct Vertex *vert)
 
 	printf("YOU %s!\n\ntotal cost: %d\n",
 	       (vert->id == GOAL) ? "WIN" : "LOSE", total);
+}
+
+void print_binary_heap(struct BinaryHeap *heap)
+{
+	print_nodes(heap->count, heap->nodes, )
 }
