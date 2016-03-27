@@ -5,7 +5,7 @@
 
 int max_integer(const void *num1, const void *num2)
 {
-	return ((int) num1) > ((int) num2);
+	return ((size_t) num1) > ((size_t) num2);
 }
 
 int main(void)
@@ -13,7 +13,7 @@ int main(void)
 
 	/* tour_graph(build_graph1()); */
 
-	int array[] = {4, 5, 1, 2, 3};
+	size_t array[] = {4, 5, 1, 2, 3};
 
 	struct BinaryHeap *heap = array_into_binary_heap(5lu,
 							 (void **) array,
@@ -21,10 +21,10 @@ int main(void)
 
 	puts("hi");
 
-	int **nodes = (int **) heap->nodes;
+	void **nodes = heap->nodes;
 
-	for (int i = 1; i < 6; ++i) {
-		printf("nodes[%d]: %d\n", i, *nodes[i]);
+	for (size_t i = 1; i < 6; ++i) {
+		printf("nodes[%zu]: %zu\n", i, (size_t) nodes[i]);
 		fflush(stdout);
 	}
 
