@@ -13,7 +13,7 @@ int main(void)
 
 	/* tour_graph(build_graph1()); */
 
-	const int array[] = {4, 5, 1, 2, 3};
+	int array[] = {4, 5, 1, 2, 3};
 
 	array_into_binary_heap(5lu, sizeof(int), (void **) array, max_integer);
 
