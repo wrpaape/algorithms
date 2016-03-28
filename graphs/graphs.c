@@ -5,9 +5,6 @@
 
 int max_cost(const void *edge1, const void *edge2)
 {
-	printf("comparing %d\n", ((struct Edge *) edge1)->cost);
-	printf("to	%d\n", ((struct Edge *) edge2)->cost);
-	fflush(stdout);
 	return (((struct Edge *) edge1)->cost) >
 	       (((struct Edge *) edge2)->cost);
 }
@@ -36,7 +33,8 @@ int main(void)
 
 	print_edge_bheap(heap);
 
-	printf("extracted cost: %d\n", ((struct Edge *) bheap_extract(heap))->cost);
+	printf("extracted cost: %d\n",
+	       ((struct Edge *) bheap_extract(heap))->cost);
 
 	print_edge_bheap(heap);
 

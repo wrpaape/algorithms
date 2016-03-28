@@ -107,7 +107,7 @@ void *bheap_extract(struct BHeap *heap)
 	void *root   = nodes[1lu];
 	void *base   = nodes[heap->count];
 
-	do_shift(nodes, base, 1lu, heap->count, heap->compare);
+	do_shift(nodes, base, 1lu, heap->count / 2lu, heap->compare);
 
 	return root;
 }
@@ -119,16 +119,17 @@ void do_shift(void **nodes,
 	      int (*compare)(const void *,
 			     const void *))
 {
-	/* base level of heap has been reached (no more children), replace */
 	size_t child_i = next_i * 2lu;
 
-	if (child_i >= penult_i) {
-		nodes[child_i] = next;
+	/* base level of heap has been reached (no more children), replace */
+	if (child_i > penult_i) {
+		nodes[next_i] = next;
 		return;
 	}
 
-
 	void *child = nodes[child_i];
+
+	printf("child_i %lu\n", child_i);
 
 	/* compare with left child */
 	if (compare(child, next)) {
