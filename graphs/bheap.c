@@ -100,12 +100,19 @@ void do_insert(void **nodes,
  ******************************************************************************/
 void *bheap_extract(struct BHeap *heap)
 {
+
 	--(heap->count);
 
 	void **nodes = heap->nodes;
 	void *root   = nodes[1lu];
+	void *base   = nodes[heap->count];
 
-	do_shift(nodes, root, 1lu, heap->count, heap->compare);
+	printf("heap->count:  %zu\n", heap->count);
+	printf("heap->count:  %zu\n", heap->count);
+
+	printf("base->cost:  %d\n", ((struct Edge *) root)->cost);
+
+	do_shift(nodes, base, 1lu, heap->count, heap->compare);
 
 	return root;
 }
@@ -118,31 +125,49 @@ void do_shift(void **nodes,
 			     const void *))
 {
 	/* base level of heap has been reached (no more children), replace */
-	if (next_i >= penult_i) {
-		nodes[next_i] = next;
+	size_t child_i = next_i * 2lu;
+
+	if (child_i >= penult_i) {
+		nodes[child_i] = next;
 		return;
 	}
 
-	size_t child_i = next_i * 2lu;
-	void *child    = nodes[child_i];
+
+	void *child = nodes[child_i];
+
+
+	printf("next_i:   %zu\n", next_i);
+	printf("child_i:  %zu\n", child_i);
+	printf("penult_i: %zu\n", penult_i);
+	fflush(stdout);
 
 	/* compare with left child */
 	if (compare(child, next)) {
+
+		puts("smaller than LEFT!!");
+		fflush(stdout);
 		nodes[next_i] = child;
 		do_shift(nodes, next, child_i, penult_i, compare);
 		return;
 	}
+
+	puts("greater than LEFT!!");
+	fflush(stdout);
 
 	++child_i;
 	child = nodes[child_i];
 
 	/* compare with right child */
 	if (compare(child, next)) {
+		puts("smaller than RIGHT!!");
+		fflush(stdout);
+
 		nodes[next_i] = child;
 		do_shift(nodes, next, child_i, penult_i, compare);
 		return;
 	}
 
+	puts("idunno");
 	/* otherwise, 'next' belongs at index 'next_i' */
 	nodes[next_i] = next;
 }
@@ -165,6 +190,6 @@ struct BHeap *array_into_bheap(const size_t length,
 
 inline size_t next_pow_two(size_t num)
 {
-	return 1lu << (sizeof(size_t) - __builtin_clzl(num - 1lu));
+	return 1lu << ((sizeof(size_t) * CHAR_BIT) - __builtin_clzl(num));
 }
 

@@ -4,6 +4,7 @@
 #include <stdio.h>	/* fprintf */
 #include <errno.h>	/* errno */
 #include <string.h>	/* strerror */
+#include <limits.h>
 
 #define EXIT_ON_FAILURE(format, ...)					\
 do {									\
