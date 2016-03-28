@@ -17,7 +17,6 @@ const char *LABELS[] = {
 	[DEAD7] = "dead end 7", [DEAD8] = "dead end 8", [DEAD9] = "dead end 9"
 };
 
-
 void tour_graph(struct Vertex *vert)
 {
 	struct Edge **edges;
@@ -76,5 +75,16 @@ void print_edge_bheap(struct BHeap *heap)
 		       ((struct Edge *) nodes[i])->cost);
 		fflush(stdout);
 	}
+}
+
+void edge_to_string(char *buffer, const void *vedge)
+{
+	struct Edge *edge = (struct Edge *) vedge;
+
+	if (edge->next != NULL) {
+		sprintf(buffer, "  next vertex: %s\n", LABELS[edge->next->id]);
+	}
+
+	sprintf(buffer, "  cost:        %d\n", edge->cost);
 }
 

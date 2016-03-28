@@ -3,11 +3,14 @@
 #include "bheap.h"
 #include "inspect.h"
 
-int max_cost(const void *edge1, const void *edge2)
+int min_cost(const void *vedge1, const void *vedge2)
 {
-	return (((struct Edge *) edge1)->cost) >
-	       (((struct Edge *) edge2)->cost);
+	return (((struct Edge *) vedge1)->cost) <
+	       (((struct Edge *) vedge2)->cost);
 }
+
+extern void edge_to_string(char *buffer, const void *vedge);
+
 
 int main(void)
 {
@@ -30,29 +33,29 @@ int main(void)
 	}
 
 
-	struct BHeap *heap = array_into_bheap(10lu, (void **) edges, max_cost);
+	struct BHeap *heap = array_into_bheap(10lu, (void **) edges, min_cost);
 
-	print_edge_bheap(heap);
-
-	printf("\n\nextracted cost: %d\n\n",
-	       ((struct Edge *) bheap_extract(heap))->cost);
-
-	print_edge_bheap(heap);
+	print_bheap(heap, edge_to_string);
 
 	printf("\n\nextracted cost: %d\n\n",
 	       ((struct Edge *) bheap_extract(heap))->cost);
 
-	print_edge_bheap(heap);
+	print_bheap(heap, edge_to_string);
 
 	printf("\n\nextracted cost: %d\n\n",
 	       ((struct Edge *) bheap_extract(heap))->cost);
 
-	print_edge_bheap(heap);
+	print_bheap(heap, edge_to_string);
 
 	printf("\n\nextracted cost: %d\n\n",
 	       ((struct Edge *) bheap_extract(heap))->cost);
 
-	print_edge_bheap(heap);
+	print_bheap(heap, edge_to_string);
+
+	printf("\n\nextracted cost: %d\n\n",
+	       ((struct Edge *) bheap_extract(heap))->cost);
+
+	print_bheap(heap, edge_to_string);
 
 	return 0;
 }

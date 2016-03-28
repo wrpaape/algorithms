@@ -67,6 +67,8 @@ void do_shift(void **nodes,
 
 /* display
  ******************************************************************************/
+void print_bheap(struct BHeap *heap,
+		 void (*node_to_string)(char *, const void *));
 
 
 

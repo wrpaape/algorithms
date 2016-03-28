@@ -205,6 +205,31 @@ void do_shift(void **nodes,
 
 
 
+
+/* display
+ ******************************************************************************/
+void print_bheap(struct BHeap *heap,
+		 void (*node_to_string)(char *, const void *))
+{
+	const size_t count = heap->count;
+
+	if (count == 1lu) {
+		puts("EMPTY");
+		return;
+	}
+
+	void **nodes = heap->nodes;
+	char buffer[256];
+
+	for (size_t i = 1lu; i < count; ++i) {
+		node_to_string(buffer, nodes[i]);
+		printf("nodes[%zu]:\n%s\n\n", i, buffer);
+	}
+}
+
+
+
+
 /* convenience, misc
  ******************************************************************************/
 struct BHeap *array_into_bheap(const size_t length,
@@ -221,6 +246,5 @@ struct BHeap *array_into_bheap(const size_t length,
 
 inline size_t next_pow_two(size_t num)
 {
-	return 1lu << ((sizeof(size_t) * CHAR_BIT) - __builtin_clzl(num));
+	return 1lu << ((sizeof(size_t) * CHAR_BIT) - __builtin_clzl(num - 1lu));
 }
-
