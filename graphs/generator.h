@@ -1,6 +1,7 @@
 #ifndef GRAPHS_GENERATOR_H_
 #define GRAPHS_GENERATOR_H_ value
-void generate_map(void);
+void generate_map(const size_t width,
+		  const size_t height);
 struct Lines *init_lines(const size_t res_x);
 #endif /* ifndef GRAPHS_GENERATOR_H_ */
 

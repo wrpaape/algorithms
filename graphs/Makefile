@@ -1,7 +1,7 @@
 CC	= gcc
 CFLAGS	= -g -I$(MAINDIR) -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
-graphs: graphs.o builder.o inspect.o bheap.o
+graphs: graphs.o builder.o inspect.o bheap.o generator.o
 		$(CC) $(CFLAGS) -o $@ $^
 
 graphs.o: graphs.c graphs.h builder.h inspect.h
