@@ -2,7 +2,11 @@
 #define GRAPHS_GENERATOR_H_ value
 void generate_map(const size_t width,
 		  const size_t height);
-struct Lines *init_lines(const size_t res_x);
+struct Lines *draw_lines(const size_t res_x);
+static inline int rand_in_range(const int lbound,
+				const int rbound);
+int **generate_costs_grid(const size_t res_x,
+			  const size_t res_y);
 #endif /* ifndef GRAPHS_GENERATOR_H_ */
 
 /*****************************************************************************

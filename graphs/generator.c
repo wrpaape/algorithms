@@ -1,4 +1,4 @@
-#include "graphs.h"
+#include "utils.h"
 #include "generator.h"
 
 #define FILENAME "map.txt"
@@ -47,7 +47,8 @@ void generate_map(const size_t width,
 	if (map_file == NULL)
 		EXIT_ON_FAILURE("failed to open file '%s'", FILENAME);
 
-	struct Lines *lines = init_lines(res_x);
+	struct Lines *lines = draw_lines(res_x);
+	int **costs_grid    = generate_costs_grid(res_x, res_y);
 
 	fputs("test\n\n", map_file);
 	fputs(lines->top, map_file);
@@ -57,7 +58,20 @@ void generate_map(const size_t width,
 	fclose(map_file);
 }
 
-struct Lines *init_lines(const size_t res_x)
+#define MAX_COST 9
+#define MIN_COST 0
+
+
+int **generate_costs_grid(const size_t res_x,
+			  const size_t res_y)
+{
+	int **grid;
+
+
+	return grid;
+}
+
+struct Lines *draw_lines(const size_t res_x)
 {
 	/* 'res_x * 4': length of  '───' plus joiner */
 	/* '_____ + 1': plus left piece */
@@ -69,18 +83,16 @@ struct Lines *init_lines(const size_t res_x)
 	char *top;
 	char *mid;
 	char *bot;
+	size_t cell_i;
+	size_t char_i;
 
 	HANDLE_MALLOC(lines, sizeof(struct Lines));
 	HANDLE_MALLOC(top,   sizeof(char) * BUFF_CHARS);
 	HANDLE_MALLOC(mid,   sizeof(char) * BUFF_CHARS);
 	HANDLE_MALLOC(bot,   sizeof(char) * BUFF_CHARS);
 
-	lines->top = top;
-	lines->mid = mid;
-	lines->bot = bot;
+	lines->top = top; lines->mid = mid; lines->bot = bot;
 
-	size_t cell_i;
-	size_t char_i;
 
 	/* set left pieces '┌', '├', and '└' */
 	SET_BOX_CHAR(top, 140);

@@ -4,19 +4,19 @@ CFLAGS	= -g -I$(MAINDIR) -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 graphs: graphs.o builder.o inspect.o bheap.o generator.o
 		$(CC) $(CFLAGS) -o $@ $^
 
-graphs.o: graphs.c graphs.h builder.h inspect.h
+graphs.o: graphs.c graphs.h builder.h inspect.h utils.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
-builder.o: builder.c builder.h graphs.h
+builder.o: builder.c builder.h graphs.h utils.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
 inspect.o: inspect.c inspect.h graphs.h bheap.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
-bheap.o: bheap.c bheap.h
+bheap.o: bheap.c bheap.h utils.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
-generator.o: generator.c generator.h graphs.h
+generator.o: generator.c generator.h utils.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 clean:
 	$(RM) graphs *.o *~

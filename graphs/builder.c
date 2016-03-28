@@ -1,4 +1,5 @@
-#include "graphs.h"  /* typedefs, HANDLE_MALLOC */
+#include "graphs.h"  /* typedefs */
+#include "utils.h"   /* HANDLE_MALLOC */
 #include "builder.h" /* protoypes */
 
 #define INIT(VERT, ID, EDGE_COUNT)					\
