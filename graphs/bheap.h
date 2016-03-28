@@ -59,7 +59,7 @@ void *bheap_extract(struct BHeap *heap);
 void do_shift(void **nodes,
 	      void *next,
 	      const size_t next_i,
-	      const size_t base_par_i,
+	      const size_t base_i,
 	      int (*compare)(const void *,
 			     const void *));
 

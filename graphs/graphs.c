@@ -16,6 +16,7 @@ int main(void)
 	/* tour_graph(build_graph1()); */
 
 	int costs[] = {12, 1, 3, 55, 98, -10, 2293, -500, 123, 10};
+	/* int costs[] = {12, 1}; */
 
 	struct Edge **edges;
 
