@@ -34,13 +34,12 @@ int main(void)
 
 	struct BHeap *heap = array_into_bheap(7lu, (void **) edges, max_cost);
 
-	/* print_edge_bheap(heap); */
+	print_edge_bheap(heap);
 
-	/* printf("extracted cost: %d\n", ((struct Edge *) bheap_extract(heap))->cost); */
+	printf("extracted cost: %d\n", ((struct Edge *) bheap_extract(heap))->cost);
 
 	print_edge_bheap(heap);
 
-	bheap_extract(heap);
 
 	return 0;
 }
