@@ -1,6 +1,9 @@
 #ifndef GRAPHS_MAPS_GENERATOR_H_
 #define GRAPHS_MAPS_GENERATOR_H_ value
-static inline int rand_in_range(const int lbound,
+#include <pcg_basic.h>
+
+static inline int rand_in_range(pcg32_random_t *rng,
+				const int lbound,
 				const int rbound);
 int **generate_map(const size_t res_x,
 		   const size_t res_y,
