@@ -33,6 +33,7 @@ inline void free_bheap(struct BHeap *heap)
 static inline void resize_bheap(struct BHeap *heap,
 				const size_t size);
 
+
 /* insertion
  ******************************************************************************/
 void bheap_insert(struct BHeap *heap,

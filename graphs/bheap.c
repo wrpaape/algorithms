@@ -223,7 +223,7 @@ void print_bheap(struct BHeap *heap,
 
 	for (size_t i = 1lu; i < count; ++i) {
 		node_to_string(buffer, nodes[i]);
-		printf("nodes[%zu]:\n%s\n\n", i, buffer);
+		printf("nodes[%zu]:\n%s\n", i, buffer);
 	}
 }
 

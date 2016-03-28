@@ -81,7 +81,7 @@ void edge_to_string(char *buffer, const void *vedge)
 {
 	struct Edge *edge = (struct Edge *) vedge;
 
-	if (edge->next != NULL)
+	if (edge->id != NULL)
 		sprintf(buffer, "  next vertex: %s\n", LABELS[edge->next->id]);
 
 	sprintf(buffer, "  cost:        %d\n", edge->cost);
