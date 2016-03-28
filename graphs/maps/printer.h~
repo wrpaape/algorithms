@@ -1,13 +1,9 @@
-#ifndef GRAPHS_GENERATOR_H_
-#define GRAPHS_GENERATOR_H_ value
-void generate_map(const size_t width,
-		  const size_t height);
+#ifndef GRAPHS_MAPS_PRINTER_H_
+#define GRAPHS_MAPS_PRINTER_H_ value
+void print_map(const size_t width,
+	       const size_t height);
 struct Lines *draw_lines(const size_t res_x);
-static inline int rand_in_range(const int lbound,
-				const int rbound);
-int **generate_costs_grid(const size_t res_x,
-			  const size_t res_y);
-#endif /* ifndef GRAPHS_GENERATOR_H_ */
+#endif /* ifndef GRAPHS_MAPS_PRINTER_H_ */
 
 /*****************************************************************************
  * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 *
@@ -15,6 +11,8 @@ int **generate_costs_grid(const size_t res_x,
  * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 *
  ******************************************************************************/
 
+
+	/* ╔╦╗╠╬╣╚╩╝|═║┌┬┐├┼┤└┴┘┏┳┓┣╋┫┗┻┻┛━┃ */
 	/* ╔╦╗╠╬╣╚╩╝|═║┌┬┐│─├┼┤└┴┘┏┳┓┣╋┫┗┻┻┛━┃ */
 
 /* [{"┌", "<<226, 148, 140>>"}, {"┬", "<<226, 148, 172>>"}, */

@@ -3,7 +3,7 @@
 #include "builder.h"
 #include "bheap.h"
 #include "inspect.h"
-#include "generator.h"
+#include "maps/printer.h"
 
 int min_cost(const void *vedge1, const void *vedge2)
 {
@@ -15,7 +15,7 @@ int min_cost(const void *vedge1, const void *vedge2)
 int main(void)
 {
 
-	generate_map(80lu, 40lu);
+	print_map(80lu, 40lu);
 	return 0;
 
 	/* tour_graph(build_graph1()); */

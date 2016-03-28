@@ -1,7 +1,8 @@
 #include "utils.h"
-#include "generator.h"
+#include "maps/generator.h"
+#include "maps/printer.h"
 
-#define FILENAME "map.txt"
+#define FILENAME "maps/map.txt"
 
 #define SET_CHAR(PTR, BYTE)	\
 do {				\
@@ -24,8 +25,8 @@ struct Lines {
 
 	/* ╔╦╗╠╬╣╚╩╝|═║┌┬┐├┼┤└┴┘┏┳┓┣╋┫┗┻┻┛━┃ */
 
-void generate_map(const size_t width,
-		  const size_t height)
+void print_map(const size_t width,
+	       const size_t height)
 {
 	const size_t res_x = (width  - 1lu) / 4lu;
 
@@ -48,7 +49,7 @@ void generate_map(const size_t width,
 		EXIT_ON_FAILURE("failed to open file '%s'", FILENAME);
 
 	struct Lines *lines = draw_lines(res_x);
-	int **costs_grid    = generate_costs_grid(res_x, res_y);
+	int **costs_grid    = generate_map(res_x, res_y, 0, 9);
 
 	fputs("test\n\n", map_file);
 	fputs(lines->top, map_file);
@@ -56,19 +57,6 @@ void generate_map(const size_t width,
 	fputs(lines->bot, map_file);
 
 	fclose(map_file);
-}
-
-#define MAX_COST 9
-#define MIN_COST 0
-
-
-int **generate_costs_grid(const size_t res_x,
-			  const size_t res_y)
-{
-	int **grid;
-
-
-	return grid;
 }
 
 struct Lines *draw_lines(const size_t res_x)
