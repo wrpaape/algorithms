@@ -115,37 +115,42 @@ void *bheap_extract(struct BHeap *heap)
 void do_shift(void **nodes,
 	      void *next,
 	      const size_t next_i,
-	      const size_t penult_i,
+	      const size_t base_par_i,
 	      int (*compare)(const void *,
 			     const void *))
 {
-	size_t child_i = next_i * 2lu;
-
 	/* base level of heap has been reached (no more children), replace */
-	if (child_i > penult_i) {
+	if (next_i > base_par_i) {
 		nodes[next_i] = next;
 		return;
 	}
 
-	void *child = nodes[child_i];
+	const size_t lchild_i = next_i * 2lu;
+	const size_t rchild_i = lchild_i + 1lu;
 
-	printf("child_i %lu\n", child_i);
+	void *lchild = nodes[lchild_i];
+	void *rchild = nodes[rchild_i];
 
 	/* compare with left child */
-	if (compare(child, next)) {
-		nodes[next_i] = child;
-		do_shift(nodes, next, child_i, penult_i, compare);
+	if (compare(lchild, next)) {
+
+		if (compare(lchild, rchild)) {
+			nodes[next_i] = lchild;
+			do_shift(nodes, next, lchild_i, base_par_i, compare);
+		} else {
+			nodes[next_i] = rchild;
+			do_shift(nodes, next, rchild_i, base_par_i, compare);
+		}
+
 		return;
 	}
 
 
-	++child_i;
-	child = nodes[child_i];
 
 	/* compare with right child */
-	if (compare(child, next)) {
-		nodes[next_i] = child;
-		do_shift(nodes, next, child_i, penult_i, compare);
+	if (compare(rchild, next)) {
+		nodes[next_i] = rchild;
+		do_shift(nodes, next, rchild_i, base_par_i, compare);
 		return;
 	}
 
