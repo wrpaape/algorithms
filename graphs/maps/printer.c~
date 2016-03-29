@@ -93,6 +93,8 @@ void pretty_print_cost_map(char *buffer,
 /* 	fclose(map_file); */
 }
 
+void print_cost_map_to_csv(char *filename,
+			   struct CostMap *map)
 void cost_map_to_csv(char *filename,
 		     struct CostMap *map)
 {

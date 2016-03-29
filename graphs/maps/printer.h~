@@ -4,7 +4,7 @@ void pretty_print_cost_map(char *buffer,
 			   struct CostMap *map);
 
 void cost_map_to_csv(char *filename,
-		     struct CostMap *map);
+			   struct CostMap *map);
 
 struct Lines *draw_lines(const size_t res_x);
 

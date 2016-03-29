@@ -3,6 +3,7 @@
 struct CostMap {
 	size_t res_x;
 	size_t res_y;
+	size_t col_width;
 	int min_cost;
 	int max_cost;
 	int **costs;
