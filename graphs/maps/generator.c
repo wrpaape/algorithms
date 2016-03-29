@@ -12,28 +12,28 @@ int **generate_map(const size_t res_x,
 	/* int **grid; */
 	init_rng();
 
-	int ***grid = init_grad_grid(res_x, res_y);
+	/* double ***grad_grid = init_grad_grid(res_x, res_y); */
 
-	printf("grid[3][3][0]: %d\n", grid[3][3][0]);
-	printf("grid[3][3][1]: %d\n", grid[3][3][1]);
-	printf("grid[3][3][2]: %d\n", grid[3][3][2]);
+	printf("rand: %f\n", rand_in_dub_range(-1.0, 1.0));
 
 	return NULL;
 }
 
-int ***init_grad_grid(const size_t res_x,
-		      const size_t res_y)
+
+
+double ***init_grad_grid(const size_t res_x,
+			 const size_t res_y)
 {
-	int ***grid;
-	int **col;
-	int *grad;
+	double ***grad_grid;
+	double **col;
+	double *grad;
 	int x, y, dir;
 
-	const size_t SIZE_COL  = sizeof(int *) * res_y;
-	const size_t SIZE_GRAD = sizeof(int)   * 3lu;
+	const size_t SIZE_COL  = sizeof(double *) * res_y;
+	const size_t SIZE_GRAD = sizeof(double)   * 3lu;
 
 
-	HANDLE_MALLOC(grid, sizeof(int **) * res_x);
+	HANDLE_MALLOC(grad_grid, sizeof(double **) * res_x);
 
 	for (x = 0; x < res_x; ++x) {
 
@@ -51,8 +51,8 @@ int ***init_grad_grid(const size_t res_x,
 			col[y] = grad;
 		}
 
-		grid[x] = col;
+		grad_grid[x] = col;
 	}
 
-	return grid;
+	return grad_grid;
 }

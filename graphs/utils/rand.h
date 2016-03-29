@@ -3,7 +3,6 @@
 #include <pcg_basic.h> /* psuedorandom number generator */
 #include <time.h>      /* unique seed */
 #include <stdbool.h>
-/* #include <stdio.h> */
 
 #define RNG_MAX UINT32_MAX
 
@@ -19,8 +18,8 @@ inline bool coin_flip(void)
 	return (bool) (pcg32_random_r(&_RNG) & 1u);
 }
 
-inline int32_t rand_in_range(const int32_t lbound,
-			     const int32_t rbound)
+inline int32_t rand_in_int_range(const int32_t lbound,
+				 const int32_t rbound)
 {
 
 	const uint32_t diff_plus_one = rbound - lbound + 1u;
@@ -34,5 +33,14 @@ inline int32_t rand_in_range(const int32_t lbound,
 	} while (rand > valid_limit);
 
 	return ((int32_t) (rand % diff_plus_one)) + lbound;
+}
+
+inline double rand_in_dub_range(const double lbound,
+				const double rbound)
+{
+	return (((double) pcg32_random_r(&_RNG)) / ((double) RNG_MAX))
+	       * (rbound - lbound)
+	       + lbound;
+
 }
 #endif /* ifndef GRAPHS_UTILS_RAND_H_ */
