@@ -3,31 +3,92 @@
 #include "maps/generator.h"
 #include <math.h>
 
-#define clamp(x, a, b) x < a ? a : (x > b ? b : x)
-
 int **generate_map(const size_t res_x,
 		   const size_t res_y,
 		   const int min_cost,
 		   const int max_cost)
 {
+	int **cost_grid;
+	int *cost_col;
+	double ***grad_grid;
+	size_t x, y;
 
 	init_rng();
 
-	double ***grad_grid = init_grad_grid(res_x + 1lu, res_y + 1lu);
+	grad_grid = init_grad_grid(res_x + 1lu, res_y + 1lu);
 
-	printf("grad_grid[0][0][0]: %f\n", grad_grid[0][0][0]);
-	printf("grad_grid[0][0][1]: %f\n", grad_grid[0][0][1]);
 
-	return NULL;
+	const size_t SIZE_COL  = sizeof(int)   * res_x;
+
+	HANDLE_MALLOC(cost_grid, sizeof(int *) * res_y);
+
+	for (x = 0; x < res_x; ++x) {
+
+		HANDLE_MALLOC(cost_col, SIZE_COL);
+
+		for (y = 0; y < res_y; ++y) {
+
+
+			cost_col[y] = grad;
+		}
+
+		cost_grid[x] = cost_col;
+
+	}
+
+
+	return cost_grid;
 }
 
+
+double perlin_noise(const size_t x0,
+		    const size_t y0,
+		    double ***grad_grid)
+{
+	const size_t x1 = x0 + 1lu;
+	const size_t y1 = y0 + 1lu;
+
+	double grad0;
+	double grad1;
+	double dxdy_dot_grad0;
+	double dxdy_dot_grad1;
+
+	grad0 = grad_grid[x0][y0];
+	grad1 = grad_grid[x1][y0];
+
+	dxdy_dot_grad0 = dot_prod_2d( 0.5, -0.5, grad0[0], grad0[1]);
+	dxdy_dot_grad1 = dot_prod_2d( 0.5,  0.5, grad1[0], grad1[1]);
+
+	const double lerp_NW_NE = linear_interp_step(dxdy_dot_grad0,
+						     dxdy_dot_grad1, 0.5);
+
+	grad0 = grad_grid[x0][y1];
+	grad1 = grad_grid[x1][y1];
+
+	dxdy_dot_grad0 = dot_prod_2d(-0.5, -0.5, grad0[0], grad0[1]);
+	dxdy_dot_grad1 = dot_prod_2d(-0.5,  0.5, grad1[0], grad1[1]);
+
+	const double lerp_SW_SE = linear_interp_step(dxdy_dot_grad0,
+						     dxdy_dot_grad1, 0.5);
+
+
+	return linear_interp_step(lerp_NW_NE,
+				  lerp_SW_SE, 0.5);
+}
+
+inline double dot_prod_2d(const double u_x, const double u_y,
+			  const double v_x, const double v_y)
+{
+	return (u_x * v_x) + (u_y * v_y);
+}
+
+/* linearly interpolate between 'lbound' and 'rbound' according to
+ * '0.0 <= weight <= 1.0'
+ ******************************************************************************/
 inline double linear_interp_step(const double lbound,
 				 const double rbound,
 				 const double weight)
 {
-	/* linearly interpolate between 'lbound' and 'rbound' according to
-	 * 0.0 <= weight <= 1.0
-	 **********************************************************************/
 	return ((1.0 - weight) * lbound) + (weight * rbound);
 }
 
@@ -55,10 +116,10 @@ double ***init_grad_grid(const size_t verts_x,
 			 const size_t verts_y)
 {
 	double ***grad_grid;
-	double **col;
+	double **grad_col;
 	double *grad;
 	double u, v;
-	int x, y;
+	size_t x, y;
 
 	const size_t SIZE_COL  = sizeof(double *) * verts_y;
 	const size_t SIZE_GRAD = sizeof(double)   * 2lu;
@@ -68,7 +129,7 @@ double ***init_grad_grid(const size_t verts_x,
 
 	for (x = 0; x < verts_x; ++x) {
 
-		HANDLE_MALLOC(col, SIZE_COL);
+		HANDLE_MALLOC(grad_col, SIZE_COL);
 
 		for (y = 0; y < verts_y; ++y) {
 
@@ -80,10 +141,10 @@ double ***init_grad_grid(const size_t verts_x,
 			grad[0] = u;
 			grad[1] = coin_flip() ? v : -v;
 
-			col[y] = grad;
+			grad_col[y] = grad;
 		}
 
-		grad_grid[x] = col;
+		grad_grid[x] = grad_col;
 	}
 
 	return grad_grid;
