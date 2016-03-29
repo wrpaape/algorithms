@@ -16,7 +16,7 @@ inline void init_rng(void)
 
 inline bool coin_flip(void)
 {
-	return pcg32_random_r(&_RNG) & 1u;
+	return (bool) (pcg32_random_r(&_RNG) & 1u);
 }
 
 inline int32_t rand_in_range(const int32_t lbound,
@@ -34,8 +34,5 @@ inline int32_t rand_in_range(const int32_t lbound,
 	} while (rand > valid_limit);
 
 	return ((int32_t) (rand % diff_plus_one)) + lbound;
-
-
-	return 0;
 }
 #endif /* ifndef GRAPHS_UTILS_RAND_H_ */
