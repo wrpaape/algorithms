@@ -1,6 +1,7 @@
 #include "utils/utils.h"
 #include "utils/rand.h"
 #include "maps/generator.h"
+#include <math.h>
 
 
 int **generate_map(const size_t res_x,
@@ -12,9 +13,10 @@ int **generate_map(const size_t res_x,
 	/* int **grid; */
 	init_rng();
 
-	/* double ***grad_grid = init_grad_grid(res_x, res_y); */
+	double ***grad_grid = init_grad_grid(res_x, res_y);
 
-	printf("rand: %f\n", rand_in_dub_range(-1.0, 1.0));
+	printf("grad_grid[0][0][0]: %f\n", grad_grid[0][0][0]);
+	printf("grad_grid[0][0][1]: %f\n", grad_grid[0][0][1]);
 
 	return NULL;
 }
@@ -27,10 +29,11 @@ double ***init_grad_grid(const size_t res_x,
 	double ***grad_grid;
 	double **col;
 	double *grad;
-	int x, y, dir;
+	double u, v;
+	int x, y;
 
 	const size_t SIZE_COL  = sizeof(double *) * res_y;
-	const size_t SIZE_GRAD = sizeof(double)   * 3lu;
+	const size_t SIZE_GRAD = sizeof(double)   * 2lu;
 
 
 	HANDLE_MALLOC(grad_grid, sizeof(double **) * res_x);
@@ -43,10 +46,11 @@ double ***init_grad_grid(const size_t res_x,
 
 			HANDLE_MALLOC(grad, SIZE_GRAD);
 
-			for (dir = 0; dir < 3; ++dir) {
+			u = rand_in_dub_range(-1.0, 1.0);
+			v = sqrt(1.0 - (u * u));
 
-				grad[dir] = coin_flip() ? 1 : -1;
-			}
+			grad[0] = u;
+			grad[1] = coin_flip() ? v : -v;
 
 			col[y] = grad;
 		}
