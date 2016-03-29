@@ -35,7 +35,7 @@ void print_map(const size_t width,
 
 	const size_t res_y = (height - 1lu) / 2lu;
 
-	if (res_x == 0lu) {
+	if (res_y == 0lu) {
 		EXIT_ON_FAILURE("map height must be at least 3 characters"
 				" (input height: %zu)", width);
 	}
@@ -46,16 +46,47 @@ void print_map(const size_t width,
 	if (map_file == NULL)
 		EXIT_ON_FAILURE("failed to open file '%s'", FILENAME);
 
-	struct Lines *lines = draw_lines(res_x);
-	int **costs_grid    = generate_map(res_x, res_y, 0, 9);
+	int **costs_map;
+	int *costs_col;
+	struct Lines *lines;
+	char *mid_line;
+	size_t x, y;
 
-	fputs("test\n\n", map_file);
+	costs_map = generate_map(res_x, res_y, 0, 9);
+
+	lines    = draw_lines(res_x);
+	mid_line = lines->mid;
+
 	fputs(lines->top, map_file);
-	fputs(lines->mid, map_file);
+
+	x = 0lu;
+
+	while (1) {
+		fputs("│", map_file);
+
+		costs_col = costs_map[x];
+
+		for (y = 0lu; y < res_y; ++y) {
+			fprintf(map_file, " %d │", costs_col[y]);
+		}
+
+		fputc('\n', map_file);
+
+		++x;
+
+		if (x == res_x)
+			break;
+
+		fputs(mid_line, map_file);
+	}
+
+	free_costs_map(res_x, costs_map);
+
 	fputs(lines->bot, map_file);
 
 	fclose(map_file);
 }
+
 
 struct Lines *draw_lines(const size_t res_x)
 {
@@ -77,7 +108,9 @@ struct Lines *draw_lines(const size_t res_x)
 	HANDLE_MALLOC(mid,   sizeof(char) * BUFF_CHARS);
 	HANDLE_MALLOC(bot,   sizeof(char) * BUFF_CHARS);
 
-	lines->top = top; lines->mid = mid; lines->bot = bot;
+	lines->top = top;
+	lines->mid = mid;
+	lines->bot = bot;
 
 
 	/* set left pieces '┌', '├', and '└' */
@@ -120,3 +153,14 @@ struct Lines *draw_lines(const size_t res_x)
 
 	return lines;
 }
+
+
+inline void free_costs_map(const size_t res_x,
+			   int **costs_map)
+{
+	for (size_t x = 0lu; x < res_x; ++x)
+		free(costs_map[x]);
+
+	free(costs_map);
+}
+

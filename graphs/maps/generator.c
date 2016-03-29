@@ -23,31 +23,11 @@ int **generate_map(const size_t res_x,
 
 	free_grad_grid(verts_x, verts_y, grad_grid);
 
-
-
 	return costs_map;
 }
 
-inline void free_grad_grid(const size_t verts_x,
-			   const size_t verts_y,
-			   double ***grad_grid)
-{
-	double **grad_col;
-	size_t x, y;
 
-	for (x = 0; x < verts_x; ++x) {
-		grad_col = grad_grid[x];
-
-		for (y = 0; y < verts_y; ++y)
-			free(grad_col[y]);
-
-		free(grad_col);
-	}
-
-	free(grad_grid);
-}
-
-static int **init_costs_map(const size_t res_x,
+int **init_costs_map(const size_t res_x,
 		     const size_t res_y,
 		     const double min_cost,
 		     const double max_cost,
@@ -85,7 +65,7 @@ static int **init_costs_map(const size_t res_x,
 	return costs_map;
 }
 
-static double perlin_noise(const size_t x0,
+double perlin_noise(const size_t x0,
 		    const size_t y0,
 		    double ***grad_grid)
 {
@@ -116,15 +96,10 @@ static double perlin_noise(const size_t x0,
 	return (avg_NW_NE + avg_SW_SE) / 2.0;
 }
 
-inline double dot_prod_2d(const double u_x, const double u_y,
-			  const double v_x, const double v_y)
-{
-	return (u_x * v_x) + (u_y * v_y);
-}
 
 
 /* generates a 'vert_x × vert_y' matrix of random 2d unit vectors */
-static double ***init_grad_grid(const size_t verts_x,
+double ***init_grad_grid(const size_t verts_x,
 			 const size_t verts_y)
 {
 	double ***grad_grid;
@@ -159,4 +134,33 @@ static double ***init_grad_grid(const size_t verts_x,
 	}
 
 	return grad_grid;
+}
+
+/* helper functions
+ ******************************************************************************/
+
+inline double dot_prod_2d(const double u_x, const double u_y,
+			  const double v_x, const double v_y)
+{
+	return (u_x * v_x) + (u_y * v_y);
+}
+
+inline void free_grad_grid(const size_t verts_x,
+			   const size_t verts_y,
+			   double ***grad_grid)
+{
+	double **grad_col;
+	size_t x, y;
+
+	for (x = 0; x < verts_x; ++x) {
+
+		grad_col = grad_grid[x];
+
+		for (y = 0; y < verts_y; ++y)
+			free(grad_col[y]);
+
+		free(grad_col);
+	}
+
+	free(grad_grid);
 }
