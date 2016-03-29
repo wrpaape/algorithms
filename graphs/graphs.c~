@@ -6,7 +6,7 @@
 #include "maps/maker.h"
 #include "maps/printer.h"
 
-#define FILENAME "maps/map.txt"
+#define FILENAME "maps/map.csv"
 
 int min_cost(const void *vedge1, const void *vedge2)
 {
@@ -17,9 +17,12 @@ int min_cost(const void *vedge1, const void *vedge2)
 
 int main(void)
 {
+	char buffer[1lu << 16];
 	struct CostMap *map = make_cost_map(80lu, 40lu, 0, 9);
 
-	print_cost_map_to_file(map, FILENAME);
+	cost_map_to_csv(FILENAME, map);
+
+	pretty_print_cost_map(buffer, map);
 
 	free_cost_map(map);
 

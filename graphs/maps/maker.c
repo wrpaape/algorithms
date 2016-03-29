@@ -10,18 +10,6 @@ struct CostMap *make_cost_map(const size_t char_width,
 			      const int min_cost,
 			      const int max_cost)
 {
-	char min_str[6];
-	char max_str[6];
-
-	sprintf(min_str, "%d", min_cost);
-	sprintf(max_str, "%d", max_cost);
-
-	const size_t min_str_len = strlen(min_str);
-	const size_t max_str_len = strlen(max_str);
-
-	const size_t col_width = (min_str_len > max_str_len ?
-				  min_str_len : max_str_len) + 2lu;
-
 	const size_t res_x = (char_height - 1lu) / 2lu;
 
 	if (res_x == 0lu) {
@@ -29,16 +17,15 @@ struct CostMap *make_cost_map(const size_t char_width,
 				" (input height: %zu)", char_height);
 	}
 
-	const size_t res_y = (char_width  - 1lu) / (col_width + 1lu);
+	const size_t res_y = (char_width  - 1lu) / 4lu;
 
 	if (res_y == 0lu) {
-		EXIT_ON_FAILURE("map must be at least %zu characters wide"
-				" (input width: %zu)",
-				col_width + 2lu, char_width);
+		EXIT_ON_FAILURE("map must be at least 5 characters wide"
+				" (input width: %zu)",  char_width);
 	}
 
+	printf("sizeof(struct CostMap): %zu\n", sizeof(struct CostMap));
 
-	struct CostMap *map;
 	int **costs;
 	int *cost_row;
 	int cost;
@@ -65,17 +52,44 @@ struct CostMap *make_cost_map(const size_t char_width,
 		}
 	}
 
+	struct CostMap *map;
+	struct Coords *resolution;
+	struct Coords *start_coords;
+	struct Coords *goal_coords;
+	struct Bounds *cost_bounds;
 
-	HANDLE_MALLOC(map, sizeof(struct CostMap));
+	HANDLE_MALLOC(map,          sizeof(struct CostMap));
+	HANDLE_MALLOC(resolution,   sizeof(struct Coords));
+	HANDLE_MALLOC(start_coords, sizeof(struct Coords));
+	HANDLE_MALLOC(goal_coords,  sizeof(struct Coords));
+	HANDLE_MALLOC(cost_bounds,  sizeof(struct Bounds));
 
-	map->costs = costs;
-	map->res_x = res_x;
-	map->res_y = res_y;
-	map->min_cost = actual_min;
-	map->max_cost = actual_max;
-	map->col_width = col_width;
+	set_start_and_goal(res_x, res_y, start_coords, goal_coords);
+
+	resolution->x = res_x;
+	resolution->y = res_y;
+	cost_bounds->min = actual_min;
+	cost_bounds->max = actual_max;
+
+	map->resolution   = resolution;
+	map->cost_bounds  = cost_bounds;
+	map->start_coords = start_coords;
+	map->goal_coords  = goal_coords;
+	map->costs	  = costs;
 
 	return map;
+}
+
+
+void set_start_and_goal(const size_t res_x,
+			const size_t res_y,
+			struct Coords *start_coords,
+			struct Coords *goal_coords)
+{
+	size_t lbound_start;
+	size_t rbound_start;
+
+	return;
 }
 
 

@@ -49,8 +49,8 @@ void pretty_print_cost_map(char *buffer,
 
 	/* char buffer[res_x * row_width]; */
 
-	const int res_x  = map->res_x;
-	const int res_y  = map->res_y;
+	const int res_x  = map->resolution->x;
+	const int res_y  = map->resolution->y;
 
 	FILE *map_file;
 	int **costs;
@@ -96,8 +96,8 @@ void pretty_print_cost_map(char *buffer,
 void cost_map_to_csv(char *filename,
 		     struct CostMap *map)
 {
-	const size_t res_x = map->res_x;
-	const size_t res_y = map->res_y;
+	const size_t res_x = map->resolution->x;
+	const size_t res_y = map->resolution->y;
 
 
 	FILE *map_file;
