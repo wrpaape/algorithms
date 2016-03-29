@@ -11,6 +11,7 @@ int **generate_map(const size_t res_x,
 	int **cost_grid;
 	int *cost_col;
 	double ***grad_grid;
+	double noise;
 	size_t x, y;
 
 	init_rng();
@@ -24,20 +25,28 @@ int **generate_map(const size_t res_x,
 
 	for (x = 0; x < res_x; ++x) {
 
-		HANDLE_MALLOC(cost_col, SIZE_COL);
+		/* HANDLE_MALLOC(cost_col, SIZE_COL); */
+
+		puts("*********************************************");
 
 		for (y = 0; y < res_y; ++y) {
 
+			noise = perlin_noise(x, y, grad_grid);
 
-			cost_col[y] = grad;
+			/* printf(" %f", perlin_noise(x, y, grad_grid)); */
+
+			/* cost_col[y] = grad; */
 		}
 
-		cost_grid[x] = cost_col;
+		puts("*********************************************");
+
+		/* cost_grid[x] = cost_col; */
 
 	}
 
 
-	return cost_grid;
+	/* return cost_grid; */
+	return NULL;
 }
 
 
@@ -48,8 +57,8 @@ double perlin_noise(const size_t x0,
 	const size_t x1 = x0 + 1lu;
 	const size_t y1 = y0 + 1lu;
 
-	double grad0;
-	double grad1;
+	double *grad0;
+	double *grad1;
 	double dxdy_dot_grad0;
 	double dxdy_dot_grad1;
 
@@ -59,8 +68,10 @@ double perlin_noise(const size_t x0,
 	dxdy_dot_grad0 = dot_prod_2d( 0.5, -0.5, grad0[0], grad0[1]);
 	dxdy_dot_grad1 = dot_prod_2d( 0.5,  0.5, grad1[0], grad1[1]);
 
-	const double lerp_NW_NE = linear_interp_step(dxdy_dot_grad0,
-						     dxdy_dot_grad1, 0.5);
+	/* const double lerp_NW_NE = linear_interp_step(dxdy_dot_grad0, */
+	/* 					     dxdy_dot_grad1, 0.5); */
+
+	const double avg_NW_NE = (dxdy_dot_grad0 + dxdy_dot_grad1) / 2.0;
 
 	grad0 = grad_grid[x0][y1];
 	grad1 = grad_grid[x1][y1];
@@ -68,12 +79,14 @@ double perlin_noise(const size_t x0,
 	dxdy_dot_grad0 = dot_prod_2d(-0.5, -0.5, grad0[0], grad0[1]);
 	dxdy_dot_grad1 = dot_prod_2d(-0.5,  0.5, grad1[0], grad1[1]);
 
-	const double lerp_SW_SE = linear_interp_step(dxdy_dot_grad0,
-						     dxdy_dot_grad1, 0.5);
+	/* const double lerp_SW_SE = linear_interp_step(dxdy_dot_grad0, */
+	/* 					     dxdy_dot_grad1, 0.5); */
+
+	const double avg_SW_SE = (dxdy_dot_grad0 + dxdy_dot_grad1) / 2.0;
 
 
-	return linear_interp_step(lerp_NW_NE,
-				  lerp_SW_SE, 0.5);
+	return linear_interp_step(avg_NW_NE,
+				  avg_SW_SE, 0.5);
 }
 
 inline double dot_prod_2d(const double u_x, const double u_y,
