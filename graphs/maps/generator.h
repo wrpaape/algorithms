@@ -12,15 +12,16 @@ double perlin_noise(const size_t x_0,
 double ***init_grad_grid(const size_t verts_x,
 			 const size_t verts_y);
 
+int **init_costs_map(const size_t res_x,
+		     const size_t res_y,
+		     const double min_cost,
+		     const double max_cost,
+		     double ***grad_grid);
+
+static inline void free_grad_grid(const size_t verts_x,
+				  const size_t verts_y,
+				  double ***grad_grid);
+
 static inline double dot_prod_2d(const double u_x, const double u_y,
 				 const double v_x, const double v_y);
-
-static inline double linear_interp_step(const double lbound,
-					const double rbound,
-					const double weight);
-
-static inline double smoothstep(const double ledge,
-				const double redge,
-				const double x);
-
 #endif /* ifndef GRAPHS_MAPS_GENERATOR_H_ */
