@@ -3,7 +3,10 @@
 #include "builder.h"
 #include "bheap.h"
 #include "inspect.h"
+#include "maps/maker.h"
 #include "maps/printer.h"
+
+#define FILENAME "maps/map.txt"
 
 int min_cost(const void *vedge1, const void *vedge2)
 {
@@ -14,8 +17,12 @@ int min_cost(const void *vedge1, const void *vedge2)
 
 int main(void)
 {
+	struct CostMap *map = make_cost_map(80lu, 40lu, 0, 9);
 
-	print_map(80lu, 40lu);
+	print_cost_map_to_file(map, FILENAME);
+
+	free_cost_map(map);
+
 	return 0;
 
 	/* tour_graph(build_graph1()); */

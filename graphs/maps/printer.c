@@ -1,8 +1,7 @@
 #include "utils/utils.h"
-#include "maps/generator.h"
+#include "maps/maker.h"
 #include "maps/printer.h"
 
-#define FILENAME "maps/map.txt"
 
 #define SET_CHAR(PTR, BYTE)	\
 do {				\
@@ -17,42 +16,45 @@ do {				\
 	SET_CHAR(PTR, BYTE);	\
 } while (0)
 
+
 struct Lines {
 	char *top;
 	char *mid;
 	char *bot;
 };
 
-void print_map(const size_t width,
-	       const size_t height)
+
+void print_cost_map_to_file(struct CostMap *map,
+			    char *filename)
 {
-	const size_t res_x = (width  - 1lu) / 4lu;
 
-	if (res_x == 0lu) {
-		EXIT_ON_FAILURE("map width must be at least 5 characters"
-				" (input width: %zu)", width);
-	}
-
-	const size_t res_y = (height - 1lu) / 2lu;
-
-	if (res_y == 0lu) {
-		EXIT_ON_FAILURE("map height must be at least 3 characters"
-				" (input height: %zu)", width);
-	}
-
-
-	FILE *map_file = fopen(FILENAME, "w");
+	FILE *map_file = fopen(filename, "w");
 
 	if (map_file == NULL)
-		EXIT_ON_FAILURE("failed to open file '%s'", FILENAME);
+		EXIT_ON_FAILURE("failed to open file '%s'", filename);
 
-	int **costs_map;
+        /* y_ratio > 0.85 -> ANSI.bright <> ANSI.magenta */
+        /* y_ratio > 0.70 -> ANSI.bright <> ANSI.red */
+        /* y_ratio > 0.55 ->                ANSI.yellow */
+        /* y_ratio > 0.40 ->                ANSI.green */
+        /* y_ratio > 0.20 -> ANSI.faint  <> ANSI.cyan */
+        /* true           -> ANSI.faint  <> ANSI.blue */
+
+
+	const char *BLOCKS[] = {
+		" ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"
+	};
+
+	const int res_x  = map->res_x;
+	const int res_y  = map->res_y;
+
+	int **costs;
 	int *costs_col;
 	struct Lines *lines;
 	char *mid_line;
 	size_t x, y;
 
-	costs_map = generate_map(res_x, res_y, 0, 9);
+	costs = map->costs;
 
 	lines    = draw_lines(res_x);
 	mid_line = lines->mid;
@@ -64,11 +66,10 @@ void print_map(const size_t width,
 	while (1) {
 		fputs("│", map_file);
 
-		costs_col = costs_map[x];
+		costs_col = costs[x];
 
-		for (y = 0lu; y < res_y; ++y) {
-			fprintf(map_file, " %d │", costs_col[y]);
-		}
+		for (y = 0lu; y < res_y; ++y)
+			fprintf(map_file, " %s │", BLOCKS[costs_col[y]]);
 
 		fputc('\n', map_file);
 
@@ -79,8 +80,6 @@ void print_map(const size_t width,
 
 		fputs(mid_line, map_file);
 	}
-
-	free_costs_map(res_x, costs_map);
 
 	fputs(lines->bot, map_file);
 
@@ -153,14 +152,3 @@ struct Lines *draw_lines(const size_t res_x)
 
 	return lines;
 }
-
-
-inline void free_costs_map(const size_t res_x,
-			   int **costs_map)
-{
-	for (size_t x = 0lu; x < res_x; ++x)
-		free(costs_map[x]);
-
-	free(costs_map);
-}
-

@@ -1,12 +1,10 @@
 #ifndef GRAPHS_MAPS_PRINTER_H_
 #define GRAPHS_MAPS_PRINTER_H_
-void print_map(const size_t width,
-	       const size_t height);
+void print_cost_map_to_file(struct CostMap *map,
+			    char *filename);
 
 struct Lines *draw_lines(const size_t res_x);
 
-static inline void free_costs_map(const size_t res_x,
-				  int **costs_map);
 #endif /* ifndef GRAPHS_MAPS_PRINTER_H_ */
 
 /*****************************************************************************

@@ -1,12 +1,46 @@
 #include "utils/utils.h"
 #include "utils/rand.h"
-#include "maps/generator.h"
+#include "maps/maker.h"
 #include <math.h>
 
-int **generate_map(const size_t res_x,
-		   const size_t res_y,
-		   const int min_cost,
-		   const int max_cost)
+extern inline void free_cost_map(struct CostMap *map);
+
+struct CostMap *make_cost_map(const size_t char_width,
+			      const size_t char_height,
+			      const int min_cost,
+			      const int max_cost)
+{
+	const size_t res_x = (char_width  - 1lu) / 4lu;
+
+	if (res_x == 0lu) {
+		EXIT_ON_FAILURE("map must be at least 5 characters wide"
+				" (input width: %zu)", char_width);
+	}
+
+	const size_t res_y = (char_height - 1lu) / 2lu;
+
+	if (res_y == 0lu) {
+		EXIT_ON_FAILURE("map must be at least 3 characters wide"
+				" (input height: %zu)", char_height);
+	}
+
+
+	struct CostMap *map;
+
+	HANDLE_MALLOC(map, sizeof(struct CostMap));
+
+	map->costs = make_costs(res_x, res_y, min_cost, max_cost);
+	map->res_x = res_x;
+	map->res_y = res_y;
+
+	return map;
+}
+
+
+int **make_costs(const size_t res_x,
+		 const size_t res_y,
+		 const int min_cost,
+		 const int max_cost)
 {
 
 	const size_t verts_x = res_x + 1lu;
@@ -16,22 +50,22 @@ int **generate_map(const size_t res_x,
 
 	double ***grad_grid = init_grad_grid(verts_x, verts_y);
 
-	int **costs_map = init_costs_map(res_x, res_y,
-					 (double) min_cost,
-					 (double) max_cost,
-					 grad_grid);
+	int **costs = init_costs(res_x, res_y,
+				 (double) min_cost,
+				 (double) max_cost,
+				 grad_grid);
 
 	free_grad_grid(verts_x, verts_y, grad_grid);
 
-	return costs_map;
+	return costs;
 }
 
 
-int **init_costs_map(const size_t res_x,
-		     const size_t res_y,
-		     const double min_cost,
-		     const double max_cost,
-		     double ***grad_grid)
+int **init_costs(const size_t res_x,
+		 const size_t res_y,
+		 const double min_cost,
+		 const double max_cost,
+		 double ***grad_grid)
 {
 	const double cost_diff = max_cost - min_cost;
 
