@@ -59,7 +59,7 @@ struct Lines {
 
 
 /* 12-13 bytes */
-#define COST_BYTES 13lu
+#define COST_BYTES 22lu
 const char *COST_TOKENS[] = {
 	FAINT  WHITE   "▁",
 	FAINT  BLACK   "▁",
