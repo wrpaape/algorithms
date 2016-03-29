@@ -1,4 +1,5 @@
-#include "utils.h"
+#include "utils/utils.h"
+#include "utils/rand.h"
 #include "maps/generator.h"
 #include "maps/printer.h"
 
@@ -22,8 +23,6 @@ struct Lines {
 	char *mid;
 	char *bot;
 };
-
-	/* ╔╦╗╠╬╣╚╩╝|═║┌┬┐├┼┤└┴┘┏┳┓┣╋┫┗┻┻┛━┃ */
 
 void print_map(const size_t width,
 	       const size_t height)

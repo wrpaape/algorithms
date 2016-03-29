@@ -1,5 +1,5 @@
-#ifndef GRAPHS_UTILS_H_
-#define GRAPHS_UTILS_H_
+#ifndef GRAPHS_UTILS_UTILS_H_
+#define GRAPHS_UTILS_UTILS_H_
 #include <stdlib.h>	/* malloc */
 #include <stdio.h>	/* fprintf */
 #include <errno.h>	/* errno */
@@ -26,4 +26,4 @@ do {									\
 		EXIT_ON_FAILURE("failed to allocate %lu bytes", size);	\
 } while (0)
 
-#endif /* ifndef GRAPHS_UTILS_H_ */
+#endif /* ifndef GRAPHS_UTILS_UTILS_H_ */
