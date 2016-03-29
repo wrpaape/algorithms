@@ -12,12 +12,11 @@ struct Bounds {
 };
 
 struct CostMap {
+	struct Coords *resolution;
 	struct Coords *start_coords;
 	struct Coords *goal_coords;
-	struct Bounds *cost_bounds;
-	struct Coords *resolution;
-	int min_cost;
-	int max_cost;
+	struct Bounds *est_bounds;
+	struct Bounds *act_bounds;
 	int **costs;
 };
 
@@ -67,7 +66,8 @@ inline void free_cost_map(struct CostMap *map)
 	free(map->resolution);
 	free(map->start_coords);
 	free(map->goal_coords);
-	free(map->cost_bounds);
+	free(map->est_bounds);
+	free(map->act_bounds);
 	free(map);
 }
 #endif /* ifndef GRAPHS_MAPS_MAKER_H_ */

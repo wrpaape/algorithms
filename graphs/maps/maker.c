@@ -31,8 +31,8 @@ struct CostMap *make_cost_map(const size_t char_width,
 	int cost;
 	size_t x, y;
 
-	int actual_min = max_cost;
-	int actual_max = min_cost;
+	int act_min = max_cost;
+	int act_max = min_cost;
 
 	costs = make_costs(res_x, res_y, min_cost, max_cost);
 
@@ -44,11 +44,11 @@ struct CostMap *make_cost_map(const size_t char_width,
 
 			cost = cost_row[y];
 
-			if (cost < actual_min)
-				actual_min = cost;
+			if (cost < act_min)
+				act_min = cost;
 
-			else if (cost > actual_max)
-				actual_max = cost;
+			else if (cost > act_max)
+				act_max = cost;
 		}
 	}
 
@@ -56,25 +56,30 @@ struct CostMap *make_cost_map(const size_t char_width,
 	struct Coords *resolution;
 	struct Coords *start_coords;
 	struct Coords *goal_coords;
-	struct Bounds *cost_bounds;
+	struct Bounds *est_bounds;
+	struct Bounds *act_bounds;
 
 	HANDLE_MALLOC(map,          sizeof(struct CostMap));
 	HANDLE_MALLOC(resolution,   sizeof(struct Coords));
 	HANDLE_MALLOC(start_coords, sizeof(struct Coords));
 	HANDLE_MALLOC(goal_coords,  sizeof(struct Coords));
-	HANDLE_MALLOC(cost_bounds,  sizeof(struct Bounds));
+	HANDLE_MALLOC(est_bounds,   sizeof(struct Bounds));
+	HANDLE_MALLOC(act_bounds,   sizeof(struct Bounds));
 
 	set_start_and_goal(res_x, res_y, start_coords, goal_coords);
 
 	resolution->x = res_x;
 	resolution->y = res_y;
-	cost_bounds->min = actual_min;
-	cost_bounds->max = actual_max;
+	est_bounds->min = min_cost;
+	est_bounds->max = max_cost;
+	act_bounds->min = act_min;
+	act_bounds->max = act_max;
 
 	map->resolution   = resolution;
-	map->cost_bounds  = cost_bounds;
 	map->start_coords = start_coords;
 	map->goal_coords  = goal_coords;
+	map->est_bounds   = est_bounds;
+	map->act_bounds   = act_bounds;
 	map->costs	  = costs;
 
 	return map;
@@ -86,10 +91,28 @@ void set_start_and_goal(const size_t res_x,
 			struct Coords *start_coords,
 			struct Coords *goal_coords)
 {
-	size_t lbound_start;
-	size_t rbound_start;
+	const int32_t full_x = (int32_t) res_x;
+	const int32_t full_y = (int32_t) res_y;
+	const int32_t half_x = full_x / 2;
+	const int32_t half_y = full_y / 2;
 
-	return;
+	if (coin_flip()) {
+		start_coords->x = rand_in_int_range(0,		half_x);
+		goal_coords->x  = rand_in_int_range(half_x + 1,	full_x);
+
+	} else {
+		start_coords->x = rand_in_int_range(half_x + 1, full_x);
+		goal_coords->x  = rand_in_int_range(0,		half_x);
+	}
+
+	if (coin_flip()) {
+		start_coords->y = rand_in_int_range(0,		half_y);
+		goal_coords->y  = rand_in_int_range(half_y + 1,	full_y);
+
+	} else {
+		start_coords->y = rand_in_int_range(half_y + 1, full_y);
+		goal_coords->y  = rand_in_int_range(0,          half_y);
+	}
 }
 
 
