@@ -12,8 +12,7 @@ int **generate_map(const size_t res_x,
 
 	init_rng();
 
-	rand_in_range(0, 9);
-
+	printf("rand: %d\n", rand_in_range(0, 9));
 
 	return NULL;
 }

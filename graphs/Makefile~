@@ -29,4 +29,4 @@ pcg_basic.o: pcg_basic.c pcg_basic.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	$(RM) graphs *.o *~ **/*~ maps/*~
+	$(RM) graphs *.o *~ **/*~
