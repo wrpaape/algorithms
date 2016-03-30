@@ -118,7 +118,7 @@ void set_start_and_goal(const size_t res_x,
 	const int32_t half_y = last_y / 2;
 
 	int32_t s_x;
-	int32_t s_y
+	int32_t s_y;
 	int32_t g_x;
 	int32_t g_y;
 
@@ -146,7 +146,6 @@ void set_start_and_goal(const size_t res_x,
 	/* avoid placing tokens on corner or join pieces */
 	start->y = (size_t) (((s_x & 1) && (s_y > 0)) ? (s_y - 1) : s_y);
 	goal->y  = (size_t) (((g_x & 1) && (g_y > 0)) ? (g_y - 1) : g_y);
-
 }
 
 

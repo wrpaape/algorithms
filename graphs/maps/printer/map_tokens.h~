@@ -44,6 +44,11 @@ void set_line_with_token(char **dbl_ptr,
 			 void (*token_setter)(char **),
 			 struct JoinSetters *join_setters);
 
+void set_rem_unbroken(char **dbl_ptr,
+		      const size_t rem_y,
+		      void (*set_center_join)(char **),
+		      void (*set_right_join)(char **));
+
 void (*COST_TOKEN_SETTERS[SETTER_COUNT])(char **) = {
 	set_cost_token_0, set_cost_token_1, set_cost_token_2, set_cost_token_3,
 	set_cost_token_4, set_cost_token_5, set_cost_token_6, set_cost_token_7,

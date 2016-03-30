@@ -106,11 +106,8 @@ void set_unbroken_line(char **dbl_ptr,
 	void (*set_right_join)(char **)  = join_setters->right;
 
 	PUT_ANSI_WHITE_BG(ptr);
-
 	set_left_join(&ptr);
-
 	PUT_HORIZONTAL_LINES(ptr);
-
 	set_rem_unbroken(&ptr,
 			 res_y - 1lu,
 			 set_center_join,
@@ -133,17 +130,28 @@ void set_line_with_token(char **dbl_ptr,
 	void (*set_right_join)(char **)  = join_setters->right;
 
 	PUT_ANSI_WHITE_BG(ptr);
-
 	set_left_join(&ptr);
 
-	if (token_y == 0lu) {
 
+	for (size_t y = 0lu; y < token_y; ++y) {
 
+		PUT_HORIZONTAL_LINES(ptr);
+		set_center_join(&ptr);
 	}
 
-SET_REM_UNBROKEN:
+	/* set token */
+	PUT_SPACE(ptr);
+	token_setter(&ptr);
+	PUT_ANSI_RESET(ptr);
+	PUT_ANSI_WHITE_BG(ptr);
+	PUT_SPACE(ptr);
 
-UPDATE_DBL_PTR_AND_RETURN:
+	/* set remainder of unbroken line */
+	set_rem_unbroken(&ptr,
+			 res_y - token_y - 1lu,
+			 set_center_join,
+			 set_right_join);
+
 	*dbl_ptr = ptr;
 }
 
@@ -158,14 +166,11 @@ void set_rem_unbroken(char **dbl_ptr,
 	for (size_t y = 0lu; y < rem_y; ++y) {
 
 		set_center_join(&ptr);
-
 		PUT_HORIZONTAL_LINES(ptr);
 	}
 
 	set_right_join(&ptr);
-
 	PUT_ANSI_RESET(ptr);
-
 	PUT_CHAR(ptr, '\n');
 
 	*dbl_ptr = ptr;

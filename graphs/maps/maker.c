@@ -118,7 +118,7 @@ void set_start_and_goal(const size_t res_x,
 	const int32_t half_y = last_y / 2;
 
 	int32_t s_x;
-	int32_t s_y
+	int32_t s_y;
 	int32_t g_x;
 	int32_t g_y;
 

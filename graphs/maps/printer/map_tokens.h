@@ -85,8 +85,6 @@ inline void set_start_token(char **dbl_ptr)
 	PUT_CHAR(ptr, 226);
 	PUT_CHAR(ptr, 151);
 	PUT_CHAR(ptr, 139);
-	PUT_ANSI_RESET(ptr);
-	PUT_ANSI_NORMAL(ptr);
 
 	*dbl_ptr = ptr;
 }
@@ -102,8 +100,6 @@ inline void set_goal_token(char **dbl_ptr)
 	PUT_ANSI_WHITE(ptr);
 	PUT_CHAR(ptr, 226);
 	PUT_CHAR(ptr, 149);
-	PUT_CHAR(ptr, 179);
-	PUT_ANSI_RESET(ptr);
 
 	*dbl_ptr = ptr;
 }
