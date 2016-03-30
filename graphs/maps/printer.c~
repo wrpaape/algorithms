@@ -8,6 +8,24 @@ do {									\
 	*PTR = BYTE;							\
 	++PTR;								\
 } while (0)
+/* <<27, 91, 51, 55, 109, 0>> */
+
+#define SET_SML_ANSI(PTR, B2)						\
+do {									\
+	SET_CHAR(PTR, 27);						\
+	SET_CHAR(PTR, 97);						\
+	SET_CHAR(PTR, B2);						\
+	SET_CHAR(PTR, 109);						\
+} while (0)
+
+#define SET_BIG_ANSI(PTR, B2, B3)					\
+do {									\
+	SET_CHAR(PTR, 27);						\
+	SET_CHAR(PTR, 97);						\
+	SET_CHAR(PTR, B2);						\
+	SET_CHAR(PTR, B3);						\
+	SET_CHAR(PTR, 109);						\
+} while (0)
 
 #define SET_BOX_CHAR(PTR, BYTE)						\
 do {									\
@@ -15,6 +33,9 @@ do {									\
 	SET_CHAR(PTR, 148);						\
 	SET_CHAR(PTR, BYTE);						\
 } while (0)
+
+#define SET_ANSI_WHITE_BG(PTR) SET_BIG_ANSI(PTR, 52, 53)
+#define SET_ANSI_RESET(PTR) SET_SML_ANSI(PTR, 52, 53)
 
 #define HANDLE_FOPEN(FILE_PTR, FILENAME, MODE)				\
 do {									\
@@ -24,15 +45,16 @@ do {									\
 				FILENAME, MODE);			\
 } while (0)
 
+inline void free_lines(struct Lines *lines)
+{
+	free(lines->top);
+	free(lines->mid);
+	free(lines->bot);
+	free(lines);
+}
 
-struct Lines {
-	char *top;
-	char *mid;
-	char *bot;
-};
-
-/* ~w(white_background faint bright blue cyan green yellow red magenta)a */
-
+#define PAD_SIZE 2lu
+#define BOX_CHAR_SIZE 3lu
 
 /* 4 bytes */
 #define FAINT "\e[2m"
@@ -52,25 +74,40 @@ struct Lines {
 #define MAGENTA "\e[35m"
 #define BLACK "\e[30m"
 
-/* 22 bytes */
-#define START_GOAL_BYTES 22lu
-#define START_TOKEN (BLACK_BG BRIGHT WHITE "◯" WHITE_BG)
-#define GOAL_TOKEN (BLACK_BG BRIGHT WHITE "╳" WHITE_BG)
-
 
 /* 12-13 bytes */
-#define COST_BYTES 22lu
-const char *COST_TOKENS[] = {
-	FAINT  WHITE   "▁",
-	FAINT  BLACK   "▁",
-	FAINT  BLUE    "▂",
-	NORMAL CYAN    "▃",
-	NORMAL GREEN   "▄",
-	NORMAL YELLOw  "▅",
-	BRIGHT RED     "▆",
-	BRIGHT MAGENTA "▇",
-	BRIGHT BLACK   "█"
+#define COST_TOKEN_SIZE 13lu
+const struct Token COST_TOKENS[] = {
+	{.chars = FAINT  WHITE   "▁", .size = 12lu},
+	{.chars = FAINT  BLACK   "▁", .size = 12lu},
+	{.chars = FAINT  BLUE    "▂", .size = 12lu},
+	{.chars = NORMAL CYAN    "▃", .size = 13lu},
+	{.chars = NORMAL GREEN   "▄", .size = 13lu},
+	{.chars = NORMAL YELLOw  "▅", .size = 13lu},
+	{.chars = BRIGHT RED     "▆", .size = 12lu},
+	{.chars = BRIGHT MAGENTA "▇", .size = 12lu},
+	{.chars = BRIGHT BLACK   "█", .size = 12lu}
 };
+
+/* 22 bytes */
+const struct Token START_TOKEN = {
+	.chars = BLACK_BG BRIGHT WHITE "◯" WHITE_BG,
+	.size = 22lu
+}
+
+/* 22 bytes */
+const struct Token GOAL_TOKEN = {
+	.chars = BLACK_BG BRIGHT WHITE "╳" WHITE_BG,
+	.size = 22lu
+}
+
+const struct Token GOAL_TOKEN = {
+	.chars = BLACK_BG BRIGHT WHITE "╳" WHITE_BG,
+	.size = 22lu
+}
+
+const struct Token GOAL_TOKEN
+
 
 
 /* ╳ <<226, 149, 179>>*/
@@ -96,8 +133,15 @@ void pretty_print_cost_map(char *buffer,
 	char *mid_line;
 	size_t x, y;
 
-	char line_buff[res_x]
+	const size_t num_char_rows = res_y * 2lu + 1lu;
+	const size_t max_row_size = (COST_TOKEN_SIZE * (res_x - 2lu))
+				  + START_TOKEN.size
+				  + GOAL_TOKEN.size
+				  + ((PAD_SIZE + BOX_CHAR_SIZE) * res_x)
+				  + (BOX_CHAR_SIZE + 1lu);
 
+	char *row_buff;
+	char *lines_and_rows[num_char_rows];
 
 	costs = map->costs;
 
@@ -105,7 +149,7 @@ void pretty_print_cost_map(char *buffer,
 	mid_line = lines->mid;
 
 
-	fputs(lines->top, map_file);
+	line_buffs[0] = lines->top;
 
 	x = 0lu;
 
@@ -188,6 +232,8 @@ struct Lines *draw_lines(const size_t res_x)
 	/* '_____ + 2': newline plus null byte */
 	const size_t BUFF_CHARS = (((res_x * 4lu) + 1lu) * 3lu) + 2lu;
 
+	const size_t size = sizeof(char) * BUFF_CHARS;
+
 	struct Lines *lines;
 	char *top;
 	char *mid;
@@ -196,14 +242,16 @@ struct Lines *draw_lines(const size_t res_x)
 	size_t char_i;
 
 	HANDLE_MALLOC(lines, sizeof(struct Lines));
-	HANDLE_MALLOC(top,   sizeof(char) * BUFF_CHARS);
-	HANDLE_MALLOC(mid,   sizeof(char) * BUFF_CHARS);
-	HANDLE_MALLOC(bot,   sizeof(char) * BUFF_CHARS);
+	HANDLE_MALLOC(top,   size);
+	HANDLE_MALLOC(mid,   size);
+	HANDLE_MALLOC(bot,   size);
 
+	lines->size = size;
 	lines->top = top;
 	lines->mid = mid;
 	lines->bot = bot;
 
+	/* set white_bg ANSI */
 
 	/* set left pieces '┌', '├', and '└' */
 	SET_BOX_CHAR(top, 140);

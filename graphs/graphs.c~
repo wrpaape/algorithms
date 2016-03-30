@@ -20,16 +20,16 @@ int main(void)
 	char buffer[1lu << 16];
 	struct CostMap *map = make_cost_map(80lu, 40lu, 0, 9);
 
-	printf("map->resolution->x:   %zu\n", map->resolution->x);
-	printf("map->resolution->y:   %zu\n\n", map->resolution->y);
-	printf("map->start_coords->x: %zu\n", map->start_coords->x);
-	printf("map->start_coords->y: %zu\n", map->start_coords->y);
-	printf("map->goal_coords->x:  %zu\n", map->goal_coords->x);
-	printf("map->goal_coords->y:  %zu\n\n", map->goal_coords->y);
-	printf("map->est_bounds->min: %d\n", map->est_bounds->min);
-	printf("map->est_bounds->max: %d\n", map->est_bounds->max);
-	printf("map->act_bounds->min: %d\n", map->act_bounds->min);
-	printf("map->act_bounds->max: %d\n", map->act_bounds->max);
+	/* printf("map->resolution->x:   %zu\n", map->resolution->x); */
+	/* printf("map->resolution->y:   %zu\n\n", map->resolution->y); */
+	/* printf("map->start_coords->x: %zu\n", map->start_coords->x); */
+	/* printf("map->start_coords->y: %zu\n", map->start_coords->y); */
+	/* printf("map->goal_coords->x:  %zu\n", map->goal_coords->x); */
+	/* printf("map->goal_coords->y:  %zu\n\n", map->goal_coords->y); */
+	/* printf("map->est_bounds->min: %d\n", map->est_bounds->min); */
+	/* printf("map->est_bounds->max: %d\n", map->est_bounds->max); */
+	/* printf("map->act_bounds->min: %d\n", map->act_bounds->min); */
+	/* printf("map->act_bounds->max: %d\n", map->act_bounds->max); */
 
 	cost_map_to_csv(FILENAME, map);
 
