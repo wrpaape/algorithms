@@ -49,4 +49,4 @@ inline void set_goal_token(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-#endif /* ifndef _GRAPHS_MAPS_PRINTER_MAP_TOKENS_H_
+#endif /* ifndef _GRAPHS_MAPS_PRINTER_MAP_TOKENS_H_ */

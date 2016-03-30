@@ -1,7 +1,7 @@
 CC	= gcc
 CFLAGS	= -g -I. -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
-graphs: graphs.o builder.o inspect.o bheap.o maker.o printer.o rand.o pcg_basic.o
+graphs: graphs.o builder.o inspect.o bheap.o maker.o printer.o rand.o pcg_basic.o map_tokens.o
 		$(CC) $(CFLAGS) -o $@ $^
 
 graphs.o: graphs.c graphs.h builder.h inspect.h utils/utils.h
@@ -16,7 +16,7 @@ inspect.o: inspect.c inspect.h graphs.h bheap.h
 bheap.o: bheap.c bheap.h utils/utils.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
-printer.o: maps/printer.c maps/printer.h maps/maker.h utils/utils.h
+printer.o: maps/printer.c maps/printer.h maps/maker.h maps/printer/map_tokens.h utils/utils.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
 maker.o: maps/maker.c maps/maker.h utils/utils.h utils/rand.h
@@ -28,5 +28,8 @@ rand.o: utils/rand.c utils/rand.h utils/utils.h utils/rand.h
 pcg_basic.o: pcg_basic.c pcg_basic.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
+map_tokens.o: maps/printer/map_tokens.c maps/printer/map_tokens.h utils/token.h
+		$(CC) $(CFLAGS) -c -o $@ $<
+
 clean:
-	$(RM) graphs *.o **/*~
+	$(RM) graphs *.o **/**/*~

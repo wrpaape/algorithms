@@ -16,22 +16,6 @@
 /* 	{.chars = BRIGHT BLACK   "█", .size = 12lu} */
 /* }; */
 
-
-/* /1* 22 bytes *1/ *r
-/* const struct Token START_TOKEN = { */
-/* 	.chars = BLACK_BG BRIGHT WHITE "◯" WHITE_BG, */
-/* 	.size = 22lu */
-/* } */
-
-/* /1* 22 bytes *1/ */
-/* const struct Token GOAL_TOKEN = { */
-/* 	.chars = BLACK_BG BRIGHT WHITE "╳" WHITE_BG, */
-/* 	.size = 22lu */
-/* } */
-
-/* ╳ <<226, 149, 179>>*/
-/* ◯ <<226, 151, 139>> */
-
 void set_cost_token_0(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -127,4 +111,3 @@ void set_cost_token_8(char **dbl_ptr)
 
 extern inline void set_start_token(char **dbl_ptr);
 extern inline void set_goal_token(char **dbl_ptr);
-#endif /* ifndef _GRAPHS_MAPS_PRINTER_MAP_TOKENS_H_
