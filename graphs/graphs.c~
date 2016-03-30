@@ -17,7 +17,7 @@ int min_cost(const void *vedge1, const void *vedge2)
 
 int main(void)
 {
-	char buffer[1lu << 16];
+	char buffer[1lu << 17];
 	struct CostMap *map = make_cost_map(80lu, 40lu, 1, 9);
 
 	/* printf("map->resolution->x:   %zu\n", map->resolution->x); */
@@ -34,8 +34,6 @@ int main(void)
 	cost_map_to_csv(FILENAME, map);
 
 	pretty_print_cost_map(buffer, map);
-
-	/* printf("token: %s\n", buffer); */
 
 	puts(buffer);
 

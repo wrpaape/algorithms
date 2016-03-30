@@ -57,6 +57,7 @@ do {				\
 #define ANSI_BRIGHT "\e[1m"
 #define ANSI_RESET "\e[0m"
 #define ANSI_CLEAR "\e[2J"
+#define ANSI_BLINK "\e[5m"
 
 
 #define PUT_ANSI_RESET(PTR) _SML_ANSI(PTR, 48)
@@ -65,9 +66,12 @@ do {				\
 
 #define PUT_ANSI_FAINT(PTR) _SML_ANSI(PTR, 50)
 
+#define PUT_ANSI_BLINK(PTR) _SML_ANSI(PTR, 53)
 
 /* 5 bytes */
 #define ANSI_NORMAl "\e[22m"
+#define ANSI_BLINK_OFF "\e[25m"
+
 #define ANSI_WHITE_BG "\e[47m"
 #define ANSI_BLACK_BG "\e[40m"
 #define ANSI_WHITE "\e[37m"
@@ -80,6 +84,7 @@ do {				\
 #define ANSI_BLACK "\e[30m"
 
 #define PUT_ANSI_NORMAl(PTR) _BIG_ANSI(PTR, 50, 50)
+#define PUT_ANSI_BLINK_OFF(PTR) _BIG_ANSI(PTR, 50, 53)
 
 #define PUT_ANSI_BLACK(PTR) _ANSI_COLOR(PTR, 48)
 #define PUT_ANSI_RED(PTR) _ANSI_COLOR(PTR, 49)
@@ -184,5 +189,20 @@ do {					\
  * 1 2 3 4 5 6 7 8 */
 #define PUT_BLOCK_CHAR_LEFT_FILL(PTR, FILL) FILL_BLOCK_CHAR(PTR, 128 + (FILL))
 
-/* #undef FILL_BLOCK_CHAR */
+
+
+/* GEOMETRIC SHAPES
+ ******************************************************************************/
+#define _GEO_CIRC(PTR, BYTE)	\
+do {					\
+	PUT_CHAR(PTR, 226);		\
+	PUT_CHAR(PTR, 151);		\
+	PUT_CHAR(PTR, BYTE);		\
+} while (0)
+
+/* ◉ */
+#define PUT_FISHEYE(PTR) _GEO_CIRC(PTR, 137)
+/* ◯ */
+#define PUT_LARGE_CIRCLE(PTR) _GEO_CIRC(PTR, 175)
+
 #endif /* ifndef _GRAPHS_UTILS_TOKEN_H_ */

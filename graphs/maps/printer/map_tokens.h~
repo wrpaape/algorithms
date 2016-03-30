@@ -91,7 +91,9 @@ inline void set_start_token(char **dbl_ptr)
 	char *ptr = *dbl_ptr;
 
 	PUT_ANSI_BRIGHT(ptr);
+	/* PUT_ANSI_BLACK_BG(ptr); */
 	PUT_ANSI_BLINK(ptr);
+	/* PUT_ANSI_BLACK(ptr); */
 	PUT_LARGE_CIRCLE(PTR);
 	PUT_CHAR(ptr, 226);
 	PUT_CHAR(ptr, 151);
