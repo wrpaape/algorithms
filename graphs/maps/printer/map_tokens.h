@@ -1,5 +1,6 @@
 #ifndef _GRAPHS_MAPS_PRINTER_MAP_TOKENS_H_
 #define _GRAPHS_MAPS_PRINTER_MAP_TOKENS_H_
+#include "utils/utils.h"
 #include "utils/token.h"
 
 #define MAX_COST_TOKEN_SIZE 13lu
@@ -12,6 +13,11 @@ struct JoinSetters {
 	void (*center)(char **);
 	void (*right)(char **);
 };
+
+extern struct JoinSetters TOP_LINE_JOIN_SETTERS;
+extern struct JoinSetters MID_LINE_JOIN_SETTERS;
+extern struct JoinSetters BOT_LINE_JOIN_SETTERS;
+
 
 void set_cost_token_0(char **dbl_ptr);
 void set_cost_token_1(char **dbl_ptr);
@@ -77,24 +83,6 @@ void set_rem_unbroken_line(char **dbl_ptr,
 			   const size_t rem_y,
 			   void (*set_center_join)(char **),
 			   void (*set_right_join)(char **));
-
-struct JoinSetters TOP_LINE_JOIN_SETTERS = {
-	.left   = set_top_left_join;
-	.center = set_top_center_join;
-	.right  = set_top_right_join;
-};
-
-struct JoinSetters MID_LINE_JOIN_SETTERS = {
-	.left   = set_top_left_join;
-	.center = set_top_center_join;
-	.right  = set_top_right_join;
-};
-
-struct JoinSetters BOT_LINE_JOIN_SETTERS = {
-	.left   = set_top_left_join;
-	.center = set_top_center_join;
-	.right  = set_top_right_join;
-};
 
 /* BRIGHT BLACK_BG WHITE "◯" RESET
  * ◯ = <<226, 151, 139>> */

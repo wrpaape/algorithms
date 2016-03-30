@@ -1,5 +1,23 @@
 #include "maps/printer/map_tokens.h"
-#include "utils/token.h"
+#include <math.h>
+
+struct JoinSetters TOP_LINE_JOIN_SETTERS = {
+	.left   = set_top_left_join,
+	.center = set_top_center_join,
+	.right  = set_top_right_join
+};
+
+struct JoinSetters MID_LINE_JOIN_SETTERS = {
+	.left   = set_top_left_join,
+	.center = set_top_center_join,
+	.right  = set_top_right_join
+};
+
+struct JoinSetters BOT_LINE_JOIN_SETTERS = {
+	.left   = set_top_left_join,
+	.center = set_top_center_join,
+	.right  = set_top_right_join
+};
 
 /* 12-13 bytes */
 /* const struct Token COST_TOKENS[] = { */
@@ -41,7 +59,7 @@ do {					\
 	PUT_CHAR(ptr, '\n');		\
 } while (0)
 
-void (*COST_TOKEN_SETTERS[TOKEN_SPAN])(char **) = {
+void (*COST_TOKEN_SETTERS[])(char **) = {
 	set_cost_token_0, set_cost_token_1, set_cost_token_2, set_cost_token_3,
 	set_cost_token_4, set_cost_token_5, set_cost_token_6, set_cost_token_7,
 	set_cost_token_8
@@ -57,19 +75,19 @@ extern inline void set_goal_token(char **dbl_ptr);
 void set_top_left_join(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
-	PUT_BOX_CHAR_LIGHT_NW_CORNER(top);
+	PUT_BOX_CHAR_LIGHT_NW_CORNER(ptr);
 	*dbl_ptr = ptr;
 }
 void set_top_center_join(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
-	PUT_BOX_CHAR_LIGHT_N_JOIN(top);
+	PUT_BOX_CHAR_LIGHT_N_JOIN(ptr);
 	*dbl_ptr = ptr;
 }
 void set_top_right_join(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
-	PUT_BOX_CHAR_LIGHT_NE_CORNER(top);
+	PUT_BOX_CHAR_LIGHT_NE_CORNER(ptr);
 	*dbl_ptr = ptr;
 }
 
