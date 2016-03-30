@@ -12,11 +12,12 @@ struct Bounds {
 };
 
 struct CostMap {
-	struct Coords *resolution;
-	struct Coords *start_coords;
-	struct Coords *goal_coords;
-	struct Bounds *est_bounds;
-	struct Bounds *act_bounds;
+	struct Coords *cell_res;
+	struct Coords *grid_res;
+	struct Coords *start;
+	struct Coords *goal;
+	struct Bounds *est;
+	struct Bounds *act;
 	int **costs;
 };
 
@@ -25,10 +26,9 @@ struct CostMap *make_cost_map(const size_t char_width,
 			      const int min_cost,
 			      const int max_cost);
 
-void set_start_and_goal(const size_t res_x,
-			const size_t res_y,
-			struct Coords *start_coords,
-			struct Coords *goal_coords);
+void set_start_and_goal(struct Coords *grid_res,
+			struct Coords *start,
+			struct Coords *goal);
 
 double ***init_grad_grid(const size_t verts_x,
 			 const size_t verts_y);
@@ -59,15 +59,16 @@ inline void free_cost_map(struct CostMap *map)
 {
 	int **costs = map->costs;
 
-	for (size_t x = 0lu, res_x = map->resolution->x; x < res_x; ++x)
+	for (size_t x = 0lu, res_x = map->cell_res->x; x < res_x; ++x)
 		free(costs[x]);
 
 	free(costs);
-	free(map->resolution);
-	free(map->start_coords);
-	free(map->goal_coords);
-	free(map->est_bounds);
-	free(map->act_bounds);
+	free(map->cell_res);
+	free(map->grid_res);
+	free(map->start);
+	free(map->goal);
+	free(map->est);
+	free(map->act);
 	free(map);
 }
 #endif /* ifndef GRAPHS_MAPS_MAKER_H_ */

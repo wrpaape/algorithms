@@ -53,65 +53,74 @@ struct CostMap *make_cost_map(const size_t char_width,
 	}
 
 	struct CostMap *map;
-	struct Coords *resolution;
-	struct Coords *start_coords;
-	struct Coords *goal_coords;
-	struct Bounds *est_bounds;
-	struct Bounds *act_bounds;
+	struct Coords *cell_res;
+	struct Coords *grid_res;
+	struct Coords *start;
+	struct Coords *goal;
+	struct Bounds *est;
+	struct Bounds *act;
 
 	HANDLE_MALLOC(map,          sizeof(struct CostMap));
-	HANDLE_MALLOC(resolution,   sizeof(struct Coords));
-	HANDLE_MALLOC(start_coords, sizeof(struct Coords));
-	HANDLE_MALLOC(goal_coords,  sizeof(struct Coords));
-	HANDLE_MALLOC(est_bounds,   sizeof(struct Bounds));
-	HANDLE_MALLOC(act_bounds,   sizeof(struct Bounds));
+	HANDLE_MALLOC(cell_res,   sizeof(struct Coords));
+	HANDLE_MALLOC(grid_res,   sizeof(struct Coords));
+	HANDLE_MALLOC(start, sizeof(struct Coords));
+	HANDLE_MALLOC(goal,  sizeof(struct Coords));
+	HANDLE_MALLOC(est,   sizeof(struct Bounds));
+	HANDLE_MALLOC(act,   sizeof(struct Bounds));
 
-	set_start_and_goal(res_x, res_y, start_coords, goal_coords);
+	cell_res->x = res_x;
+	cell_res->y = res_y;
 
-	resolution->x = res_x;
-	resolution->y = res_y;
-	est_bounds->min = min_cost;
-	est_bounds->max = max_cost;
-	act_bounds->min = act_min;
-	act_bounds->max = act_max;
+	grid_res->x = (res_x * 2lu) + 1lu;
+	grid_res->y = (res_y * 2lu) + 1lu;
 
-	map->resolution   = resolution;
-	map->start_coords = start_coords;
-	map->goal_coords  = goal_coords;
-	map->est_bounds   = est_bounds;
-	map->act_bounds   = act_bounds;
-	map->costs	  = costs;
+	set_start_and_goal(grid_res, start, goal);
+
+
+
+	est->min = min_cost;
+	est->max = max_cost;
+
+	act->min = act_min;
+	act->max = act_max;
+
+	map->cell_res = cell_res;
+	map->grid_res = grid_res;
+	map->start    = start;
+	map->goal     = goal;
+	map->est      = est;
+	map->act      = act;
+	map->costs    = costs;
 
 	return map;
 }
 
 
-void set_start_and_goal(const size_t res_x,
-			const size_t res_y,
-			struct Coords *start_coords,
-			struct Coords *goal_coords)
+void set_start_and_goal(struct Coords *grid_res,
+			struct Coords *start,
+			struct Coords *goal)
 {
-	const int32_t full_x = (((int32_t) res_x) * 2) + 1;
-	const int32_t full_y = (((int32_t) res_y) * 2) + 1;
+	const int32_t full_x = ((int32_t) grid_res->x) - 1;
+	const int32_t full_y = ((int32_t) grid_res->y) - 1;
 	const int32_t half_x = full_x / 2;
 	const int32_t half_y = full_y / 2;
 
 	if (coin_flip()) {
-		start_coords->x = rand_in_int_range(0,		half_x);
-		goal_coords->x  = rand_in_int_range(half_x + 1,	full_x);
+		start->x = rand_in_int_range(0,		 half_x);
+		goal->x  = rand_in_int_range(half_x + 1, full_x);
 
 	} else {
-		start_coords->x = rand_in_int_range(half_x + 1, full_x);
-		goal_coords->x  = rand_in_int_range(0,		half_x);
+		start->x = rand_in_int_range(half_x + 1, full_x);
+		goal->x  = rand_in_int_range(0,		 half_x);
 	}
 
 	if (coin_flip()) {
-		start_coords->y = rand_in_int_range(0,		half_y);
-		goal_coords->y  = rand_in_int_range(half_y + 1,	full_y);
+		start->y = rand_in_int_range(0,		 half_y);
+		goal->y  = rand_in_int_range(half_y + 1, full_y);
 
 	} else {
-		start_coords->y = rand_in_int_range(half_y + 1, full_y);
-		goal_coords->y  = rand_in_int_range(0,          half_y);
+		start->y = rand_in_int_range(half_y + 1, full_y);
+		goal->y  = rand_in_int_range(0,          half_y);
 	}
 }
 

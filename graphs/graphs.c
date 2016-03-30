@@ -22,10 +22,10 @@ int main(void)
 
 	/* printf("map->resolution->x:   %zu\n", map->resolution->x); */
 	/* printf("map->resolution->y:   %zu\n\n", map->resolution->y); */
-	/* printf("map->start_coords->x: %zu\n", map->start_coords->x); */
-	/* printf("map->start_coords->y: %zu\n", map->start_coords->y); */
-	/* printf("map->goal_coords->x:  %zu\n", map->goal_coords->x); */
-	/* printf("map->goal_coords->y:  %zu\n\n", map->goal_coords->y); */
+	/* printf("map->start->x: %zu\n", map->start->x); */
+	/* printf("map->start->y: %zu\n", map->start->y); */
+	/* printf("map->goal->x:  %zu\n", map->goal->x); */
+	/* printf("map->goal->y:  %zu\n\n", map->goal->y); */
 	/* printf("map->est_bounds->min: %d\n", map->est_bounds->min); */
 	/* printf("map->est_bounds->max: %d\n", map->est_bounds->max); */
 	/* printf("map->act_bounds->min: %d\n", map->act_bounds->min); */

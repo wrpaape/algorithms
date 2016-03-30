@@ -25,27 +25,28 @@ void (*COST_TOKEN_SETTERS[SETTER_COUNT])(char **) = {
 void pretty_print_cost_map(char *buffer,
 			   struct CostMap *map)
 {
-	const size_t res_x = map->resolution->x;
-	const size_t res_y = map->resolution->y;
+	const size_t cell_res_x = map->cell_res->x;
+	const size_t cell_res_y = map->cell_res->y;
 
 	const int min_cost = map->est_bounds->min;
 	const int max_cost = map->est_bounds->max;
+
 	const int cost_range = max_cost - min_cost;
 
-	const int start_x = map->start_coords->x;
-	const int start_y = map->start_coords->y;
+	const int start_x = map->start->x;
+	const int start_y = map->start->y;
 
-	const int goal_x = map->goal_coords->x;
-	const int goal_y = map->goal_coords->y;
+	const int goal_x = map->goal->x;
+	const int goal_y = map->goal->y;
 
 	int **costs = map->costs;
 
-	const size_t num_char_rows = res_y * 2lu + 1lu;
+	const size_t num_char_rows = cell_res_y * 2lu + 1lu;
 
-	const size_t max_row_size = (MAX_COST_TOKEN_SIZE * (res_x - 2lu))
+	const size_t max_row_size = (MAX_COST_TOKEN_SIZE * (cell_res_x - 2lu))
 				  + START_TOKEN_SIZE
 				  + GOAL_TOKEN_SIZE
-				  + ((PAD_SIZE + BOX_CHAR_SIZE) * res_x)
+				  + ((PAD_SIZE + BOX_CHAR_SIZE) * cell_res_x)
 				  + BOX_CHAR_SIZE
 				  + 10lu; /* ansi bg + ansi reset + nl/null */
 
@@ -53,7 +54,7 @@ void pretty_print_cost_map(char *buffer,
 
 	char *buff_ptr;
 
-	struct Lines *lines = draw_lines(res_x);
+	struct Lines *lines = draw_lines(cell_res_x);
 	char *mid_line      = lines->mid;
 
 
@@ -98,8 +99,8 @@ void pretty_print_cost_map(char *buffer,
 void cost_map_to_csv(char *filename,
 		     struct CostMap *map)
 {
-	const size_t res_x = map->resolution->x;
-	const size_t res_y = map->resolution->y;
+	const size_t res_x = map->cell_res->x;
+	const size_t res_y = map->cell_res->y;
 
 
 	FILE *map_file;
