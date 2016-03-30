@@ -32,6 +32,12 @@ struct JoinFuns MID_LINE_JOIN_FUNS = {
 	.right  = set_top_right_join;
 }
 
+struct JoinFuns BOT_LINE_JOIN_FUNS = {
+	.left   = set_top_left_join;
+	.center = set_top_center_join;
+	.right  = set_top_right_join;
+}
+
 
 void pretty_print_cost_map(char *buffer,
 			   struct CostMap *map)
