@@ -44,9 +44,17 @@ void pretty_print_cost_map(char *buffer,
 	char *mid_line;
 	size_t x, y;
 
-	COST_TOKEN_SETTERS[5](&buffer);
+	char *init = buffer;
+
+	/* COST_TOKEN_SETTERS[6](&buffer); */
+	set_goal_token(&buffer);
 
 	*buffer = '\0';
+
+	for (int i = 0; *init != '\0'; ++i) {
+		printf("%d. %d\n", i, *init);
+		++init;
+	}
 }
 
 void cost_map_to_csv(char *filename,

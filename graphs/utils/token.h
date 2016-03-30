@@ -17,10 +17,12 @@ do {				\
 #define OPEN_ANSI(PTR)		\
 do {				\
 	PUT_CHAR(PTR, 27);	\
-	PUT_CHAR(PTR, 97);	\
+	PUT_CHAR(PTR, 91);	\
 } while (0)
 
+
 #define CLOSE_ANSI(PTR) PUT_CHAR(PTR, 109)
+
 
 #define SML_ANSI(PTR, B2)	\
 do {				\
@@ -28,6 +30,7 @@ do {				\
 	PUT_CHAR(PTR, B2);	\
 	CLOSE_ANSI(PTR);	\
 } while (0)
+
 
 #define BIG_ANSI(PTR, B2, B3)	\
 do {				\
@@ -44,7 +47,9 @@ do {				\
 #define ANSI_RESET "\e[0m"
 
 #define PUT_ANSI_RESET(PTR) SML_ANSI(PTR, 48)
+
 #define PUT_ANSI_BRIGHT(PTR) SML_ANSI(PTR, 49)
+
 #define PUT_ANSI_FAINT(PTR) SML_ANSI(PTR, 50)
 
 /* 5 bytes */

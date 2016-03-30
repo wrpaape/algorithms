@@ -15,6 +15,6 @@ void cost_map_to_csv(char *filename,
 
 struct Lines *draw_lines(const size_t res_x);
 
-/* static inline void free_lines(struct Lines *lines); */
+static inline void free_lines(struct Lines *lines);
 
 #endif /* ifndef GRAPHS_MAPS_PRINTER_H_ */
