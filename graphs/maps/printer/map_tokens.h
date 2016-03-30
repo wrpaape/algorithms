@@ -46,7 +46,9 @@ void set_cost_row_with_token(char **dbl_ptr,
 			     const size_t token_y,
 			     const int min_cost,
 			     const double token_ratio,
-			     void (*token_setter)(char **));
+			     void (*token_setter)(char **),
+			     int *cost_row);
+
 
 
 void set_top_left_join(char **dbl_ptr);
@@ -76,19 +78,19 @@ void set_rem_unbroken_line(char **dbl_ptr,
 			   void (*set_center_join)(char **),
 			   void (*set_right_join)(char **));
 
-struct JoinSetters TOP_LINE_JOIN_FUNS = {
+struct JoinSetters TOP_LINE_JOIN_SETTERS = {
 	.left   = set_top_left_join;
 	.center = set_top_center_join;
 	.right  = set_top_right_join;
 };
 
-struct JoinSetters MID_LINE_JOIN_FUNS = {
+struct JoinSetters MID_LINE_JOIN_SETTERS = {
 	.left   = set_top_left_join;
 	.center = set_top_center_join;
 	.right  = set_top_right_join;
 };
 
-struct JoinSetters BOT_LINE_JOIN_FUNS = {
+struct JoinSetters BOT_LINE_JOIN_SETTERS = {
 	.left   = set_top_left_join;
 	.center = set_top_center_join;
 	.right  = set_top_right_join;

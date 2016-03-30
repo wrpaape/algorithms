@@ -317,7 +317,8 @@ void set_cost_row_with_token(char **dbl_ptr,
 			     const size_t token_y,
 			     const int min_cost,
 			     const double token_ratio,
-			     void (*token_setter)(char **))
+			     void (*token_setter)(char **),
+			     int *cost_row)
 {
 	char *ptr = *dbl_ptr;
 

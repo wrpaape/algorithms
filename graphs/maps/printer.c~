@@ -34,10 +34,10 @@ void pretty_print_cost_map(char *buffer,
 
 	int **costs = map->costs;
 
-	const size_t num_char_rows = res_x * 2lu + 1lu;
+	const size_t last_char_row = res_x * 2lu;
 
-	int *cost_row;
-	size_t x, y;
+
+
 
 
 
@@ -45,33 +45,113 @@ void pretty_print_cost_map(char *buffer,
 
 	PUT_ANSI_CLEAR(buffer);
 
+	/* set top line */
+	if (start_x == 0lu) {
+		set_line_with_token(&buffer,
+				    res_y,
+				    goal_y,
+				    set_start_token,
+				    TOP_LINE_JOIN_SETTERS);
+
+	} else if (goal_x == 0lu) {
+		set_line_with_token(&buffer,
+				    res_y,
+				    goal_y,
+				    set_goal_token,
+				    TOP_LINE_JOIN_SETTERS);
+
+	} else {
+		set_unbroken_line(&buffer,
+				  res_y,
+				  TOP_LINE_JOIN_SETTERS);
+	}
+
+	size_t char_row = 1lu;
+
+	/* fill map */
 	while (1) {
+		/* set row of cost tokens */
+		if (start_x == char_row) {
+			set_cost_row_with_token(&buffer,
+						res_y,
+						start_y,
+						min_cost,
+						token_ratio,
+						set_start_token,
+						costs[char_row / 2]);
 
-		PUT_ANSI_WHITE_BG(buff_ptr);
-		PUT_BOX_CHAR_LIGHT_V_LINE(buff_ptr);
+		} else if (goal_x == char_row) {
+			set_cost_row_with_token(&buffer,
+						res_y,
+						start_y,
+						min_cost,
+						token_ratio,
+						set_start_token,
+						costs[char_row / 2]);
 
+		} else {
+			set_unbroken_cost_row(&buffer,
+					      res_y,
+					      min_cost,
+					      token_ratio,
+					      costs[char_row / 2]);
+		}
+
+		++char_row;
+
+		if (char_row == last_char_row)
+			break;
+
+
+		/* set mid line */
+		if (start_x == char_row) {
+			set_line_with_token(&buffer,
+					    res_y,
+					    start_y,
+					    set_start_token,
+					    MID_LINE_JOIN_SETTERS);
+
+		} else if (goal_x == char_row) {
+			set_line_with_token(&buffer,
+					    res_y,
+					    goal_y,
+					    set_goal_token,
+					    MID_LINE_JOIN_SETTERS);
+
+		} else {
+			set_unbroken_line(&buffer,
+					  res_y,
+					  MID_LINE_JOIN_SETTERS);
+		}
+
+		++char_row;
 	}
 
 
 
+	/* set bot line */
+	if (start_x == last_char_row) {
+		set_line_with_token(&buffer,
+				    res_y,
+				    start_y,
+				    set_start_token,
+				    BOT_LINE_JOIN_SETTERS);
 
-	COST_TOKEN_SETTERS[4](&buffer);
-	COST_TOKEN_SETTERS[4](&buffer);
-	COST_TOKEN_SETTERS[4](&buffer);
-	COST_TOKEN_SETTERS[4](&buffer);
-	set_start_token(&buffer);
-	COST_TOKEN_SETTERS[5](&buffer);
-	COST_TOKEN_SETTERS[6](&buffer);
-	COST_TOKEN_SETTERS[0](&buffer);
-	set_goal_token(&buffer);
+	} else if (goal_x == last_char_row) {
+		set_line_with_token(&buffer,
+				    res_y,
+				    goal_y,
+				    set_goal_token,
+				    BOT_LINE_JOIN_SETTERS);
 
-	puts(lines->top);
-	puts(lines->mid);
-	puts(lines->bot);
+	} else {
+		set_unbroken_line(&buffer,
+				  res_y,
+				  BOT_LINE_JOIN_SETTERS);
+	}
 
-	free_lines(lines);
-	/* *buffer = '\0'; */
 
+	*buffer = '\0';
 }
 
 void cost_map_to_csv(char *filename,
