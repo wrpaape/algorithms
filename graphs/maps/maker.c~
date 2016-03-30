@@ -53,30 +53,23 @@ struct CostMap *make_cost_map(const size_t char_width,
 	}
 
 	struct CostMap *map;
-	struct Coords *cell_res;
-	struct Coords *grid_res;
+	struct Coords *res;
 	struct Coords *start;
 	struct Coords *goal;
 	struct Bounds *est;
 	struct Bounds *act;
 
-	HANDLE_MALLOC(map,          sizeof(struct CostMap));
-	HANDLE_MALLOC(cell_res,   sizeof(struct Coords));
-	HANDLE_MALLOC(grid_res,   sizeof(struct Coords));
+	HANDLE_MALLOC(map,   sizeof(struct CostMap));
+	HANDLE_MALLOC(res,   sizeof(struct Coords));
 	HANDLE_MALLOC(start, sizeof(struct Coords));
 	HANDLE_MALLOC(goal,  sizeof(struct Coords));
 	HANDLE_MALLOC(est,   sizeof(struct Bounds));
 	HANDLE_MALLOC(act,   sizeof(struct Bounds));
 
-	cell_res->x = res_x;
-	cell_res->y = res_y;
+	set_start_and_goal(res_x, res_y, start, goal);
 
-	grid_res->x = (res_x * 2lu) + 1lu;
-	grid_res->y = (res_y * 2lu) + 1lu;
-
-	set_start_and_goal(grid_res, start, goal);
-
-
+	res->x = res_x;
+	res->y = res_y;
 
 	est->min = min_cost;
 	est->max = max_cost;
@@ -84,39 +77,39 @@ struct CostMap *make_cost_map(const size_t char_width,
 	act->min = act_min;
 	act->max = act_max;
 
-	map->cell_res = cell_res;
-	map->grid_res = grid_res;
-	map->start    = start;
-	map->goal     = goal;
-	map->est      = est;
-	map->act      = act;
-	map->costs    = costs;
+	map->res   = res;
+	map->start = start;
+	map->goal  = goal;
+	map->est   = est;
+	map->act   = act;
+	map->costs = costs;
 
 	return map;
 }
 
 
-void set_start_and_goal(struct Coords *grid_res,
+void set_start_and_goal(const size_t res_x,
+			const size_t res_y,
 			struct Coords *start,
 			struct Coords *goal)
 {
-	const int32_t full_x = ((int32_t) grid_res->x) - 1;
-	const int32_t full_y = ((int32_t) grid_res->y) - 1;
+	const int32_t full_x = (int32_t) res_x;
+	const int32_t full_y = (int32_t) res_y;
 	const int32_t half_x = full_x / 2;
 	const int32_t half_y = full_y / 2;
 
 	if (coin_flip()) {
-		start->x = rand_in_int_range(0,		 half_x);
-		goal->x  = rand_in_int_range(half_x + 1, full_x);
+		start->x = rand_in_int_range(0,		half_x);
+		goal->x  = rand_in_int_range(half_x + 1,	full_x);
 
 	} else {
 		start->x = rand_in_int_range(half_x + 1, full_x);
-		goal->x  = rand_in_int_range(0,		 half_x);
+		goal->x  = rand_in_int_range(0,		half_x);
 	}
 
 	if (coin_flip()) {
-		start->y = rand_in_int_range(0,		 half_y);
-		goal->y  = rand_in_int_range(half_y + 1, full_y);
+		start->y = rand_in_int_range(0,		half_y);
+		goal->y  = rand_in_int_range(half_y + 1,	full_y);
 
 	} else {
 		start->y = rand_in_int_range(half_y + 1, full_y);

@@ -14,6 +14,127 @@
 /* 	{.chars = BRIGHT BLACK   "█", .size = 12lu} */
 /* }; */
 
+extern inline void set_start_token(char **dbl_ptr);
+extern inline void set_goal_token(char **dbl_ptr);
+
+/* LINE JOIN SETTER FUNCTIONS
+ ******************************************************************************/
+/* top line
+ * ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐ */
+void set_top_left_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_NW_CORNER(top);
+	*dbl_ptr = ptr;
+}
+void set_top_center_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_N_JOIN(top);
+	*dbl_ptr = ptr;
+}
+void set_top_right_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_NE_CORNER(top);
+	*dbl_ptr = ptr;
+}
+
+/* mid line
+ * ├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤ */
+void set_mid_left_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_W_JOIN(ptr);
+	*dbl_ptr = ptr;
+}
+void set_mid_center_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_CROSS(ptr);
+	*dbl_ptr = ptr;
+}
+void set_mid_right_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_E_JOIN(ptr);
+	*dbl_ptr = ptr;
+}
+
+
+/* bot line
+ * └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘ */
+void set_bot_left_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_SW_CORNER(ptr);
+	*dbl_ptr = ptr;
+}
+void set_bot_center_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_S_JOIN(ptr);
+	*dbl_ptr = ptr;
+}
+void set_bot_right_join(char **dbl_ptr)
+{
+	char *ptr = *dbl_ptr;
+	PUT_BOX_CHAR_LIGHT_SE_CORNER(ptr);
+	*dbl_ptr = ptr;
+}
+
+/* unbroken line (top, mid, or bot) */
+void set_unbroken_line(char **dbl_ptr,
+		       const size_t res_y,
+		       struct JoinSetters *join_setters)
+{
+	char *ptr = *dbl_ptr;
+
+	void (*set_left_join)(char **)	 = join_setters->left;
+	void (*set_center_join)(char **) = join_setters->center;
+	void (*set_right_join)(char **)  = join_setters->right;
+
+	PUT_ANSI_WHITE_BG(ptr);
+	set_left_join(&ptr);
+
+	size_t y = 1lu;
+	while (1) {
+		PUT_BOX_CHAR_LIGHT_H_LINE(ptr);
+		PUT_BOX_CHAR_LIGHT_H_LINE(ptr);
+		PUT_BOX_CHAR_LIGHT_H_LINE(ptr);
+
+		if (y == res_y)
+			break;
+
+		set_center_join(&ptr);
+		++y;
+	}
+
+	set_right_join(&ptr);
+	PUT_ANSI_RESET(ptr);
+	PUT_CHAR(ptr, '\n');
+
+	*dbl_ptr = ptr;
+}
+
+/* unbroken line (top, mid, or bot) */
+void set_line_with_token(char **dbl_ptr,
+			 const size_t res_y,
+			 const size_t token_y,
+			 void (*token_setter),
+			 struct JoinSetters *join_setters)
+{
+	char *ptr = *dbl_ptr;
+
+	void (*set_left_join)(char **)	 = join_setters->left;
+	void (*set_center_join)(char **) = join_setters->center;
+	void (*set_right_join)(char **)  = join_setters->right;
+}
+
+
+/* COST TOKEN SETTER FUNCTIONS
+ ******************************************************************************/
+
 void set_cost_token_0(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -107,6 +228,3 @@ void set_cost_token_8(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-
-extern inline void set_start_token(char **dbl_ptr);
-extern inline void set_goal_token(char **dbl_ptr);
