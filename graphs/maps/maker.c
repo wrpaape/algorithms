@@ -120,21 +120,21 @@ void set_start_and_goal(const size_t res_x,
 	int32_t g_y;
 
 	if (coin_flip()) {
-		s_x = rand_in_int_range(0,	    half_x);
-		g_x = rand_in_int_range(half_x + 1, last_x);
+		s_x = rand_in_int_range(0,      half_x - 1);
+		g_x = rand_in_int_range(half_x, last_x);
 
 	} else {
-		s_x = rand_in_int_range(half_x + 1, last_x);
-		g_x = rand_in_int_range(0,	    half_x);
+		s_x = rand_in_int_range(half_x, last_x);
+		g_x = rand_in_int_range(0,      half_x - 1);
 	}
 
 	if (coin_flip()) {
-		s_y = rand_in_int_range(0,	    half_y);
-		g_y = rand_in_int_range(half_y + 1, last_y);
+		s_y = rand_in_int_range(0,      half_y - 1);
+		g_y = rand_in_int_range(half_y, last_y);
 
 	} else {
-		s_y = rand_in_int_range(half_y + 1, last_y);
-		g_y = rand_in_int_range(0,          half_y);
+		s_y = rand_in_int_range(half_y, last_y);
+		g_y = rand_in_int_range(0,      half_y - 1);
 	}
 
 	start->x = (size_t) s_x;

@@ -202,6 +202,7 @@ do {					\
 
 /* ◉ */
 #define PUT_FISHEYE(PTR) _GEO_CIRC(PTR, 137)
+
 /* ◯ */
 #define PUT_LARGE_CIRCLE(PTR) _GEO_CIRC(PTR, 175)
 #endif /* ifndef _GRAPHS_UTILS_TOKEN_H_ */

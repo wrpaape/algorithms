@@ -84,37 +84,29 @@ void set_rem_unbroken_line(char **dbl_ptr,
 			   void (*set_center_join)(char **),
 			   void (*set_right_join)(char **));
 
-/* BRIGHT BLACK_BG WHITE "◯" RESET
- * ◯ = <<226, 151, 139>> */
 inline void set_start_token(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
 
 	PUT_ANSI_BRIGHT(ptr);
+	PUT_ANSI_BLACK(ptr);
 	PUT_ANSI_BLINK(ptr);
-	PUT_LARGE_CIRCLE(PTR);
-	PUT_CHAR(ptr, 226);
-	PUT_CHAR(ptr, 151);
-	PUT_CHAR(ptr, 175);
+
+	PUT_LARGE_CIRCLE(ptr); /* ◯ */
 
 	*dbl_ptr = ptr;
 }
-/* iex(1)> "◉ " <> "\0" */
-/* <<226, 151, 137, 32, 0>> */
 
-/* BRIGHT BLACK_BG WHITE "╳" RESET
-* ╳  = <<226, 149, 179>> */
 inline void set_goal_token(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
 
+
 	PUT_ANSI_BRIGHT(ptr);
-	/* PUT_ANSI_BLACK_BG(ptr); */
+	PUT_ANSI_BLACK(ptr);
 	PUT_ANSI_BLINK(ptr);
-	/* PUT_ANSI_BLACK(ptr); */
-	PUT_CHAR(ptr, 226);
-	PUT_CHAR(ptr, 151);
-	PUT_CHAR(ptr, 137);
+
+	PUT_FISHEYE(ptr); /* ◉ */
 
 	*dbl_ptr = ptr;
 }

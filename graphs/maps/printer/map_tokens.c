@@ -360,7 +360,7 @@ void set_cost_row_with_token(char **dbl_ptr,
 
 	/* set remainder of unbroken line */
 	set_rem_unbroken_cost_row(&ptr,
-				  res_y - token_y,
+				  token_y,
 				  res_y,
 				  min_cost,
 				  token_ratio,
