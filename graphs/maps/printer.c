@@ -34,17 +34,7 @@ void pretty_print_cost_map(char *buffer,
 
 	int **costs = map->costs;
 
-	const size_t num_char_rows = res_y * 2lu + 1lu;
-
-	/* const size_t max_row_size = (MAX_COST_TOKEN_SIZE * (res_x - 2lu)) */
-	/* 			  + START_TOKEN_SIZE */
-	/* 			  + GOAL_TOKEN_SIZE */
-	/* 			  + ((PAD_SIZE + BOX_CHAR_SIZE) * res_x) */
-	/* 			  + BOX_CHAR_SIZE */
-	/* 			  + 10lu; /1* ansi bg + ansi reset + nl/null *1/ */
-
-	/* char cell_buff[max_row_size]; */
-	/* char *buff_ptr; */
+	const size_t num_char_rows = res_x * 2lu + 1lu;
 
 	int *cost_row;
 	size_t x, y;

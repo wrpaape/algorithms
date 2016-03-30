@@ -21,6 +21,15 @@ do {					\
 	PUT_BOX_CHAR_LIGHT_H_LINE(ptr);	\
 } while (0)
 
+#define PUT_VERTICAL_LINE(ptr) PUT_BOX_CHAR_LIGHT_V_LINE(ptr)
+
+
+void (*COST_TOKEN_SETTERS[TOKEN_SPAN])(char **) = {
+	set_cost_token_0, set_cost_token_1, set_cost_token_2, set_cost_token_3,
+	set_cost_token_4, set_cost_token_5, set_cost_token_6, set_cost_token_7,
+	set_cost_token_8
+};
+
 extern inline void set_start_token(char **dbl_ptr);
 extern inline void set_goal_token(char **dbl_ptr);
 
@@ -107,11 +116,10 @@ void set_unbroken_line(char **dbl_ptr,
 	PUT_ANSI_WHITE_BG(ptr);
 	set_left_join(&ptr);
 	PUT_HORIZONTAL_LINES(ptr);
-	set_rem_unbroken(&ptr,
+	set_rem_unbroken_line(&ptr,
 			 res_y - 1lu,
 			 set_center_join,
 			 set_right_join);
-
 	*dbl_ptr = ptr;
 }
 
@@ -146,19 +154,18 @@ void set_line_with_token(char **dbl_ptr,
 	PUT_SPACE(ptr);
 
 	/* set remainder of unbroken line */
-	set_rem_unbroken(&ptr,
-			 res_y - token_y - 1lu,
-			 set_center_join,
-			 set_right_join);
-
+	set_rem_unbroken_line(&ptr,
+			      res_y - token_y - 1lu,
+			      set_center_join,
+			      set_right_join);
 	*dbl_ptr = ptr;
 }
 
 /* remaining unbroken line (top, mid, or bot) */
-void set_rem_unbroken(char **dbl_ptr,
-		      const size_t rem_y,
-		      void (*set_center_join)(char **),
-		      void (*set_right_join)(char **))
+void set_rem_unbroken_line(char **dbl_ptr,
+			   const size_t rem_y,
+			   void (*set_center_join)(char **),
+			   void (*set_right_join)(char **))
 {
 	char *ptr = *dbl_ptr;
 
@@ -271,6 +278,59 @@ void set_cost_token_8(char **dbl_ptr)
  ******************************************************************************/
 /* set unbroken row of cost tokens */
 void set_unbroken_cost_row(char **dbl_ptr,
-			   int *cost_row,
-			   const double cost_weight,
-			   const size_t res_y)
+			   const size_t res_y,
+			   const int min_cost,
+			   const double token_ratio,
+			   int *cost_row)
+{
+	char *ptr = *dbl_ptr;
+
+	PUT_ANSI_WHITE_BG(ptr);
+	PUT_VERTICAL_LINE(ptr);
+	set_rem_unbroken_cost_row(&ptr,
+				  0lu,
+				  res_y,
+				  min_cost,
+				  token_ratio,
+				  cost_row);
+	*dbl_ptr = ptr;
+}
+
+/* set remainder of cost (not start/goal) tokens according to 'cost_row' */
+void set_rem_unbroken_cost_row(char **dbl_ptr,
+			       size_t y,
+			       const size_t res_y,
+			       const int min_cost,
+			       const double token_ratio,
+			       int *cost_row)
+{
+	char *ptr = *dbl_ptr;
+
+	while (y < res_y) {
+
+		PUT_SPACE(ptr);
+		set_cost_token(&ptr,
+			       cost_row[y],
+			       min_cost,
+			       token_ratio);
+
+	PUT_VERTICAL_LINE(ptr);
+
+		++y;
+	}
+
+	*dbl_ptr = ptr;
+}
+
+inline void set_cost_token(char **dbl_ptr,
+			   const int cost,
+			   const int min_cost,
+			   const double token_ratio)
+{
+
+	const double interp_i = ((double) (cost - min_cost)) * token_ratio;
+
+	void (*setter)(char **) = COST_TOKEN_SETTERS[(size_t) round(interp_i)];
+
+	setter(dbl_ptr);
+}

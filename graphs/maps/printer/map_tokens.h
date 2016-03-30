@@ -23,6 +23,25 @@ void set_cost_token_6(char **dbl_ptr);
 void set_cost_token_7(char **dbl_ptr);
 void set_cost_token_8(char **dbl_ptr);
 
+static inline void set_cost_token(char **dbl_ptr,
+				  const int cost,
+				  const int min_cost,
+				  const double token_ratio);
+
+void set_unbroken_cost_row(char **dbl_ptr,
+			   const size_t res_y,
+			   const int min_cost,
+			   const double token_ratio,
+			   int *cost_row);
+
+void set_rem_unbroken_cost_row(char **dbl_ptr,
+			       size_t y,
+			       const size_t res_y,
+			       const int min_cost,
+			       const double token_ratio,
+			       int *cost_row);
+
+
 void set_top_left_join(char **dbl_ptr);
 void set_top_center_join(char **dbl_ptr);
 void set_top_right_join(char **dbl_ptr);
@@ -45,16 +64,10 @@ void set_line_with_token(char **dbl_ptr,
 			 void (*token_setter)(char **),
 			 struct JoinSetters *join_setters);
 
-void set_rem_unbroken(char **dbl_ptr,
-		      const size_t rem_y,
-		      void (*set_center_join)(char **),
-		      void (*set_right_join)(char **));
-
-void (*COST_TOKEN_SETTERS[TOKEN_SPAN])(char **) = {
-	set_cost_token_0, set_cost_token_1, set_cost_token_2, set_cost_token_3,
-	set_cost_token_4, set_cost_token_5, set_cost_token_6, set_cost_token_7,
-	set_cost_token_8
-};
+void set_rem_unbroken_line(char **dbl_ptr,
+			   const size_t rem_y,
+			   void (*set_center_join)(char **),
+			   void (*set_right_join)(char **));
 
 struct JoinSetters TOP_LINE_JOIN_FUNS = {
 	.left   = set_top_left_join;
