@@ -3,6 +3,16 @@
 #include "maps/maker.h"
 #include <math.h>
 
+
+/* to allow for a cell resolution of at least 2 x 2:
+ * ┌───┬───┐
+ * │ 2 ╳ 9 │
+ * ├───┼───┤
+ * │ 3 ◯ 5 │
+ * └───┴───┘ */
+#define MIN_H 5lu
+#define MIN_W 9lu
+
 extern inline void free_cost_map(struct CostMap *map);
 
 struct CostMap *make_cost_map(const size_t char_width,
@@ -10,19 +20,21 @@ struct CostMap *make_cost_map(const size_t char_width,
 			      const int min_cost,
 			      const int max_cost)
 {
+	if (char_height < 6lu) {
+		EXIT_ON_FAILURE("map must be at least %zu characters tall"
+				" (input height: %zu)", MIN_H, char_height);
+	}
+
+	if (char_width < 2lu) {
+		EXIT_ON_FAILURE("map must be at least %zu characters wide"
+				" (input width: %zu)", MIN_W, char_width);
+	}
+
 	const size_t res_x = (char_height - 1lu) / 2lu;
 
-	if (res_x == 0lu) {
-		EXIT_ON_FAILURE("map must be at least 3 characters tall"
-				" (input height: %zu)", char_height);
-	}
 
 	const size_t res_y = (char_width  - 1lu) / 4lu;
 
-	if (res_y == 0lu) {
-		EXIT_ON_FAILURE("map must be at least 5 characters wide"
-				" (input width: %zu)",  char_width);
-	}
 
 	printf("sizeof(struct CostMap): %zu\n", sizeof(struct CostMap));
 
@@ -93,26 +105,26 @@ void set_start_and_goal(const size_t res_x,
 			struct Coords *start,
 			struct Coords *goal)
 {
-	const int32_t full_x = (int32_t) res_x;
-	const int32_t full_y = (int32_t) res_y;
-	const int32_t half_x = full_x / 2;
-	const int32_t half_y = full_y / 2;
+	const int32_t last_x = ((int32_t) res_x) - 2;
+	const int32_t last_y = ((int32_t) res_y) - 2;
+	const int32_t half_x = last_x / 2;
+	const int32_t half_y = last_y / 2;
 
 	if (coin_flip()) {
-		start->x = rand_in_int_range(0,		half_x);
-		goal->x  = rand_in_int_range(half_x + 1,	full_x);
+		start->x = rand_in_int_range(0,		 half_x);
+		goal->x  = rand_in_int_range(half_x + 1, last_x);
 
 	} else {
-		start->x = rand_in_int_range(half_x + 1, full_x);
-		goal->x  = rand_in_int_range(0,		half_x);
+		start->x = rand_in_int_range(half_x + 1, last_x);
+		goal->x  = rand_in_int_range(0,		 half_x);
 	}
 
 	if (coin_flip()) {
-		start->y = rand_in_int_range(0,		half_y);
-		goal->y  = rand_in_int_range(half_y + 1,	full_y);
+		start->y = rand_in_int_range(0,		 half_y);
+		goal->y  = rand_in_int_range(half_y + 1, last_y);
 
 	} else {
-		start->y = rand_in_int_range(half_y + 1, full_y);
+		start->y = rand_in_int_range(half_y + 1, last_y);
 		goal->y  = rand_in_int_range(0,          half_y);
 	}
 }

@@ -14,6 +14,13 @@
 /* 	{.chars = BRIGHT BLACK   "█", .size = 12lu} */
 /* }; */
 
+#define PUT_HORIZONTAL_LINES(ptr)		\
+do {					\
+	PUT_BOX_CHAR_LIGHT_H_LINE(ptr);	\
+	PUT_BOX_CHAR_LIGHT_H_LINE(ptr);	\
+	PUT_BOX_CHAR_LIGHT_H_LINE(ptr);	\
+} while (0)
+
 extern inline void set_start_token(char **dbl_ptr);
 extern inline void set_goal_token(char **dbl_ptr);
 
@@ -83,6 +90,10 @@ void set_bot_right_join(char **dbl_ptr)
 	*dbl_ptr = ptr;
 }
 
+
+
+/* COMPLETE LINE SETTERS
+ ******************************************************************************/
 /* unbroken line (top, mid, or bot) */
 void set_unbroken_line(char **dbl_ptr,
 		       const size_t res_y,
@@ -95,24 +106,15 @@ void set_unbroken_line(char **dbl_ptr,
 	void (*set_right_join)(char **)  = join_setters->right;
 
 	PUT_ANSI_WHITE_BG(ptr);
+
 	set_left_join(&ptr);
 
-	size_t y = 1lu;
-	while (1) {
-		PUT_BOX_CHAR_LIGHT_H_LINE(ptr);
-		PUT_BOX_CHAR_LIGHT_H_LINE(ptr);
-		PUT_BOX_CHAR_LIGHT_H_LINE(ptr);
+	PUT_HORIZONTAL_LINES(ptr);
 
-		if (y == res_y)
-			break;
-
-		set_center_join(&ptr);
-		++y;
-	}
-
-	set_right_join(&ptr);
-	PUT_ANSI_RESET(ptr);
-	PUT_CHAR(ptr, '\n');
+	set_rem_unbroken(&ptr,
+			 res_y - 1lu,
+			 set_center_join,
+			 set_right_join);
 
 	*dbl_ptr = ptr;
 }
@@ -121,7 +123,7 @@ void set_unbroken_line(char **dbl_ptr,
 void set_line_with_token(char **dbl_ptr,
 			 const size_t res_y,
 			 const size_t token_y,
-			 void (*token_setter),
+			 void (*token_setter)(char **),
 			 struct JoinSetters *join_setters)
 {
 	char *ptr = *dbl_ptr;
@@ -129,7 +131,46 @@ void set_line_with_token(char **dbl_ptr,
 	void (*set_left_join)(char **)	 = join_setters->left;
 	void (*set_center_join)(char **) = join_setters->center;
 	void (*set_right_join)(char **)  = join_setters->right;
+
+	PUT_ANSI_WHITE_BG(ptr);
+
+	set_left_join(&ptr);
+
+	if (token_y == 0lu) {
+
+
+	}
+
+SET_REM_UNBROKEN:
+
+UPDATE_DBL_PTR_AND_RETURN:
+	*dbl_ptr = ptr;
 }
+
+/* remaining unbroken line (top, mid, or bot) */
+void set_rem_unbroken(char **dbl_ptr,
+		      const size_t rem_y,
+		      void (*set_center_join)(char **),
+		      void (*set_right_join)(char **))
+{
+	char *ptr = *dbl_ptr;
+
+	for (size_t y = 0lu; y < rem_y; ++y) {
+
+		set_center_join(&ptr);
+
+		PUT_HORIZONTAL_LINES(ptr);
+	}
+
+	set_right_join(&ptr);
+
+	PUT_ANSI_RESET(ptr);
+
+	PUT_CHAR(ptr, '\n');
+
+	*dbl_ptr = ptr;
+}
+
 
 
 /* COST TOKEN SETTER FUNCTIONS

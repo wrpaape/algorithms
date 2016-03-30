@@ -41,8 +41,13 @@ void set_unbroken_line(char **dbl_ptr,
 void set_line_with_token(char **dbl_ptr,
 			 const size_t res_y,
 			 const size_t token_y,
-			 void (*token_setter),
+			 void (*token_setter)(char **),
 			 struct JoinSetters *join_setters);
+
+void set_rem_unbroken(char **dbl_ptr,
+		      const size_t rem_y,
+		      void (*set_center_join)(char **),
+		      void (*set_right_join)(char **));
 
 void (*COST_TOKEN_SETTERS[SETTER_COUNT])(char **) = {
 	set_cost_token_0, set_cost_token_1, set_cost_token_2, set_cost_token_3,
