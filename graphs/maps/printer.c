@@ -43,10 +43,9 @@ void pretty_print_cost_map(char *buffer,
 
 	x = 0lu;
 
+	PUT_ANSI_CLEAR(buffer);
 
 	while (1) {
-
-		buff_ptr = cell_buff;
 
 		PUT_ANSI_WHITE_BG(buff_ptr);
 		PUT_BOX_CHAR_LIGHT_V_LINE(buff_ptr);

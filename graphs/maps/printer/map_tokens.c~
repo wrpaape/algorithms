@@ -23,6 +23,23 @@ do {					\
 
 #define PUT_VERTICAL_LINE(ptr) PUT_BOX_CHAR_LIGHT_V_LINE(ptr)
 
+#define PUT_DEFAULT_COLORS(ptr)		\
+do {					\
+	PUT_ANSI_WHITE_BG(ptr);		\
+	PUT_ANSI_BLACK(ptr);		\
+} while (0)
+
+#define PUT_RESET_DEFAULT(ptr)		\
+do {					\
+	PUT_ANSI_RESET(ptr);		\
+	PUT_DEFAULT_COLORS(ptr);	\
+} while (0)
+
+#define PUT_TERMINATE_LINE(ptr)		\
+do {					\
+	PUT_ANSI_RESET(ptr);		\
+	PUT_CHAR(ptr, '\n');		\
+} while (0)
 
 void (*COST_TOKEN_SETTERS[TOKEN_SPAN])(char **) = {
 	set_cost_token_0, set_cost_token_1, set_cost_token_2, set_cost_token_3,
@@ -113,13 +130,13 @@ void set_unbroken_line(char **dbl_ptr,
 	void (*set_center_join)(char **) = join_setters->center;
 	void (*set_right_join)(char **)  = join_setters->right;
 
-	PUT_ANSI_WHITE_BG(ptr);
+	PUT_DEFAULT_COLORS(ptr);
 	set_left_join(&ptr);
 	PUT_HORIZONTAL_LINES(ptr);
 	set_rem_unbroken_line(&ptr,
-			 res_y - 1lu,
-			 set_center_join,
-			 set_right_join);
+			      res_y - 1lu,
+			      set_center_join,
+			      set_right_join);
 	*dbl_ptr = ptr;
 }
 
@@ -136,9 +153,8 @@ void set_line_with_token(char **dbl_ptr,
 	void (*set_center_join)(char **) = join_setters->center;
 	void (*set_right_join)(char **)  = join_setters->right;
 
-	PUT_ANSI_WHITE_BG(ptr);
+	PUT_DEFAULT_COLORS(ptr);
 	set_left_join(&ptr);
-
 
 	for (size_t y = 0lu; y < token_y; ++y) {
 
@@ -149,13 +165,12 @@ void set_line_with_token(char **dbl_ptr,
 	/* set token */
 	PUT_SPACE(ptr);
 	token_setter(&ptr);
-	PUT_ANSI_RESET(ptr);
-	PUT_ANSI_WHITE_BG(ptr);
+	PUT_RESET_DEFAULT(ptr);
 	PUT_SPACE(ptr);
 
 	/* set remainder of unbroken line */
 	set_rem_unbroken_line(&ptr,
-			      res_y - token_y - 1lu,
+			      res_y - (token_y + 1lu),
 			      set_center_join,
 			      set_right_join);
 	*dbl_ptr = ptr;
@@ -176,8 +191,7 @@ void set_rem_unbroken_line(char **dbl_ptr,
 	}
 
 	set_right_join(&ptr);
-	PUT_ANSI_RESET(ptr);
-	PUT_CHAR(ptr, '\n');
+	PUT_TERMINATE_LINE(ptr);
 
 	*dbl_ptr = ptr;
 }
@@ -285,7 +299,7 @@ void set_unbroken_cost_row(char **dbl_ptr,
 {
 	char *ptr = *dbl_ptr;
 
-	PUT_ANSI_WHITE_BG(ptr);
+	PUT_DEFAULT_COLORS(ptr);
 	PUT_VERTICAL_LINE(ptr);
 	set_rem_unbroken_cost_row(&ptr,
 				  0lu,
@@ -295,6 +309,45 @@ void set_unbroken_cost_row(char **dbl_ptr,
 				  cost_row);
 	*dbl_ptr = ptr;
 }
+
+
+/* set row of cost tokens containing either a 'start' or 'goal' token */
+void set_cost_row_with_token(char **dbl_ptr,
+			     const size_t res_y,
+			     const size_t token_y,
+			     const int min_cost,
+			     const double token_ratio,
+			     void (*token_setter)(char **))
+{
+	char *ptr = *dbl_ptr;
+
+	PUT_DEFAULT_COLORS(ptr);
+
+	for (size_t y = 0lu; y < token_y; ++y) {
+		PUT_VERTICAL_LINE(ptr);
+		PUT_SPACE(ptr);
+		set_cost_token(&ptr,
+			       cost_row[y],
+			       min_cost,
+			       token_ratio);
+		PUT_RESET_DEFAULT(ptr);
+		PUT_SPACE(ptr);
+	}
+
+	/* set token (no need to pad) */
+	token_setter(&ptr);
+	PUT_RESET_DEFAULT(ptr);
+
+	/* set remainder of unbroken line */
+	set_rem_unbroken_cost_row(&ptr,
+				  res_y - token_y,
+				  res_y,
+				  min_cost,
+				  token_ratio,
+				  cost_row);
+	*dbl_ptr = ptr;
+}
+
 
 /* set remainder of cost (not start/goal) tokens according to 'cost_row' */
 void set_rem_unbroken_cost_row(char **dbl_ptr,
@@ -313,15 +366,21 @@ void set_rem_unbroken_cost_row(char **dbl_ptr,
 			       cost_row[y],
 			       min_cost,
 			       token_ratio);
-
-	PUT_VERTICAL_LINE(ptr);
+		PUT_RESET_DEFAULT(ptr);
+		PUT_SPACE(ptr);
+		PUT_VERTICAL_LINE(ptr);
 
 		++y;
 	}
 
+	PUT_TERMINATE_LINE(ptr);
+
 	*dbl_ptr = ptr;
 }
 
+
+/* interpolate cost to index for access to setter functions array,
+ * 'COST_TOKEN_SETTERS' */
 inline void set_cost_token(char **dbl_ptr,
 			   const int cost,
 			   const int min_cost,

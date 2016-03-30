@@ -113,7 +113,7 @@ void set_start_and_goal(const size_t res_x,
 			struct Coords *goal)
 {
 	const int32_t last_x = ((int32_t) res_x) * 2;
-	const int32_t last_y = ((int32_t) res_y) - 1;
+	const int32_t last_y = (int32_t) res_y;
 	const int32_t half_x = last_x / 2;
 	const int32_t half_y = last_y / 2;
 

@@ -22,7 +22,6 @@ do {				\
 	PUT_CHAR(PTR, 91);	\
 } while (0)
 
-
 #define CLOSE_ANSI(PTR) PUT_CHAR(PTR, 109)
 
 
@@ -42,11 +41,20 @@ do {				\
 	CLOSE_ANSI(PTR);	\
 } while (0)
 
+#define PUT_ANSI_CLEAR(PTR)	\
+do {				\
+	OPEN_ANSI(PTR);		\
+	PUT_CHAR(PTR, 50);	\
+	PUT_CHAR(PTR, 74);	\
+} while (0)
+
 /* 4 bytes */
 
 #define ANSI_FAINT "\e[2m"
 #define ANSI_BRIGHT "\e[1m"
 #define ANSI_RESET "\e[0m"
+#define ANSI_CLEAR "\e[2J"
+
 
 #define PUT_ANSI_RESET(PTR) SML_ANSI(PTR, 48)
 
