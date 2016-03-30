@@ -11,6 +11,8 @@ do {				\
 	++PTR;			\
 } while (0)
 
+#define PUT_SPACE(PTR) PUT_CHAR(' ')
+
 
 /* ANSI ESCAPE SEQUENCES
  ******************************************************************************/

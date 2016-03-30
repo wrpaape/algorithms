@@ -25,11 +25,20 @@ void (*COST_TOKEN_SETTERS[SETTER_COUNT])(char **) = {
 void pretty_print_cost_map(char *buffer,
 			   struct CostMap *map)
 {
-	const size_t res_x  = map->resolution->x;
-	const size_t res_y  = map->resolution->y;
+	const size_t res_x = map->resolution->x;
+	const size_t res_y = map->resolution->y;
 
 	const int min_cost = map->est_bounds->min;
 	const int max_cost = map->est_bounds->max;
+	const int cost_range = max_cost - min_cost;
+
+	const int start_x = map->start_coords->x;
+	const int start_y = map->start_coords->y;
+
+	const int goal_x = map->goal_coords->x;
+	const int goal_y = map->goal_coords->y;
+
+	int **costs = map->costs;
 
 	const size_t num_char_rows = res_y * 2lu + 1lu;
 
@@ -37,14 +46,34 @@ void pretty_print_cost_map(char *buffer,
 				  + START_TOKEN_SIZE
 				  + GOAL_TOKEN_SIZE
 				  + ((PAD_SIZE + BOX_CHAR_SIZE) * res_x)
-				  + (BOX_CHAR_SIZE + 1lu);
-	int **costs;
+				  + BOX_CHAR_SIZE
+				  + 10lu; /* ansi bg + ansi reset + nl/null */
+
+	char cell_buff[max_row_size];
+
+	char *buff_ptr;
+
+	struct Lines *lines = draw_lines(res_x);
+	char *mid_line      = lines->mid;
+
+
 	int *costs_row;
-	struct Lines *lines;
-	char *mid_line;
 	size_t x, y;
 
-	lines = draw_lines(res_x);
+
+
+	x = 0lu;
+
+	while (1) {
+
+		buff_ptr = cell_buff;
+
+		PUT_ANSI_WHITE_BG(buff_ptr);
+		PUT_BOX_CHAR_LIGHT_V_LINE(buff_ptr);
+
+	}
+
+
 
 
 	COST_TOKEN_SETTERS[4](&buffer);
@@ -146,9 +175,6 @@ struct Lines *draw_lines(const size_t res_x)
 	PUT_BOX_CHAR_LIGHT_NW_CORNER(top);
 	PUT_BOX_CHAR_LIGHT_W_JOIN(mid);
 	PUT_BOX_CHAR_LIGHT_SW_CORNER(bot);
-	/* PUT_BOX_CHAR(top, 140); */
-	/* PUT_BOX_CHAR(mid, 156); */
-	/* PUT_BOX_CHAR(bot, 148); */
 
 	cell_i = 1lu;
 
@@ -159,9 +185,6 @@ struct Lines *draw_lines(const size_t res_x)
 			PUT_BOX_CHAR_LIGHT_H_LINE(top);
 			PUT_BOX_CHAR_LIGHT_H_LINE(mid);
 			PUT_BOX_CHAR_LIGHT_H_LINE(bot);
-			/* PUT_BOX_CHAR(top, 128); */
-			/* PUT_BOX_CHAR(mid, 128); */
-			/* PUT_BOX_CHAR(bot, 128); */
 		}
 
 		/* if on last cell... */
@@ -172,9 +195,6 @@ struct Lines *draw_lines(const size_t res_x)
 		PUT_BOX_CHAR_LIGHT_N_JOIN(top);
 		PUT_BOX_CHAR_LIGHT_CROSS(mid);
 		PUT_BOX_CHAR_LIGHT_S_JOIN(bot);
-		/* PUT_BOX_CHAR(top, 172); */
-		/* PUT_BOX_CHAR(mid, 188); */
-		/* PUT_BOX_CHAR(bot, 180); */
 
 		++cell_i;
 	}
@@ -183,9 +203,6 @@ struct Lines *draw_lines(const size_t res_x)
 	PUT_BOX_CHAR_LIGHT_NE_CORNER(top);
 	PUT_BOX_CHAR_LIGHT_E_JOIN(mid);
 	PUT_BOX_CHAR_LIGHT_SE_CORNER(bot);
-	/* PUT_BOX_CHAR(top, 144); */
-	/* PUT_BOX_CHAR(mid, 164); */
-	/* PUT_BOX_CHAR(bot, 152); */
 
 	/* terminate with newlines and null byte */
 	PUT_CHAR(top, '\n'); PUT_CHAR(top, '\0');
