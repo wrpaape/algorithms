@@ -14,7 +14,7 @@
 /* 	{.chars = BRIGHT BLACK   "█", .size = 12lu} */
 /* }; */
 
-#define PUT_HORIZONTAL_LINES(ptr)		\
+#define PUT_HORIZONTAL_LINES(ptr)	\
 do {					\
 	PUT_BOX_CHAR_LIGHT_H_LINE(ptr);	\
 	PUT_BOX_CHAR_LIGHT_H_LINE(ptr);	\
