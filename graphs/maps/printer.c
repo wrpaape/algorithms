@@ -80,7 +80,7 @@ void pretty_print_cost_map(char *buffer,
 						start_y,
 						min_cost,
 						token_ratio,
-						set_start_token,
+						set_goal_token,
 						costs[char_row / 2]);
 		} else {
 			set_unbroken_cost_row(&buffer,

@@ -1,24 +1,6 @@
 #include "maps/printer/map_tokens.h"
 #include <math.h>
 
-struct JoinSetters TOP_LINE_JOIN_SETTERS = {
-	.left   = set_top_left_join,
-	.center = set_top_center_join,
-	.right  = set_top_right_join
-};
-
-struct JoinSetters MID_LINE_JOIN_SETTERS = {
-	.left   = set_top_left_join,
-	.center = set_top_center_join,
-	.right  = set_top_right_join
-};
-
-struct JoinSetters BOT_LINE_JOIN_SETTERS = {
-	.left   = set_top_left_join,
-	.center = set_top_center_join,
-	.right  = set_top_right_join
-};
-
 /* 12-13 bytes */
 /* const struct Token COST_TOKENS[] = { */
 /* 	{.chars = FAINT  WHITE   "▁", .size = 12lu}, */
@@ -64,6 +46,25 @@ void (*COST_TOKEN_SETTERS[])(char **) = {
 	set_cost_token_4, set_cost_token_5, set_cost_token_6, set_cost_token_7,
 	set_cost_token_8
 };
+
+struct JoinSetters TOP_LINE_JOIN_SETTERS = {
+	.left   = set_top_left_join,
+	.center = set_top_center_join,
+	.right  = set_top_right_join
+};
+
+struct JoinSetters MID_LINE_JOIN_SETTERS = {
+	.left   = set_mid_left_join,
+	.center = set_mid_center_join,
+	.right  = set_mid_right_join
+};
+
+struct JoinSetters BOT_LINE_JOIN_SETTERS = {
+	.left   = set_bot_left_join,
+	.center = set_bot_center_join,
+	.right  = set_bot_right_join
+};
+
 
 extern inline void set_start_token(char **dbl_ptr);
 extern inline void set_goal_token(char **dbl_ptr);

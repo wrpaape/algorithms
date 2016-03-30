@@ -35,9 +35,6 @@ struct CostMap *make_cost_map(const size_t char_width,
 
 	const size_t res_y = (char_width  - 1lu) / 4lu;
 
-
-	printf("sizeof(struct CostMap): %zu\n", sizeof(struct CostMap));
-
 	int **costs;
 	int *cost_row;
 	int cost;

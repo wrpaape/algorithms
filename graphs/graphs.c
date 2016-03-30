@@ -35,7 +35,7 @@ int main(void)
 
 	pretty_print_cost_map(buffer, map);
 
-	printf("token: %s\n", buffer);
+	puts(buffer);
 
 	free_cost_map(map);
 
