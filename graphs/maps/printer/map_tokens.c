@@ -68,7 +68,6 @@ void set_mid_right_join(char **dbl_ptr)
 	*dbl_ptr = ptr;
 }
 
-
 /* bot line
  * └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘ */
 void set_bot_left_join(char **dbl_ptr)
@@ -180,7 +179,7 @@ void set_rem_unbroken(char **dbl_ptr,
 
 /* COST TOKEN SETTER FUNCTIONS
  ******************************************************************************/
-
+/* (lowest cost → highest cost) */
 void set_cost_token_0(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -190,7 +189,6 @@ void set_cost_token_0(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-
 void set_cost_token_1(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -211,7 +209,6 @@ void set_cost_token_2(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-
 void set_cost_token_3(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -221,7 +218,6 @@ void set_cost_token_3(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-
 void set_cost_token_4(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -231,7 +227,6 @@ void set_cost_token_4(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-
 void set_cost_token_5(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -241,7 +236,6 @@ void set_cost_token_5(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-
 void set_cost_token_6(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -252,7 +246,6 @@ void set_cost_token_6(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-
 void set_cost_token_7(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -263,7 +256,6 @@ void set_cost_token_7(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
-
 void set_cost_token_8(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
@@ -274,3 +266,11 @@ void set_cost_token_8(char **dbl_ptr)
 
 	*dbl_ptr = ptr;
 }
+
+/* COMPLETE COST TOKEN ROW SETTERS
+ ******************************************************************************/
+/* set unbroken row of cost tokens */
+void set_unbroken_cost_row(char **dbl_ptr,
+			   int *cost_row,
+			   const double token_ratio,
+			   const size_t res_y)

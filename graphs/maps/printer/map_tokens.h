@@ -5,6 +5,7 @@
 #define MAX_COST_TOKEN_SIZE 13lu
 #define START_TOKEN_SIZE 22lu
 #define GOAL_TOKEN_SIZE 22lu
+#define TOKEN_SPAN 8lu
 
 struct JoinSetters {
 	void (*left)(char **);
@@ -49,7 +50,7 @@ void set_rem_unbroken(char **dbl_ptr,
 		      void (*set_center_join)(char **),
 		      void (*set_right_join)(char **));
 
-void (*COST_TOKEN_SETTERS[SETTER_COUNT])(char **) = {
+void (*COST_TOKEN_SETTERS[TOKEN_SPAN])(char **) = {
 	set_cost_token_0, set_cost_token_1, set_cost_token_2, set_cost_token_3,
 	set_cost_token_4, set_cost_token_5, set_cost_token_6, set_cost_token_7,
 	set_cost_token_8

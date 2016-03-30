@@ -4,8 +4,6 @@
 #include "maps/printer/map_tokens.h"
 
 #define PAD_SIZE 2lu
-#define SETTER_COUNT 9lu
-
 #define HANDLE_FOPEN(FILE_PTR, FILENAME, MODE)				\
 do {									\
 	FILE_PTR = fopen(FILENAME, MODE);				\
@@ -25,7 +23,8 @@ void pretty_print_cost_map(char *buffer,
 	const int min_cost = map->est_bounds->min;
 	const int max_cost = map->est_bounds->max;
 
-	const int cost_range = max_cost - min_cost;
+	const double token_ratio = ((double) TOKEN_SPAN)
+				 / ((double) (max_cost - min_cost));
 
 	const int start_x = map->start->x;
 	const int start_y = map->start->y;
@@ -37,18 +36,17 @@ void pretty_print_cost_map(char *buffer,
 
 	const size_t num_char_rows = res_y * 2lu + 1lu;
 
-	const size_t max_row_size = (MAX_COST_TOKEN_SIZE * (res_x - 2lu))
-				  + START_TOKEN_SIZE
-				  + GOAL_TOKEN_SIZE
-				  + ((PAD_SIZE + BOX_CHAR_SIZE) * res_x)
-				  + BOX_CHAR_SIZE
-				  + 10lu; /* ansi bg + ansi reset + nl/null */
+	/* const size_t max_row_size = (MAX_COST_TOKEN_SIZE * (res_x - 2lu)) */
+	/* 			  + START_TOKEN_SIZE */
+	/* 			  + GOAL_TOKEN_SIZE */
+	/* 			  + ((PAD_SIZE + BOX_CHAR_SIZE) * res_x) */
+	/* 			  + BOX_CHAR_SIZE */
+	/* 			  + 10lu; /1* ansi bg + ansi reset + nl/null *1/ */
 
-	char cell_buff[max_row_size];
+	/* char cell_buff[max_row_size]; */
+	/* char *buff_ptr; */
 
-	char *buff_ptr;
-
-	int *costs_row;
+	int *cost_row;
 	size_t x, y;
 
 
@@ -96,7 +94,7 @@ void cost_map_to_csv(char *filename,
 
 	FILE *map_file;
 	int **costs;
-	int *costs_row;
+	int *cost_row;
 	size_t x, y;
 
 	HANDLE_FOPEN(map_file, filename, "w");
@@ -106,12 +104,12 @@ void cost_map_to_csv(char *filename,
 	x = 0lu;
 
 	while (1) {
-		costs_row = costs[x];
+		cost_row = costs[x];
 
 		y = 0lu;
 
 		while (1) {
-			fprintf(map_file, "%d", costs_row[y]);
+			fprintf(map_file, "%d", cost_row[y]);
 
 			++y;
 
