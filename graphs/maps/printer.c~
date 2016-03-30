@@ -44,16 +44,29 @@ void pretty_print_cost_map(char *buffer,
 	char *mid_line;
 	size_t x, y;
 
-	char *init = buffer;
+	lines = draw_lines(res_x);
 
+
+	COST_TOKEN_SETTERS[4](&buffer);
+	COST_TOKEN_SETTERS[4](&buffer);
+	COST_TOKEN_SETTERS[4](&buffer);
+	COST_TOKEN_SETTERS[4](&buffer);
+	set_start_token(&buffer);
+	COST_TOKEN_SETTERS[5](&buffer);
 	COST_TOKEN_SETTERS[6](&buffer);
+	COST_TOKEN_SETTERS[0](&buffer);
+	set_goal_token(&buffer);
 
-	*buffer = '\0';
+	puts(lines->top);
+	puts(lines->mid);
+	puts(lines->bot);
+	--buffer;
+	strcpy(buffer, lines->mid);
+	--buffer;
+	strcpy(buffer, lines->bot);
 
-	for (int i = 0; *init != '\0'; ++i) {
-		printf("%d. %d\n", i, *init);
-		++init;
-	}
+	/* *buffer = '\0'; */
+
 }
 
 void cost_map_to_csv(char *filename,
@@ -172,7 +185,7 @@ struct Lines *draw_lines(const size_t res_x)
 	/* set right pieces '┐', '┤', and '┘' */
 	PUT_BOX_CHAR_LIGHT_NE_CORNER(top);
 	PUT_BOX_CHAR_LIGHT_E_JOIN(mid);
-	PUT_BOX_CHAR_LIGHT_SW_CORNER(bot);
+	PUT_BOX_CHAR_LIGHT_SE_CORNER(bot);
 	/* PUT_BOX_CHAR(top, 144); */
 	/* PUT_BOX_CHAR(mid, 164); */
 	/* PUT_BOX_CHAR(bot, 152); */

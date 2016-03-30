@@ -80,7 +80,6 @@ void set_cost_token_6(char **dbl_ptr)
 {
 	char *ptr = *dbl_ptr;
 
-	puts("YOYOYO");
 	PUT_ANSI_BRIGHT(ptr);
 	PUT_ANSI_RED(ptr);
 	PUT_BLOCK_CHAR_BASE_FILL(ptr, 6);
