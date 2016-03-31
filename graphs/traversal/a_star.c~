@@ -3,6 +3,9 @@
 #include "maps/maker.h"
 #include "traversal/a_star.h"
 
+#define COST_BIAS 1.0
+#define PROX_BIAS 1.0
+
 extern inline void free a_star_results(struct AStarResults *results);
 
 int best_a_star_step_node(const void *vstep1, const void *vstep2)
@@ -44,38 +47,37 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 
 	int **costs = map->costs;
 
-	const struct AStarWeights *WEIGHTS = calc_a_star_weights(res_x * 2lu,
-								 res_y,
-								 start_x,
-								 start_y,
-								 goal_x,
-								 goal_y,
-								 min_cost,
-								 max_cost);
-	const double COST_WEIGHT;
-	const double PROX_WEIGHT;
-}
+	/* set weights for comparing graph nodes */
 
-struct AStarWeights *calc_a_star_weights(const size_t max_x,
-					 const size_t max_y,
-					 const size_t start_x,
-					 const size_t start_y,
-					 const size_t goal_x,
-					 const size_t goal_y,
-					 const int min_cost,
-					 const int max_cost)
-{
+	const size_t max_prox = calc_max_prox(res_x * 2lu, resy,
+					      goal_x,      goal_y);
 	const size_t goal_max_dx = max_x - goal_x;
 	const size_t goal_max_dy = max_y - goal_y;
+
+	struct AStarWeights WEIGHTS = {
+		.min_cost = min_cost;
+		.w_cost   = COST_BIAS / ((double) (max_cost - min_cost));
+		.w_prox   = PROX_BIAS / ((double) max_prox);
+	};
+
+	set_a_star_weights(WEIGHTS,
+			   min_cost,    max_cost,
+			   res_x * 2lu, res_y,
+			   goal_x,      goal_y);
+}
+
+void set_a_star_weights(struct AStarWeights *WEIGHTS,
+			const int min_cost,  const int max_cost
+			const size_t max_x,  const size_t max_y,
+			const size_t goal_x, const size_t goal_y)
+{
 
 	/* max proximity to goal (min is zero) */
 	const size_t max_prox = (goal_max_dx > goal_x ? goal_max_dx : goal_x)
 			      + (goal_max_dy > goal_y ? goal_max_dy : goal_y);
 
-	const size_t start_prox = (start_x > goal_x ?
-				   start_x - goal_x : goal_x - start_x)
-				+ (start_y > goal_y ?
-				   start_y - goal_y : goal_y - start_y);
+
+	memcpy(WEIGHTS, &weights, sizeof(struct AStarWeights));
 }
 
 
@@ -125,12 +127,26 @@ void report_a_star_results(struct AStarResults *results)
 
 
 	printf("\n\n"
-	       "steps taken:    %zu\n"
 	       "total cost:     %d\n"
+	       "steps taken:    %zu\n"
+	       "least steps:    %zu\n"
 	       "count explored: %zu\n"
 	       "time elapsed:   %llu\n",
-	       best->steps,
 	       best->cost,
+	       best->steps_taken,
+	       results->least_steps,
 	       results->count_explored,
 	       results->time_elapsed);
+}
+
+
+
+
+
+
+inline size_t calc_prox(const size_t x0, const size_t y0,
+			const size_t x1, const size_t y1)
+{
+	return (x1 > x0 ? (x1 - x0) : (x0 - x1))
+	     + (y1 > y0 ? (y1 - y0) : (y0 - y1));
 }
