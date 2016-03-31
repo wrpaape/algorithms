@@ -21,15 +21,14 @@ void pretty_print_cost_map(char *buffer,
 	const size_t res_x = map->res->x;
 	const size_t res_y = map->res->y;
 
+	const size_t start_x = map->start->x;
+	const size_t start_y = map->start->y;
+
+	const size_t goal_x = map->goal->x;
+	const size_t goal_y = map->goal->y;
+
 	const int min_cost = map->est->min;
 	const int max_cost = map->est->max;
-
-
-	const int start_x = map->start->x;
-	const int start_y = map->start->y;
-
-	const int goal_x = map->goal->x;
-	const int goal_y = map->goal->y;
 
 	int **costs = map->costs;
 

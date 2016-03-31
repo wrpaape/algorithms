@@ -164,6 +164,8 @@ int **make_costs(const size_t res_x,
 				 (double) max_cost,
 				 grad_grid);
 
+	/* TODO: smooth costs */
+
 	free_grad_grid(verts_x, verts_y, grad_grid);
 
 	return costs;

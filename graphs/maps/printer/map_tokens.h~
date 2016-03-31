@@ -63,6 +63,8 @@ void set_cost_row_with_token(char **dbl_ptr,
 			     void (*token_setter)(char **),
 			     int *cost_row);
 
+
+
 void set_top_left_join(char **dbl_ptr);
 void set_top_center_join(char **dbl_ptr);
 void set_top_right_join(char **dbl_ptr);
