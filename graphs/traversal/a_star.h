@@ -41,21 +41,18 @@ struct AStarResults {
 
 struct AStarResults *a_star_least_cost_path(struct CostMap *map);
 
-void set_a_star_weights(struct AStarWeights *WEIGHTS,
-			const int min_cost,  const int max_cost
-			const size_t max_x,  const size_t max_y,
-			const size_t goal_x, const size_t goal_y);
 
 void report_a_star_results(struct AStarResults *results);
-void a_star_step_node_to_string(char *buffer, const void *vstep);
 
-static inline size_t calc_max_prox(struct AStarPathBounds *BOUNDARIES);
+void a_star_step_node_to_string(char *buffer,
+				const void *vstep);
 
-static inline size_t calc_max_prox(const size_t max_x,  const size_t max_y,
-				   const size_t goal_x, const size_t goal_y);
 
-static inline void calc_prox(const size_t x0, const size_t y0,
-			     const size_t x1, const size_t y1);
+static inline size_t calc_max_prox(struct Coords *lims,
+				   struct Coords *goal);
+
+static inline size_t calc_prox(struct Coords *c0,
+			       struct Coords *c1);
 
 inline void free a_star_results(struct AStarResults *results)
 {

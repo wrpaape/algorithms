@@ -36,7 +36,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 	const size_t x_max = map->res->x * 2lu;
 	const size_t max_y = map->res->y;
 
-	struct Coords path_limits = {
+	struct Coords lims = {
 		x = map->res->x * 2lu,
 		x = map->res->y
 	};
@@ -46,22 +46,16 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 		goal = map->goal
 	};
 
-	struct Coords *start = map->start;
-	struct Coords *goal  = map->goal;
-
 	const int min_cost = map->act->min;
 	const int max_cost = map->act->max;
 
 	int **costs = map->costs;
 
 	/* set weights for comparing graph nodes */
-	const size_t max_prox = calc_max_prox(map->res, 
-					      goal_x,      goal_y);
-
 	struct AStarWeights WEIGHTS = {
-		.min_cost = min_cost;
-		.w_cost   = COST_BIAS / ((double) (max_cost - min_cost));
-		.w_prox   = PROX_BIAS / ((double) max_prox);
+		.min_cost = map->act->min;
+		.w_cost   = COST_BIAS / ((double) (map->act->max - map->act->min)),
+		.w_prox   = PROX_BIAS / ((double) calc_max_prox(map->goal, &lims))
 	};
 
 }
@@ -125,23 +119,19 @@ void report_a_star_results(struct AStarResults *results)
 	       results->time_elapsed);
 }
 
-static inline size_t calc_max_prox(struct AStarPathBounds *BOUNDARIES)
-
-
-inline size_t calc_max_prox(const size_t x_max,  const size_t max_y,
-			    const size_t goal_x, const size_t goal_y)
+inline size_t calc_max_prox(struct Coords *lims,
+			    struct Coords *goal)
 {
-	const size_t goal_x =
-	const size_t goal_max_dx = x_max - goal_x;
-	const size_t goal_max_dy = max_y - goal_y;
+	const size_t goal_max_dx = lims->x - goal->x;
+	const size_t goal_max_dy = lims->y - goal->y;
 
-	return (goal_max_dx > goal_x ? goal_max_dx : goal_x)
-	     + (goal_max_dy > goal_y ? goal_max_dy : goal_y);
+	return (goal_max_dx > goal->x ? goal_max_dx : goal->x)
+	     + (goal_max_dy > goal->y ? goal_max_dy : goal->y);
 }
 
-inline size_t calc_prox(const size_t x0, const size_t y0,
-			const size_t x1, const size_t y1)
+inline size_t calc_prox(struct Coords *c0,
+			struct Coords *c1)
 {
-	return (x1 > x0 ? (x1 - x0) : (x0 - x1)
-	     + (y1 > y0 ? (y1 - y0) : (y0 - y1);
+	return (c1->x > c0->x ? (c1->x - c0->x) : (c0->x - c1->x)
+	     + (c1->y > c0->y ? (c1->y - c0->y) : (c0->y - c1->y);
 }
