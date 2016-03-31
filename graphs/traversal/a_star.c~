@@ -22,8 +22,8 @@ void a_star_step_node_to_string(char *buffer, const void *vstep)
 	struct AStarStepNode *step = (struct AStarStepNode *) vstep;
 
 	sprintf(buffer, "  {"
-			"\n    cost: %d,"
-			"\n    prox: %zu,"
+			"\n    cost:   %d,"
+			"\n    prox:   %zu,"
 			"\n    weight: %f"
 			"\n  }",
 		step->cost, step->prox, step->weight);
@@ -33,14 +33,21 @@ void a_star_step_node_to_string(char *buffer, const void *vstep)
 struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 {
 	/* unpack map info */
-	const size_t res_x = map->res->x;
-	const size_t res_y = map->res->y;
+	const size_t x_max = map->res->x * 2lu;
+	const size_t max_y = map->res->y;
 
-	const size_t start_x = map->start->x;
-	const size_t start_y = map->start->y;
+	struct Coords path_limits = {
+		x = map->res->x * 2lu,
+		x = map->res->y
+	};
 
-	const size_t goal_x = map->goal->x;
-	const size_t goal_y = map->goal->y;
+	struct AStarPathBounds BOUNDARIES = {
+		path = &path_limits,
+		goal = map->goal
+	};
+
+	struct Coords *start = map->start;
+	struct Coords *goal  = map->goal;
 
 	const int min_cost = map->act->min;
 	const int max_cost = map->act->max;
@@ -48,11 +55,8 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 	int **costs = map->costs;
 
 	/* set weights for comparing graph nodes */
-
-	const size_t max_prox = calc_max_prox(res_x * 2lu, resy,
+	const size_t max_prox = calc_max_prox(map->res, 
 					      goal_x,      goal_y);
-	const size_t goal_max_dx = max_x - goal_x;
-	const size_t goal_max_dy = max_y - goal_y;
 
 	struct AStarWeights WEIGHTS = {
 		.min_cost = min_cost;
@@ -60,24 +64,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 		.w_prox   = PROX_BIAS / ((double) max_prox);
 	};
 
-	set_a_star_weights(WEIGHTS,
-			   min_cost,    max_cost,
-			   res_x * 2lu, res_y,
-			   goal_x,      goal_y);
-}
-
-void set_a_star_weights(struct AStarWeights *WEIGHTS,
-			const int min_cost,  const int max_cost
-			const size_t max_x,  const size_t max_y,
-			const size_t goal_x, const size_t goal_y)
-{
-
-	/* max proximity to goal (min is zero) */
-	const size_t max_prox = (goal_max_dx > goal_x ? goal_max_dx : goal_x)
-			      + (goal_max_dy > goal_y ? goal_max_dy : goal_y);
-
-
-	memcpy(WEIGHTS, &weights, sizeof(struct AStarWeights));
 }
 
 
@@ -139,14 +125,22 @@ void report_a_star_results(struct AStarResults *results)
 	       results->time_elapsed);
 }
 
+static inline size_t calc_max_prox(struct AStarPathBounds *BOUNDARIES)
 
 
+inline size_t calc_max_prox(const size_t x_max,  const size_t max_y,
+			    const size_t goal_x, const size_t goal_y)
+{
+	const size_t goal_max_dx = x_max - goal_x;
+	const size_t goal_max_dy = max_y - goal_y;
 
-
+	return (goal_max_dx > goal_x ? goal_max_dx : goal_x)
+	     + (goal_max_dy > goal_y ? goal_max_dy : goal_y);
+}
 
 inline size_t calc_prox(const size_t x0, const size_t y0,
 			const size_t x1, const size_t y1)
 {
-	return (x1 > x0 ? (x1 - x0) : (x0 - x1))
-	     + (y1 > y0 ? (y1 - y0) : (y0 - y1));
+	return (x1 > x0 ? (x1 - x0) : (x0 - x1)
+	     + (y1 > y0 ? (y1 - y0) : (y0 - y1);
 }

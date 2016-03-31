@@ -33,7 +33,7 @@ void pretty_print_cost_map(char *buffer,
 	int **costs = map->costs;
 
 
-	const size_t last_char_row = res_x * 2lu;
+	const size_t last_x = res_x - 1lu;
 
 	const double token_ratio = ((double) TOKEN_SPAN)
 				 / ((double) (max_cost - min_cost));
@@ -92,7 +92,7 @@ void pretty_print_cost_map(char *buffer,
 		++char_row;
 
 		/* all cost cells have been printed to 'buffer', break */
-		if (char_row == last_char_row)
+		if (char_row == last_x)
 			break;
 
 
@@ -121,14 +121,14 @@ void pretty_print_cost_map(char *buffer,
 
 
 	/* set bot line */
-	if (start_x == last_char_row) {
+	if (start_x == last_x) {
 		set_line_with_token(&buffer,
 				    res_y,
 				    start_y,
 				    set_start_token,
 				    &BOT_LINE_JOIN_SETTERS);
 
-	} else if (goal_x == last_char_row) {
+	} else if (goal_x == last_x) {
 		set_line_with_token(&buffer,
 				    res_y,
 				    goal_y,

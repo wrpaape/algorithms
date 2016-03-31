@@ -1,6 +1,11 @@
 #ifndef GRAPHS_TRAVERSAL_A_STAR_H
 #include <time.h>
 
+struct AStarPathBounds {
+	struct Coords *max;
+	struct Coords *goal;
+};
+
 struct AStarWeights {
 	const int min_cost;
 	const double w_cost;
@@ -43,6 +48,11 @@ void set_a_star_weights(struct AStarWeights *WEIGHTS,
 
 void report_a_star_results(struct AStarResults *results);
 void a_star_step_node_to_string(char *buffer, const void *vstep);
+
+static inline size_t calc_max_prox(struct AStarPathBounds *BOUNDARIES);
+
+static inline size_t calc_max_prox(const size_t max_x,  const size_t max_y,
+				   const size_t goal_x, const size_t goal_y);
 
 static inline void calc_prox(const size_t x0, const size_t y0,
 			     const size_t x1, const size_t y1);
