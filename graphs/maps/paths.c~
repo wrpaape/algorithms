@@ -20,10 +20,10 @@ struct Endpoints *define_endpoints(struct CostMap *map)
 	struct Coords *goal;
 	struct Coords *limits;
 
-	HANDLE_MALLOC(pts,    sizeof(Endpoints));
-	HANDLE_MALLOC(start,  sizeof(Coords));
-	HANDLE_MALLOC(goal,   sizeof(Coords));
-	HANDLE_MALLOC(limits, sizeof(Coords));
+	HANDLE_MALLOC(pts,    sizeof(struct Endpoints));
+	HANDLE_MALLOC(start,  sizeof(struct Coords));
+	HANDLE_MALLOC(goal,   sizeof(struct Coords));
+	HANDLE_MALLOC(limits, sizeof(struct Coords));
 
 	limits->x = map->res->x * 2lu;
 	limits->y = map->res->y;

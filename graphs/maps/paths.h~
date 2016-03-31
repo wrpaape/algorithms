@@ -1,4 +1,16 @@
 #ifndef _GRAPHS_MAPS_PATHS_H_
+
+enum NodeStatus {
+	DEAD,
+	LIVE,
+	GOAL
+};
+
+enum NodeType {
+	VERT,
+	HORZ
+}
+
 struct Endpoints {
 	struct Coords *start;
 	struct Coords *goal;

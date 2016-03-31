@@ -34,32 +34,31 @@ void a_star_step_node_to_string(char *buffer, const void *vstep)
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts)
 {
-	return NULL;
-	/* unpack map info */
-	/* const size_t x_max = map->res->x * 2lu; */
-	/* const size_t max_y = map->res->y; */
+	/* pack map info */
+	const size_t x_max = map->res->x * 2lu;
+	const size_t max_y = map->res->y;
 
-	/* struct Coords lims = { */
-	/* 	x = map->res->x * 2lu, */
-	/* 	x = map->res->y */
-	/* }; */
+	struct Coords lims = {
+		x = map->res->x * 2lu,
+		x = map->res->y
+	};
 
-	/* struct AStarPathLimits BOUNDARIES = { */
-	/* 	path = &path_limits, */
-	/* 	goal = map->goal */
-	/* }; */
+	struct AStarPathLimits BOUNDARIES = {
+		path = &path_limits,
+		goal = map->goal
+	};
 
-	/* const int min_cost = map->act->min; */
-	/* const int max_cost = map->act->max; */
+	const int min_cost = map->act->min;
+	const int max_cost = map->act->max;
 
-	/* int **costs = map->costs; */
+	int **costs = map->costs;
 
-	/* /1* set weights for comparing graph nodes *1/ */
-	/* struct AStarWeights WEIGHTS = { */
-	/* 	.min_cost = map->act->min; */
-	/* 	.w_cost   = COST_BIAS / ((double) (map->act->max - map->act->min)), */
-	/* 	.w_prox   = PROX_BIAS / ((double) calc_max_prox(map->goal, &lims)) */
-	/* }; */
+	/* set weights for comparing graph nodes */
+	struct AStarWeights WEIGHTS = {
+		.min_cost = map->act->min;
+		.w_cost   = COST_BIAS / ((double) (map->act->max - map->act->min)),
+		.w_prox   = PROX_BIAS / ((double) calc_max_prox(map->goal, &lims))
+	};
 
 }
 
