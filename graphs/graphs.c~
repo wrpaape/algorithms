@@ -5,6 +5,7 @@
 #include "inspect.h"
 #include "maps/maker.h"
 #include "maps/printer.h"
+#include "traversal/a_star.h"
 
 #define FILENAME "maps/map.csv"
 
@@ -17,23 +18,31 @@ int min_cost(const void *vedge1, const void *vedge2)
 
 int main(void)
 {
-	char buffer[1lu << 16];
 	struct CostMap *map = make_cost_map(80lu, 40lu, 1, 9);
 
-	cost_map_to_csv(FILENAME, map);
+	struct AStarResults *results = a_star_least_cost_path(map);
 
-	pretty_print_cost_map(buffer, map);
+	report_a_star_results(results);
 
-	puts(buffer);
-
-	printf("goal_x:  %zu\n", map->goal->x);
-	printf("goal_y:  %zu\n", map->goal->y);
-	printf("start_x: %zu\n", map->start->x);
-	printf("start_y: %zu\n", map->start->y);
+	free_a_star_results(results);
 
 	free_cost_map(map);
 
 	return 0;
+
+
+	/* char buffer[1lu << 16]; */
+
+	/* cost_map_to_csv(FILENAME, map); */
+
+	/* pretty_print_cost_map(buffer, map); */
+
+	/* puts(buffer); */
+
+	/* printf("goal_x:  %zu\n", map->goal->x); */
+	/* printf("goal_y:  %zu\n", map->goal->y); */
+	/* printf("start_x: %zu\n", map->start->x); */
+	/* printf("start_y: %zu\n", map->start->y); */
 
 	/* tour_graph(build_graph1()); */
 
