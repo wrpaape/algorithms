@@ -11,10 +11,9 @@ struct Bounds {
 	int max;
 };
 
+
 struct CostMap {
 	struct Coords *res;
-	struct Coords *start;
-	struct Coords *goal;
 	struct Bounds *est;
 	struct Bounds *act;
 	int **costs;

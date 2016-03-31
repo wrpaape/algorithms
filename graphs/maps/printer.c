@@ -1,5 +1,6 @@
 #include "utils/utils.h"
 #include "maps/maker.h"
+#include "maps/paths.h"
 #include "maps/printer.h"
 #include "maps/printer/map_tokens.h"
 
@@ -15,7 +16,8 @@ do {									\
 
 
 void pretty_print_cost_map(char *buffer,
-			   struct CostMap *map)
+			   struct CostMap *map,
+			   struct EndPoints *points)
 {
 	/* unpack map info */
 	const size_t res_x = map->res->x;

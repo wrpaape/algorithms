@@ -36,12 +36,12 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 	const size_t x_max = map->res->x * 2lu;
 	const size_t max_y = map->res->y;
 
-	struct Coords path_limits = {
+	struct Coords lims = {
 		x = map->res->x * 2lu,
 		x = map->res->y
 	};
 
-	struct AStarPathBounds BOUNDARIES = {
+	struct AStarPathLimits BOUNDARIES = {
 		path = &path_limits,
 		goal = map->goal
 	};

@@ -41,7 +41,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 		x = map->res->y
 	};
 
-	struct AStarPathBounds BOUNDARIES = {
+	struct AStarPathLimits BOUNDARIES = {
 		path = &path_limits,
 		goal = map->goal
 	};
