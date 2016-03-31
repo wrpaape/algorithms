@@ -1,28 +1,42 @@
 #ifndef GRAPHS_TRAVERSAL_A_STAR_H
 #include <time.h>
 
+enum NodeType {
+	GOAL
+	INNER_VERT,
+	INNER_HORZ,
+	BOUND_VERT_MIN,
+	BOUND_VERT_MAX,
+	BOUND_HORZ_MIN,
+	BOUND_HORZ_MAX
+};
+
 struct AStarWeights {
 	const int min_cost;
 	const double w_cost;
 	const double w_prox;
 };
 
-struct AStarStep {
+struct AStarNode {
+	enum NodeType;
 	struct Coords *coords;
+	struct AStarStep *next_step;
+};
+
+struct AStarStep {
 	int cost;
 	size_t prox;
 	double weight;
-	struct AStarStep *next;
+	struct AStarNode *next_node;
 };
 
 
-
 struct AStarResults {
-	size_t branch_count;
 	struct AStarStep *head;
 	struct AStarStep *last;
-	size_t min_step_count;
+	size_t branch_count;
 	size_t best_step_count;
+	size_t min_step_count;
 	int total_cost;
 	clock_t time_elapsed;
 };

@@ -42,25 +42,15 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	bool DEAD[horiz->x][vert->y] = { { false } };
 
 
-
-	/* initialize accumulator */
-	struct AStarAcc acc = {
-		.cost  = 0,
-		.steps = 0,
-		.head
-	}
-
-	clock_t time_start  = clock();
-
-
-
-	clock_t time_finish = clock();
-
+	/* initialize results accumulator */
 	struct AStarResults *results;
 
 	HANDLE_MALLOC(results, sizeof(struct AStarResults));
 
-	results->jjjjjjj
+	results->head
+
+	clock_t time_start = clock();
+	clock_t time_finish = clock();
 
 	return;
 }

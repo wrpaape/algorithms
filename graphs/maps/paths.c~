@@ -18,23 +18,23 @@ struct Endpoints *define_endpoints(struct CostMap *map)
 	struct Endpoints *pts;
 	struct Coords *start;
 	struct Coords *goal;
-	struct Coords *horiz;
+	struct Coords *horz;
 	struct Coords *vert;
 
 	HANDLE_MALLOC(pts,   sizeof(struct Endpoints));
 	HANDLE_MALLOC(start, sizeof(struct Coords));
 	HANDLE_MALLOC(goal,  sizeof(struct Coords));
-	HANDLE_MALLOC(horiz, sizeof(struct Coords));
+	HANDLE_MALLOC(horz, sizeof(struct Coords));
 	HANDLE_MALLOC(vert,  sizeof(struct Coords));
 
-	horiz->x = map->res->x * 2lu;
-	vert->x  = horiz->x - 1lu;
+	horz->x = map->res->x * 2lu;
+	vert->x  = horz->x - 1lu;
 
 	vert->y = map->res->y;
-	horiz->y = vert->y - 1lu;
+	horz->y = vert->y - 1lu;
 
-	const int32_t l_x = ((int32_t) horiz->x) * 2;
-	const int32_t l_y = (int32_t) horiz->y;
+	const int32_t l_x = ((int32_t) horz->x) * 2;
+	const int32_t l_y = (int32_t) horz->y;
 	const int32_t h_x = l_x / 2;
 	const int32_t h_y = l_y / 2;
 
@@ -70,7 +70,7 @@ struct Endpoints *define_endpoints(struct CostMap *map)
 
 	pts->start = start;
 	pts->goal  = goal;
-	pts->horiz = horiz;
+	pts->horz  = horz;
 	pts->vert  = vert;
 
 	return pts;
