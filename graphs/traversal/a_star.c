@@ -15,19 +15,18 @@ int best_a_star_step_node(const void *vstep1, const void *vstep2)
 	struct AStarStep *step2 = (struct AStarStep *) vstep2;
 
 
-	return step1->weight < step2->weight;
+	return step1->score < step2->score;
 }
 
-void a_star_step_node_to_string(char *buffer, const void *vstep)
+void a_star_node_to_string(char *buffer, const void *vstep)
 {
-	struct AStarStepNode *step = (struct AStarStepNode *) vstep;
+	struct AStarNode *step = (struct AStarNode *) vstep;
 
 	sprintf(buffer, "  {"
-			"\n    cost:   %d,"
 			"\n    prox:   %zu,"
-			"\n    weight: %f"
+			"\n    score: %f"
 			"\n  }",
-		step->cost, step->prox, step->weight);
+		step->prox, step->score);
 }
 
 
@@ -35,13 +34,24 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts)
 {
 	/* unpack map info */
-	struct *horiz = pts->horiz;
-	struct *vert  = pts->vert;
+	struct Coords *goal = pts->goal;
+	struct Coords *horz = pts->horz;
+	struct Coords *vert = pts->vert;
+
+	const size_t x_max = horz->x;
+	const size_t y_max = vert->y;
 
 	/* initialize 'DEAD' table, (set all to live) */
-	bool DEAD[horiz->x][vert->y] = { { false } };
+	bool DEAD[x_max + 1lu][y_max + 1lu] = { { false } };
 
 
+	/* initialize weights for determining heuristic */
+	struct AStarWeights WEIGHTS;
+
+	init_a_star_bias(&WEIGHTS, map->est, goal, x_max, y_max);
+
+
+	/* struct Coords *start = pts->start; */
 	/* initialize results accumulator */
 	struct AStarResults *results;
 
@@ -52,10 +62,29 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	clock_t time_start = clock();
 	clock_t time_finish = clock();
 
-	return;
+	return results;
 }
 
 
+void init_a_star_bias(struct AStarBias *WEIGHTS,
+		      struct Bounds *cost,
+		      struct Coords *goal,
+		      const size_t x_max,
+		      const size_t y_max)
+
+{
+
+	const size_t g_to_x_max = x_max - goal->x;
+	const size_t g_to_y_max = y_max - goal->y;
+
+	const size_t max_prox = (g_to_x_max > goal->x ? g_to_x_max : goal->x)
+			      + (g_to_y_max > goal->y ? g_to_y_max : goal->y);
+
+
+	WEIGHTS->min_cost = cost->min;
+	WEIGHTS->w_cost	  = COST_BIAS / ((double) (cost->max - cost->min));
+	WEIGHTS->w_prox	  = PROX_BIAS / ((double) max_prox);
+}
 
 void report_a_star_results(struct AStarResults *results)
 {

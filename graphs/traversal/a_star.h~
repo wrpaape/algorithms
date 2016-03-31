@@ -11,29 +11,28 @@ enum NodeType {
 	BOUND_HORZ_MAX
 };
 
-struct AStarWeights {
-	const int min_cost;
-	const double w_cost;
-	const double w_prox;
+struct AStarBias {
+	int min_cost;
+	double w_cost;
+	double w_prox;
 };
 
 struct AStarNode {
 	enum NodeType;
+	size_t prox;
+	double score;
 	struct Coords *coords;
-	struct AStarStep *next_step;
+	struct AStarNode *next;
 };
 
-struct AStarStep {
-	int cost;
-	size_t prox;
-	double weight;
-	struct AStarNode *next_node;
-};
+struct AStarBranch {
+	struct AStarNode *head;
+	struct AStarNode *last;
+}
 
 
 struct AStarResults {
-	struct AStarStep *head;
-	struct AStarStep *last;
+	struct AStarBranch *best;
 	size_t branch_count;
 	size_t best_step_count;
 	size_t min_step_count;
@@ -44,17 +43,16 @@ struct AStarResults {
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts);
 
+void init_a_star_bias(struct AStarBias *WEIGHTS,
+		      struct Bounds *cost,
+		      struct Coords *goal,
+		      const size_t x_max,
+		      const size_t y_max);
 
 void report_a_star_results(struct AStarResults *results);
-void a_star_step_node_to_string(char *buffer, const void *vstep);
 
-/* static inline size_t calc_max_prox(struct AStarPathBounds *BOUNDARIES) */
+void a_star_node_to_string(char *buffer, const void *vstep);
 
-/* static inline size_t calc_max_prox(const size_t max_x,  const size_t max_y, */
-/* 				   const size_t goal_x, const size_t goal_y); */
-
-/* static inline void calc_prox(const size_t x0, const size_t y0, */
-/* 			     const size_t x1, const size_t y1); */
 
 inline void free_a_star_results(struct AStarResults *results)
 {
