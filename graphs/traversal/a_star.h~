@@ -1,42 +1,30 @@
 #ifndef GRAPHS_TRAVERSAL_A_STAR_H
 #include <time.h>
 
-struct AStarPathBounds {
-	struct Coords *max;
-	struct Coords *goal;
-};
-
 struct AStarWeights {
 	const int min_cost;
 	const double w_cost;
 	const double w_prox;
 };
 
-struct AStarStepNode {
-	double weight;
-	/* ↓ for debugging purposes ↓ */
+struct AStarStep {
+	struct Coords *coords;
 	int cost;
 	size_t prox;
+	double weight;
+	struct AStarStep *next;
 };
 
-struct AStarPathNode {
-	struct Coords *coords;
-	struct AStarStepNode *step;
-	struct AStarPathNode *next;
-};
 
-struct AStarAcc {
-	int cost;
-	size_t steps_taken;
-	struct AStarPathNode *last;
-	struct AStarPathNode *head;
-};
 
 struct AStarResults {
-	size_t least_steps;
-	size_t count_explored;
+	size_t branch_count;
+	struct AStarStep *head;
+	struct AStarStep *last;
+	size_t min_step_count;
+	size_t best_step_count;
+	int total_cost;
 	clock_t time_elapsed;
-	struct AStarAcc *best;
 };
 
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,

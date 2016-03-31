@@ -11,8 +11,8 @@ extern inline void free_a_star_results(struct AStarResults *results);
 
 int best_a_star_step_node(const void *vstep1, const void *vstep2)
 {
-	struct AStarStepNode *step1 = (struct AStarStepNode *) vstep1;
-	struct AStarStepNode *step2 = (struct AStarStepNode *) vstep2;
+	struct AStarStep *step1 = (struct AStarStep *) vstep1;
+	struct AStarStep *step2 = (struct AStarStep *) vstep2;
 
 
 	return step1->weight < step2->weight;
@@ -34,32 +34,35 @@ void a_star_step_node_to_string(char *buffer, const void *vstep)
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts)
 {
-	/* pack map info */
-	const size_t x_max = map->res->x * 2lu;
-	const size_t max_y = map->res->y;
+	/* unpack map info */
+	struct *horiz = pts->horiz;
+	struct *vert  = pts->vert;
 
-	struct Coords lims = {
-		x = map->res->x * 2lu,
-		x = map->res->y
-	};
+	/* initialize 'DEAD' table, (set all to live) */
+	bool DEAD[horiz->x][vert->y] = { { false } };
 
-	struct AStarPathLimits BOUNDARIES = {
-		path = &path_limits,
-		goal = map->goal
-	};
 
-	const int min_cost = map->act->min;
-	const int max_cost = map->act->max;
 
-	int **costs = map->costs;
+	/* initialize accumulator */
+	struct AStarAcc acc = {
+		.cost  = 0,
+		.steps = 0,
+		.head
+	}
 
-	/* set weights for comparing graph nodes */
-	struct AStarWeights WEIGHTS = {
-		.min_cost = map->act->min;
-		.w_cost   = COST_BIAS / ((double) (map->act->max - map->act->min)),
-		.w_prox   = PROX_BIAS / ((double) calc_max_prox(map->goal, &lims))
-	};
+	clock_t time_start  = clock();
 
+
+
+	clock_t time_finish = clock();
+
+	struct AStarResults *results;
+
+	HANDLE_MALLOC(results, sizeof(struct AStarResults));
+
+	results->jjjjjjj
+
+	return;
 }
 
 
@@ -115,7 +118,7 @@ void report_a_star_results(struct AStarResults *results)
 	       "count explored: %zu\n"
 	       "time elapsed:   %llu\n",
 	       best->cost,
-	       best->steps_taken,
+	       best->steps,
 	       results->least_steps,
 	       results->count_explored,
 	       results->time_elapsed);

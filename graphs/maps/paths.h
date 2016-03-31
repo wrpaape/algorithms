@@ -2,7 +2,8 @@
 struct Endpoints {
 	struct Coords *start;
 	struct Coords *goal;
-	struct Coords *limits;
+	struct Coords *horiz;
+	struct Coords *vert;
 };
 
 struct Endpoints *define_endpoints(struct CostMap *map);

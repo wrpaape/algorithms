@@ -18,18 +18,23 @@ struct Endpoints *define_endpoints(struct CostMap *map)
 	struct Endpoints *pts;
 	struct Coords *start;
 	struct Coords *goal;
-	struct Coords *limits;
+	struct Coords *horiz;
+	struct Coords *vert;
 
-	HANDLE_MALLOC(pts,    sizeof(struct Endpoints));
-	HANDLE_MALLOC(start,  sizeof(struct Coords));
-	HANDLE_MALLOC(goal,   sizeof(struct Coords));
-	HANDLE_MALLOC(limits, sizeof(struct Coords));
+	HANDLE_MALLOC(pts,   sizeof(struct Endpoints));
+	HANDLE_MALLOC(start, sizeof(struct Coords));
+	HANDLE_MALLOC(goal,  sizeof(struct Coords));
+	HANDLE_MALLOC(horiz, sizeof(struct Coords));
+	HANDLE_MALLOC(vert,  sizeof(struct Coords));
 
-	limits->x = map->res->x * 2lu;
-	limits->y = map->res->y;
+	horiz->x = map->res->x * 2lu;
+	vert->x  = horiz->x - 1lu;
 
-	const int32_t l_x = ((int32_t) limits->x) * 2;
-	const int32_t l_y = (int32_t) limits->y;
+	vert->y = map->res->y;
+	horiz->y = vert->y - 1lu;
+
+	const int32_t l_x = ((int32_t) horiz->x) * 2;
+	const int32_t l_y = (int32_t) horiz->y;
 	const int32_t h_x = l_x / 2;
 	const int32_t h_y = l_y / 2;
 
@@ -63,9 +68,10 @@ struct Endpoints *define_endpoints(struct CostMap *map)
 	start->y = (size_t) (((s_x & 1) && (s_y > 0)) ? (s_y - 1) : s_y);
 	goal->y  = (size_t) (((g_x & 1) && (g_y > 0)) ? (g_y - 1) : g_y);
 
-	pts->start  = start;
-	pts->goal   = goal;
-	pts->limits = limits;
+	pts->start = start;
+	pts->goal  = goal;
+	pts->horiz = horiz;
+	pts->vert  = vert;
 
 	return pts;
 }
