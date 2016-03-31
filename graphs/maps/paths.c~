@@ -1,11 +1,71 @@
-#ifndef _GRAPHS_MAPS_PATHS_H_
-#include "graphs/maps.h"
+#include "utils/utils.h"
+#include "utils/rand.h"
+#include "maps/maker.h"
+#include "maps/paths.h"
 
-struct EndPoints {
+
+extern inline void free_endpoints(struct Endpoints *pts);
+
+/* constrain token locations to cell edges
+ * ┌ ╳ ┬───┐
+ * │ 2 │ 9 ◯
+ * ├───┼ ◯ ┤
+ * ╳ 3 │ 5 │
+ * └───┴───┘
+ * and ensure start and goal are in oposite quadrants */
+struct Endpoints *define_endpoints(struct CostMap *map)
+{
+	struct Endpoints *pts;
 	struct Coords *start;
 	struct Coords *goal;
 	struct Coords *limits;
+
+	HANDLE_MALLOC(pts,    sizeof(Endpoints));
+	HANDLE_MALLOC(start,  sizeof(Coords));
+	HANDLE_MALLOC(goal,   sizeof(Coords));
+	HANDLE_MALLOC(limits, sizeof(Coords));
+
+	limits->x = map->res->x * 2lu;
+	limits->y = map->res->y;
+
+	const int32_t l_x = ((int32_t) limits->x) * 2;
+	const int32_t l_y = (int32_t) limits->y;
+	const int32_t h_x = l_x / 2;
+	const int32_t h_y = l_y / 2;
+
+	int32_t s_x;
+	int32_t s_y;
+	int32_t g_x;
+	int32_t g_y;
+
+	if (coin_flip()) {
+		s_x = rand_in_int_range(0,   h_x - 1);
+		g_x = rand_in_int_range(h_x, l_x);
+
+	} else {
+		s_x = rand_in_int_range(h_x, l_x);
+		g_x = rand_in_int_range(0,   h_x - 1);
+	}
+
+	if (coin_flip()) {
+		s_y = rand_in_int_range(0,   h_y - 1);
+		g_y = rand_in_int_range(h_y, l_y);
+
+	} else {
+		s_y = rand_in_int_range(h_y, l_y);
+		g_y = rand_in_int_range(0,   h_y - 1);
+	}
+
+	start->x = (size_t) s_x;
+	goal->x  = (size_t) g_x;
+
+	/* avoid placing tokens on corner or join pieces */
+	start->y = (size_t) (((s_x & 1) && (s_y > 0)) ? (s_y - 1) : s_y);
+	goal->y  = (size_t) (((g_x & 1) && (g_y > 0)) ? (g_y - 1) : g_y);
+
+	pts->start  = start;
+	pts->goal   = goal;
+	pts->limits = limits;
+
+	return pts;
 }
-struct EndPoints *define_endpoints(struct CostMap *map);
-#define _GRAPHS_MAPS_PATHS_H_
-#endif /* ifndef _GRAPHS_MAPS_PATHS_H_ */

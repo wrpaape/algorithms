@@ -24,10 +24,6 @@ struct CostMap *make_cost_map(const size_t char_width,
 			      const int min_cost,
 			      const int max_cost);
 
-void set_start_and_goal(const size_t res_x,
-			const size_t res_y,
-			struct Coords *start,
-			struct Coords *goal);
 
 double ***init_grad_grid(const size_t verts_x,
 			 const size_t verts_y);
@@ -62,8 +58,6 @@ inline void free_cost_map(struct CostMap *map)
 		free(costs[x]);
 
 	free(map->res);
-	free(map->start);
-	free(map->goal);
 	free(map->est);
 	free(map->act);
 	free(costs);

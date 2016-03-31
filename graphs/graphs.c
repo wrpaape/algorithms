@@ -1,9 +1,11 @@
 #include "graphs.h"
 #include "utils/utils.h"
+#include "utils/rand.h"
 #include "builder.h"
 #include "bheap.h"
 #include "inspect.h"
 #include "maps/maker.h"
+#include "maps/paths.h"
 #include "maps/printer.h"
 #include "traversal/a_star.h"
 
@@ -18,13 +20,19 @@ int min_cost(const void *vedge1, const void *vedge2)
 
 int main(void)
 {
+	init_rng();
+
 	struct CostMap *map = make_cost_map(80lu, 40lu, 1, 9);
 
-	struct AStarResults *results = a_star_least_cost_path(map);
+	struct Endpoints *pts = define_endpoints(map);
+
+	struct AStarResults *results = a_star_least_cost_path(map, pts);
 
 	report_a_star_results(results);
 
 	free_a_star_results(results);
+
+	free_endpoints(pts);
 
 	free_cost_map(map);
 
@@ -35,7 +43,7 @@ int main(void)
 
 	/* cost_map_to_csv(FILENAME, map); */
 
-	/* pretty_print_cost_map(buffer, map); */
+	/* pretty_print_cost_map(buffer, map, pts); */
 
 	/* puts(buffer); */
 

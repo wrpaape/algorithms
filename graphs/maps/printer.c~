@@ -17,25 +17,23 @@ do {									\
 
 void pretty_print_cost_map(char *buffer,
 			   struct CostMap *map,
-			   struct EndPoints *points)
+			   struct Endpoints *pts)
 {
-	/* unpack map info */
-	const size_t res_x = map->res->x;
-	const size_t res_y = map->res->y;
+	/* unpack info */
 
-	const size_t start_x = map->start->x;
-	const size_t start_y = map->start->y;
+	const size_t start_x = pts->start->x;
+	const size_t start_y = pts->start->y;
 
-	const size_t goal_x = map->goal->x;
-	const size_t goal_y = map->goal->y;
+	const size_t goal_x = pts->goal->x;
+	const size_t goal_y = pts->goal->y;
+
+	const size_t last_row = pts->limits->x;
+	const size_t res_y    = map->res->y;
 
 	const int min_cost = map->est->min;
 	const int max_cost = map->est->max;
 
 	int **costs = map->costs;
-
-
-	const size_t last_x = res_x - 1lu;
 
 	const double token_ratio = ((double) TOKEN_SPAN)
 				 / ((double) (max_cost - min_cost));
@@ -94,7 +92,7 @@ void pretty_print_cost_map(char *buffer,
 		++char_row;
 
 		/* all cost cells have been printed to 'buffer', break */
-		if (char_row == last_x)
+		if (char_row == last_row)
 			break;
 
 
@@ -123,14 +121,14 @@ void pretty_print_cost_map(char *buffer,
 
 
 	/* set bot line */
-	if (start_x == last_x) {
+	if (start_x == last_row) {
 		set_line_with_token(&buffer,
 				    res_y,
 				    start_y,
 				    set_start_token,
 				    &BOT_LINE_JOIN_SETTERS);
 
-	} else if (goal_x == last_x) {
+	} else if (goal_x == last_row) {
 		set_line_with_token(&buffer,
 				    res_y,
 				    goal_y,

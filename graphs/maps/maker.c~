@@ -63,19 +63,13 @@ struct CostMap *make_cost_map(const size_t char_width,
 
 	struct CostMap *map;
 	struct Coords *res;
-	struct Coords *start;
-	struct Coords *goal;
 	struct Bounds *est;
 	struct Bounds *act;
 
 	HANDLE_MALLOC(map,   sizeof(struct CostMap));
 	HANDLE_MALLOC(res,   sizeof(struct Coords));
-	HANDLE_MALLOC(start, sizeof(struct Coords));
-	HANDLE_MALLOC(goal,  sizeof(struct Coords));
 	HANDLE_MALLOC(est,   sizeof(struct Bounds));
 	HANDLE_MALLOC(act,   sizeof(struct Bounds));
-
-	set_start_and_goal(res_x, res_y, start, goal);
 
 	res->x = res_x;
 	res->y = res_y;
@@ -87,62 +81,11 @@ struct CostMap *make_cost_map(const size_t char_width,
 	act->max = act_max;
 
 	map->res   = res;
-	map->start = start;
-	map->goal  = goal;
 	map->est   = est;
 	map->act   = act;
 	map->costs = costs;
 
 	return map;
-}
-
-
-/* constrain token locations to cell edges
- * ┌ ╳ ┬───┐
- * │ 2 │ 9 ◯
- * ├───┼ ◯ ┤
- * ╳ 3 │ 5 │
- * └───┴───┘
- * and ensure start and goal are in oposite quadrants */
-void set_start_and_goal(const size_t res_x,
-			const size_t res_y,
-			struct Coords *start,
-			struct Coords *goal)
-{
-	const int32_t last_x = ((int32_t) res_x) * 2;
-	const int32_t last_y = (int32_t) res_y;
-	const int32_t half_x = last_x / 2;
-	const int32_t half_y = last_y / 2;
-
-	int32_t s_x;
-	int32_t s_y;
-	int32_t g_x;
-	int32_t g_y;
-
-	if (coin_flip()) {
-		s_x = rand_in_int_range(0,      half_x - 1);
-		g_x = rand_in_int_range(half_x, last_x);
-
-	} else {
-		s_x = rand_in_int_range(half_x, last_x);
-		g_x = rand_in_int_range(0,      half_x - 1);
-	}
-
-	if (coin_flip()) {
-		s_y = rand_in_int_range(0,      half_y - 1);
-		g_y = rand_in_int_range(half_y, last_y);
-
-	} else {
-		s_y = rand_in_int_range(half_y, last_y);
-		g_y = rand_in_int_range(0,      half_y - 1);
-	}
-
-	start->x = (size_t) s_x;
-	goal->x  = (size_t) g_x;
-
-	/* avoid placing tokens on corner or join pieces */
-	start->y = (size_t) (((s_x & 1) && (s_y > 0)) ? (s_y - 1) : s_y);
-	goal->y  = (size_t) (((g_x & 1) && (g_y > 0)) ? (g_y - 1) : g_y);
 }
 
 
