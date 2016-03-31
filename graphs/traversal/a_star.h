@@ -1,8 +1,10 @@
 #ifndef GRAPHS_TRAVERSAL_A_STAR_H
 #include <time.h>
+
 struct AStarStepNode {
 	int cost;
 	size_t prox;
+	double weight;
 };
 
 struct AStarPathNode {

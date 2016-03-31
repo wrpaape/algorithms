@@ -7,14 +7,11 @@ extern inline void free a_star_results(struct AStarResults *results);
 
 int best_a_star_step_node(const void *vstep1, const void *vstep2)
 {
-	extern const double COST_WEIGHT;
-	extern const double PROX_WEIGHT;
-
 	struct AStarStepNode *step1 = (struct AStarStepNode *) vstep1;
 	struct AStarStepNode *step2 = (struct AStarStepNode *) vstep2;
 
-	return ((step1->cost) * COST_WEIGHT) + step1->prox) <
-		(step2->cost + step2->prox);
+
+	return step1->weight < step2->weight;
 }
 
 void a_star_step_node_to_string(char *buffer, const void *vstep)
@@ -42,6 +39,9 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 	const int max_cost = map->act->max;
 
 	int **costs = map->costs;
+
+	const double COST_WEIGHT;
+	const double PROX_WEIGHT;
 }
 
 

@@ -1,8 +1,19 @@
 #ifndef GRAPHS_TRAVERSAL_A_STAR_H
 #include <time.h>
+struct AStarStepNodeActualAttrs {
+	int cost;
+	size_t prox;
+};
+
+struct AStarStepNodeScaledAttrs {
+	double cost;
+	double prox;
+};
+
 struct AStarStepNode {
 	int cost;
 	size_t prox;
+	double weight;
 };
 
 struct AStarPathNode {
@@ -27,7 +38,6 @@ struct AStarResults {
 struct AStarResults *a_star_least_cost_path(struct CostMap *map);
 
 void report_a_star_results(struct AStarResults *results);
-void step_node_to_string(char *buffer, const void *vstep);
 void a_star_step_node_to_string(char *buffer, const void *vstep);
 
 inline void free a_star_results(struct AStarResults *results)
