@@ -1,10 +1,18 @@
 #ifndef GRAPHS_TRAVERSAL_A_STAR_H
 #include <time.h>
 
+struct AStarWeights {
+	const int min_cost;
+	const int cost_range;
+	const size_t ini_prox;
+	const size_t prox_range;
+};
+
 struct AStarStepNode {
+	double weight;
+	/* ↓ for debugging purposes ↓ */
 	int cost;
 	size_t prox;
-	double weight;
 };
 
 struct AStarPathNode {

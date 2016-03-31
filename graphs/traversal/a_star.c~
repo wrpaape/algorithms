@@ -18,8 +18,12 @@ void a_star_step_node_to_string(char *buffer, const void *vstep)
 {
 	struct AStarStepNode *step = (struct AStarStepNode *) vstep;
 
-	sprintf(buffer, "  {\n    cost: %d,\n    prox: %zu\n  }",
-		step->cost, step->prox);
+	sprintf(buffer, "  {"
+			"\n    cost: %d,"
+			"\n    prox: %zu,"
+			"\n    weight: %f"
+			"\n  }",
+		step->cost, step->prox, step->weight);
 }
 
 
@@ -40,9 +44,40 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map)
 
 	int **costs = map->costs;
 
+	const struct AStarWeights *WEIGHTS = calc_a_star_weights(res_x * 2lu,
+								 res_y,
+								 start_x,
+								 start_y,
+								 goal_x,
+								 goal_y,
+								 min_cost,
+								 max_cost);
 	const double COST_WEIGHT;
 	const double PROX_WEIGHT;
 }
+
+struct AStarWeights *calc_a_star_weights(const size_t max_x,
+					 const size_t max_y,
+					 const size_t start_x,
+					 const size_t start_y,
+					 const size_t goal_x,
+					 const size_t goal_y,
+					 const int min_cost,
+					 const int max_cost)
+{
+	const size_t goal_max_dx = max_x - goal_x;
+	const size_t goal_max_dy = max_y - goal_y;
+
+	/* max proximity to goal (min is zero) */
+	const size_t max_prox = (goal_max_dx > goal_x ? goal_max_dx : goal_x)
+			      + (goal_max_dy > goal_y ? goal_max_dy : goal_y);
+
+	const size_t start_prox = (start_x > goal_x ?
+				   start_x - goal_x : goal_x - start_x)
+				+ (start_y > goal_y ?
+				   start_y - goal_y : goal_y - start_y);
+}
+
 
 
 void report_a_star_results(struct AStarResults *results)
