@@ -9,24 +9,25 @@
 
 extern inline void free_a_star_results(struct AStarResults *results);
 
-int best_a_star_step_node(const void *vstep1, const void *vstep2)
+int best_successor(const void *vnode1, const void *vnode2)
 {
-	struct AStarStep *step1 = (struct AStarStep *) vstep1;
-	struct AStarStep *step2 = (struct AStarStep *) vstep2;
+	struct AStarNode *node1 = (struct AStarNode *) vnode1;
+	struct AStarNode *node2 = (struct AStarNode *) vnode2;
 
 
-	return step1->score < step2->score;
+	return node1->score < node2->score;
 }
 
 void a_star_node_to_string(char *buffer, const void *vstep)
 {
-	struct AStarNode *step = (struct AStarNode *) vstep;
+	struct AStarNode *node = (struct AStarNode *) vstep;
 
 	sprintf(buffer, "  {"
+			"\n    cost:   %zu,"
 			"\n    prox:   %zu,"
 			"\n    score: %f"
 			"\n  }",
-		step->prox, step->score);
+		node->cost, node->prox, node->score);
 }
 
 
@@ -34,28 +35,40 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts)
 {
 	/* unpack map info */
-	struct Coords *goal = pts->goal;
-	struct Coords *horz = pts->horz;
-	struct Coords *vert = pts->vert;
+	int **costs = map->costs;
+
+	struct Coords *start = pts->start;
+	struct Coords *goal  = pts->goal;
+	struct Coords *horz  = pts->horz;
+	struct Coords *vert  = pts->vert;
 
 	const size_t x_max = horz->x;
 	const size_t y_max = vert->y;
 
-	/* initialize 'DEAD' table, (set all to live) */
-	bool DEAD[x_max + 1lu][y_max + 1lu] = { { false } };
+
+	/* initialize weights for determining heuristic, other constants */
+	struct AStarConstants CONSTANTS;
+
+	init_a_star_weights(&WEIGHTS, map->est, goal, x_max, y_max);
+
+	/* initialize 'CLOSED' coordinates table, (set all to open) */
+	bool CLOSED[x_max + 1lu][y_max + 1lu] = { { false } };
+
+	/* initialize priority list of open successor nodes sorted
+	 * according to 'best_successor' */
+	struct BHeap *successors = init_bheap(best_successor);
 
 
-	/* initialize weights for determining heuristic */
-	struct AStarWeights WEIGHTS;
-
-	init_a_star_bias(&WEIGHTS, map->est, goal, x_max, y_max);
+	/* 'close' starting coordinates and set first generation successors */
+	a_star_update_state(CLOSED, successors, start, WEIGHTS);
 
 
-	/* struct Coords *start = pts->start; */
+
+
 	/* initialize results accumulator */
 	struct AStarResults *results;
-
 	HANDLE_MALLOC(results, sizeof(struct AStarResults));
+
 
 	results->head
 
@@ -65,13 +78,21 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	return results;
 }
 
+a_star_update_state(bool **CLOSED,
+		    struct BHeap *successors,
+		    struct Coords *parent,
+		    WEIGHTS);
 
-void init_a_star_bias(struct AStarBias *WEIGHTS,
-		      struct Bounds *cost,
-		      struct Coords *goal,
-		      const size_t x_max,
-		      const size_t y_max)
+	parent
+	/* 'kill' starting coordinates */
+	CLOSED[parent->x][start->y] = true;
 
+
+void init_a_star_weights(struct AStarWeights *WEIGHTS,
+			 struct Bounds *cost,
+			 struct Coords *goal,
+			 const size_t x_max,
+			 const size_t y_max)
 {
 
 	const size_t g_to_x_max = x_max - goal->x;
@@ -86,13 +107,19 @@ void init_a_star_bias(struct AStarBias *WEIGHTS,
 	WEIGHTS->w_prox	  = PROX_BIAS / ((double) max_prox);
 }
 
+inline size_t calc_prox(struct Coords *c0,
+			struct Coords *c1)
+{
+	return (c1->x > c0->x ? (c1->x - c0->x) : (c0->x - c1->x))
+	     + (c1->y > c0->y ? (c1->y - c0->y) : (c0->y - c1->y));
+}
+
 void report_a_star_results(struct AStarResults *results)
 {
-	struct AStarAcc *best      = results->best;
-	struct AStarPathNode *path = best->head;
+	struct AStarNode *node = results->best->head;
 
-	size_t prev_x = path->coords->x;
-	size_t prev_y = path->coords->y;
+	size_t prev_x = results->start->x;
+	size_t prev_y = results->start->y;
 
 	size_t next_x, next_y;
 	char *dir;
@@ -100,8 +127,8 @@ void report_a_star_results(struct AStarResults *results)
 
 	while (1) {
 
-		next_x = path->coords->x;
-		next_y = path->coords->y;
+		next_x = node->coords->x;
+		next_y = node->coords->y;
 
 		if (next_x > prev_x)
 			dir = " DOWN ";
@@ -116,11 +143,11 @@ void report_a_star_results(struct AStarResults *results)
 			dir = " LEFT ";
 
 		printf("(%zu, %zu) %s to (%zu, %zu) at a cost of %d\n",
-		       prev_x, prev_y, dir, next_x, next_y, path->step->cost);
+		       prev_x, prev_y, dir, next_x, next_y, node->cost);
 
-		path = path->next;
+		node = node->next;
 
-		if (path == NULL)
+		if (node == NULL)
 			break;
 
 		prev_x = next_x;
@@ -131,16 +158,16 @@ void report_a_star_results(struct AStarResults *results)
 
 
 	printf("\n\n"
-	       "total cost:     %d\n"
-	       "steps taken:    %zu\n"
-	       "least steps:    %zu\n"
-	       "count explored: %zu\n"
-	       "time elapsed:   %llu\n",
-	       best->cost,
-	       best->steps,
-	       results->least_steps,
-	       results->count_explored,
-	       results->time_elapsed);
+	       "min steps to goal: %zu\n"
+	       "steps taken:       %zu\n"
+	       "total cost:        %d\n"
+	       "branches explored: %zu\n"
+	       "time elapsed:      %f s\n",
+	       results->min_step_count,
+	       results->best_step_count,
+	       best->total_cost,
+	       results->branch_count,
+	       ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC);
 }
 
 /* inline size_t calc_max_prox(struct Coords *lims, */
