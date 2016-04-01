@@ -7,11 +7,16 @@
 /* 	VERT */
 /* }; */
 
-/* enum AStarNodeType { */
-/* 	INNER, */
-/* 	MIN_BOUND, */
-/* 	MAX_BOUND */
-/* }; */
+enum AStarNodeType {
+	GOAL,
+	CLOSED,
+	INNER_HORZ,
+	INNER_VERT,
+	MIN_BOUND_HORZ,
+	MIN_BOUND_VERT,
+	MAX_BOUND_HORZ,
+	MAX_BOUND_VERT
+};
 
 
 struct AStarConst {
@@ -57,16 +62,19 @@ struct AStarResults {
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts);
 
+struct AStarNode *init_a_star_node(const size_t x,
+				   const size_t y,
+				   const int cost,
+				   struct AStarConst *CONST);
+
+void a_star_do_next(struct AStarState *STATE,
+		    struct AStarConst *CONST);
+
 struct AStarResults *a_star_build_results(struct AStarState *STATE,
 					  struct AStarConst *CONST,
 					  clock_t time_start,
 					  clock_t time_finish);
 
-void init_a_star_constants(struct AStarConst *CONST,
-			   struct Bounds *cost,
-			   struct Coords *goal,
-			   const size_t x_max,
-			   const size_t y_max);
 
 void report_a_star_results(struct AStarResults *results);
 
@@ -76,7 +84,7 @@ inline size_t calc_prox(const size_t x0, const size_t y0,
 			const size_t x1, const size_t y1);
 
 
-inline void free_a_star_results(struct AStarResults *results);
+inline void free_a_star_results(struct AStarResults *results)
 {
 	for (struct AStarNode *node = results->path->next;
 	     node != NULL;

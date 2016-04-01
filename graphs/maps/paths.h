@@ -2,7 +2,7 @@
 struct Endpoints {
 	struct Coords *start;
 	struct Coords *goal;
-	struct Coords *horiz;
+	struct Coords *horz;
 	struct Coords *vert;
 };
 
@@ -12,7 +12,8 @@ inline void free_endpoints(struct Endpoints *pts)
 {
 	free(pts->start);
 	free(pts->goal);
-	free(pts->limits);
+	free(pts->horz);
+	free(pts->vert);
 	free(pts);
 }
 #define _GRAPHS_MAPS_PATHS_H_

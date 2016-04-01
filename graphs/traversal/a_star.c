@@ -23,7 +23,7 @@ void a_star_node_to_string(char *buffer, const void *vnode)
 	struct AStarNode *node = (struct AStarNode *) vnode;
 
 	sprintf(buffer, "  {"
-			"\n    cost:  %zu,"
+			"\n    cost:  %d,"
 			"\n    prox:  %zu,"
 			"\n    score: %f"
 			"\n  }",
@@ -64,15 +64,15 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 
 	struct AStarConst CONST = {
-		.min_cost   = min_cost;
-		.w_cost	    = COST_BIAS / ((double) (max_cost - min_cost));
-		.w_prox	    = PROX_BIAS / ((double) max_prox);
-		.x_goal	    = x_goal;
-		.y_goal	    = y_goal;
-		.x_max_horz = x_max_horz;
-		.y_max_horz = y_max_horz;
-		.x_max_vert = x_max_vert;
-		.y_max_vert = y_max_vert;
+		.min_cost   = min_cost,
+		.w_cost	    = COST_BIAS / ((double) (max_cost - min_cost)),
+		.w_prox	    = PROX_BIAS / ((double) max_prox),
+		.x_goal	    = x_goal,
+		.y_goal	    = y_goal,
+		.x_max_horz = x_max_horz,
+		.y_max_horz = y_max_horz,
+		.x_max_vert = x_max_vert,
+		.y_max_vert = y_max_vert
 	};
 
 	/* initialize priority list of open successor nodes sorted
@@ -88,7 +88,12 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	bheap_insert(successors, root);
 
 	/* initialize 'closed' coordinates table, (set all to open) */
-	bool closed[x_max_horiz + 1lu][y_max_vert + 1lu] = { { false } };
+
+	enum AStarNodeType **LOOKUP;
+
+	HANDLE_MALLOC(closed, sizeof(bool *) * (x_max_horz + 1lu));
+
+	bool closed[x_max_horz + 1lu][y_max_vert + 1lu] = { { false } };
 
 	/* initialize state accumulator */
 	struct AStarState STATE = {

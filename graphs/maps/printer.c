@@ -27,7 +27,7 @@ void pretty_print_cost_map(char *buffer,
 	const size_t goal_x = pts->goal->x;
 	const size_t goal_y = pts->goal->y;
 
-	const size_t last_row = pts->limits->x;
+	const size_t last_row = pts->horz->x;
 	const size_t res_y    = map->res->y;
 
 	const int min_cost = map->est->min;
