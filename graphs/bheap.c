@@ -62,7 +62,6 @@ void bheap_insert(struct BHeap *heap,
 
 	++(heap->count);
 
-
 	if (heap->count == heap->alloc)
 		resize_bheap(heap, heap->alloc * 2lu);
 }

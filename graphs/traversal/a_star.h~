@@ -26,34 +26,31 @@ struct AStarConstants {
 	const size_t y_max_vert;
 };
 
-struct AStarState {
-};
 
 struct AStarNode {
-	int cost;
-	size_t x;
-	size_t y;
-	size_t prox;
-	double score;
+	const size_t x;
+	const size_t y;
+	const size_t prox;
+	const int cost;
+	const double score;
 	struct AStarNode *prev;
 	struct AStarNode *next;
 };
 
-struct AStarBranch {
-	struct AStarNode *head;
-	struct AStarNode *last;
-}
+struct AStarState {
+	size_t branch_count;
+	struct AStarNode *path;
+	bool **closed;
+};
 
 
 struct AStarResults {
-	size_t x_start;
-	size_t y_start;
 	size_t min_step_count;
 	size_t best_step_count;
 	size_t branch_count;
 	int total_cost;
 	clock_t time_elapsed;
-	struct AStarBranch *best;
+	struct AStarNode *path;
 };
 
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
@@ -69,13 +66,16 @@ void report_a_star_results(struct AStarResults *results);
 
 void a_star_node_to_string(char *buffer, const void *vstep);
 
-static inline size_t calc_prox(struct Coords *c0,
-			       struct Coords *c1);
+inline size_t calc_prox(const size_t x0, const size_t y0,
+			const size_t x1, const size_t y1);
 
 
-inline void free_a_star_results(struct AStarResults *results)
+inline void free_a_star_results(struct AStarResults *results);
 {
-	free(results->best);
+	for (struct AStarNode *node = results->path->next;
+	     node != NULL;
+	     free(node->prev), node = node->next);
+
 	free(results);
 }
 #define GRAPHS_TRAVERSAL_A_STAR_H

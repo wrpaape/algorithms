@@ -28,11 +28,11 @@ int main(void)
 
 	struct Endpoints *pts = define_endpoints(map);
 
-	/* struct AStarResults *results = a_star_least_cost_path(map, pts); */
+	struct AStarResults *results = a_star_least_cost_path(map, pts);
 
-	/* report_a_star_results(results); */
+	report_a_star_results(results);
 
-	/* free_a_star_results(results); */
+	free_a_star_results(results);
 
 	puts(buffer);
 

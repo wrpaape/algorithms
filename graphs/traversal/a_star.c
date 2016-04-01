@@ -23,8 +23,8 @@ void a_star_node_to_string(char *buffer, const void *vstep)
 	struct AStarNode *node = (struct AStarNode *) vstep;
 
 	sprintf(buffer, "  {"
-			"\n    cost:   %zu,"
-			"\n    prox:   %zu,"
+			"\n    cost:  %zu,"
+			"\n    prox:  %zu,"
 			"\n    score: %f"
 			"\n  }",
 		node->cost, node->prox, node->score);
@@ -76,15 +76,34 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	};
 
 
-	/* initialize 'CLOSED' coordinates table, (set all to open) */
-	bool CLOSED[x_max_horiz + 1lu][y_max_vert + 1lu] = { { false } };
 
 	/* initialize priority list of open successor nodes sorted
 	 * according to 'best_successor' */
 	struct BHeap *successors = init_bheap(best_successor);
 
+	/* initialize root node and insert into successors */
+
+	struct AStarNode *root = init_a_star_node(x_start,
+						  y_start,
+						  0,
+						  NULL,
+						  &CONSTS);
+	bheap_insert(successors, root);
+
+
+	/* initialize 'CLOSED' coordinates table, (set all to open) */
+	bool CLOSED[x_max_horiz + 1lu][y_max_vert + 1lu] = { { false } };
+
+	/* initialize state accumulator */
+	struct AStarState STATE
+
 	/* 'close' starting coordinates and set first generation successors */
-	a_star_update_state(successors, CLOSED, &CONSTS, x_start, y_start);
+
+	clock_t time_start = clock();
+
+	a_star_do_next(successors, , &CONSTS, x_start, y_start);
+
+	clock_t time_finish = clock();
 
 
 
@@ -93,87 +112,97 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 	HANDLE_MALLOC(results, sizeof(struct AStarResults));
 
-	results->x_start = x_start;
-	results->y_start = y_start;
 
-	clock_t time_start = clock();
-	clock_t time_finish = clock();
-
-	return results;
+	return NULL;
 }
 
-void a_star_update_state(struct BHeap *successors,
-			 bool **CLOSED,
-			 struct AStarConstants *CONSTS,
-			 const size_t x_prev,
-			 const size_t y_prev)
+struct AStarNode *init_a_star_node(const size_t x,
+				   const size_t y,
+				   const int cost,
+				   struct AStarNode *prev,
+				   struct AStarConstants *CONSTS)
 {
-	/* 'close' previous coordinates */
-	CLOSED[x_prev][y_prev] = true;
+	const size_t prox  = calc_prox(x, y, CONSTS->x_goal, CONSTS->y_goal);
+
+	const double score = ((cost * CONSTS->w_cost) + CONSTS->min_cost)
+			   +  (prox * CONSTS->w_prox);
+
+
+	struct AStarNode *node;
+
+	HANDLE_MALLOC(node, sizeof(struct AStarNode));
+
+	node->x	    = x;
+	node->y	    = y;
+	node->prox  = prox;
+	node->cost  = cost;
+	node->score = score;
+	node->prev  = prev;
+
+	return node;
 }
 
-
-
-inline size_t calc_prox(struct Coords *c0,
-			struct Coords *c1)
+inline size_t calc_prox(const size_t x0, const size_t y0,
+			const size_t x1, const size_t y1)
 {
-	return (c1->x > c0->x ? (c1->x - c0->x) : (c0->x - c1->x))
-	     + (c1->y > c0->y ? (c1->y - c0->y) : (c0->y - c1->y));
+	return (x1 > x0 ? (x1 - x0) : (x0 - x1))
+	       (y1 > y0 ? (y1 - y0) : (y0 - y1));
 }
 
 void report_a_star_results(struct AStarResults *results)
 {
-	struct AStarNode *node = results->best->head;
+	puts("YOLO");
+	/* struct AStarNode *node = results->best->head; */
 
-	size_t x_prev = results->x_start;
-	size_t y_prev = results->y_start;
+	/* size_t x_prev = results->x_start; */
+	/* size_t y_prev = results->y_start; */
 
-	size_t x_next, y_next;
-	char *dir;
-
-
-	while (1) {
-		x_next = node->x;
-		y_next = node->y;
-
-		if (x_next > x_prev)
-			dir = " DOWN ";
-
-		else if(x_next < x_prev)
-			dir = "  UP  ";
-
-		else if(y_next > x_prev)
-			dir = "RIGHT ";
-
-		else
-			dir = " LEFT ";
-
-		printf("(%zu, %zu) %s to (%zu, %zu) at a cost of %d\n",
-		       x_prev, y_prev, dir, x_next, y_next, node->cost);
-
-		node = node->next;
-
-		if (node == NULL)
-			break;
-
-		x_prev = x_next;
-		y_prev = y_next;
-	}
+	/* size_t x_next, y_next; */
+	/* char *dir; */
 
 
+	/* while (1) { */
+	/* 	x_next = node->x; */
+	/* 	y_next = node->y; */
+
+	/* 	if (x_next > x_prev) */
+	/* 		dir = " DOWN "; */
+
+	/* 	else if(x_next < x_prev) */
+	/* 		dir = "  UP  "; */
+
+	/* 	else if(y_next > x_prev) */
+	/* 		dir = "RIGHT "; */
+
+	/* 	else */
+	/* 		dir = " LEFT "; */
+
+	/* 	printf("(%zu, %zu) %s to (%zu, %zu) at a cost of %d\n", */
+	/* 	       x_prev, y_prev, dir, x_next, y_next, node->cost); */
+
+	/* 	node = node->next; */
+
+	/* 	if (node == NULL) */
+	/* 		break; */
+
+	/* 	x_prev = x_next; */
+	/* 	y_prev = y_next; */
+	/* } */
 
 
-	printf("\n\n"
-	       "min steps to goal: %zu\n"
-	       "steps taken:       %zu\n"
-	       "total cost:        %d\n"
-	       "branches explored: %zu\n"
-	       "time elapsed:      %f s\n",
-	       results->min_step_count,
-	       results->best_step_count,
-	       best->total_cost,
-	       results->branch_count,
-	       ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC);
+
+
+	/* printf("\n\n" */
+	/*        "min steps to goal: %zu\n" */
+	/*        "steps taken:       %zu\n" */
+	/*        "total cost:        %d\n" */
+	/*        "branches explored: %zu\n" */
+	/*        "time elapsed:      %f s\n", */
+	/*        results->min_step_count, */
+	/*        results->best_step_count, */
+	/*        best->total_cost, */
+	/*        results->branch_count, */
+	/*        ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC); */
 }
 
 /* inline size_t calc_max_prox(struct Coords *lims, */
