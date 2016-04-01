@@ -15,9 +15,9 @@
 
 
 struct AStarConstants {
-	int min_cost;
-	double w_cost;
-	double w_prox;
+	const int min_cost;
+	const double w_cost;
+	const double w_prox;
 	struct Coords *lims;
 	struct Coords *goal;
 };
@@ -49,11 +49,11 @@ struct AStarResults {
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts);
 
-void init_a_star_weights(struct AStarWeights *WEIGHTS,
-			 struct Bounds *cost,
-			 struct Coords *goal,
-			 const size_t x_max,
-			 const size_t y_max);
+void init_a_star_constants(struct AStarConstants *CONSTS,
+			   struct Bounds *cost,
+			   struct Coords *goal,
+			   const size_t x_max,
+			   const size_t y_max);
 
 void report_a_star_results(struct AStarResults *results);
 

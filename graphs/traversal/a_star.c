@@ -47,12 +47,12 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 
 	/* initialize weights for determining heuristic, other constants */
-	struct AStarConstants CONSTANTS;
+	struct AStarConstants CONSTS;
 
-	init_a_star_weights(&WEIGHTS, map->est, goal, x_max, y_max);
+	init_a_star_constants(&CONSTS, map->est, goal, x_max, y_max);
 
-	/* initialize 'CLOSED' coordinates table, (set all to open) */
-	bool CLOSED[x_max + 1lu][y_max + 1lu] = { { false } };
+	/* initialize 'DEAD' coordinates table, (set all to open) */
+	bool DEAD[x_max + 1lu][y_max + 1lu] = { { false } };
 
 	/* initialize priority list of open successor nodes sorted
 	 * according to 'best_successor' */
@@ -60,7 +60,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 
 	/* 'close' starting coordinates and set first generation successors */
-	a_star_update_state(CLOSED, successors, start, WEIGHTS);
+	a_star_update_state(DEAD, successors, start, CONSTS);
 
 
 
@@ -78,33 +78,43 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	return results;
 }
 
-a_star_update_state(bool **CLOSED,
-		    struct BHeap *successors,
-		    struct Coords *parent,
-		    WEIGHTS);
+void a_star_update_state(bool **DEAD,
+			 struct BHeap *successors,
+			 struct Coords *parent,
+			 struct AStarConstants *CONSTS)
+{
+	parent;
 
-	parent
-	/* 'kill' starting coordinates */
-	CLOSED[parent->x][start->y] = true;
+	/* 'kill' parent coordinates */
+	DEAD[parent->x][start->y] = true;
+}
 
 
-void init_a_star_weights(struct AStarWeights *WEIGHTS,
-			 struct Bounds *cost,
-			 struct Coords *goal,
-			 const size_t x_max,
-			 const size_t y_max)
+
+void init_a_star_constants(struct Bounds *cost,
+			   struct Coords *goal,
+			   const size_t x_max,
+			   const size_t y_max)
 {
 
-	const size_t g_to_x_max = x_max - goal->x;
-	const size_t g_to_y_max = y_max - goal->y;
+	const size_t g_x = goal->x;
+	const size_t g_y = goal->y;
 
-	const size_t max_prox = (g_to_x_max > goal->x ? g_to_x_max : goal->x)
-			      + (g_to_y_max > goal->y ? g_to_y_max : goal->y);
+	const size_t g_to_x_max = x_max - g_x;
+	const size_t g_to_y_max = y_max - g_y;
+
+	const size_t max_prox = (g_to_x_max > g_x ? g_to_x_max : g_x)
+			      + (g_to_y_max > g_y ? g_to_y_max : g_y);
 
 
-	WEIGHTS->min_cost = cost->min;
-	WEIGHTS->w_cost	  = COST_BIAS / ((double) (cost->max - cost->min));
-	WEIGHTS->w_prox	  = PROX_BIAS / ((double) max_prox);
+	struct AStarConstants constants = {
+	}
+
+	CONSTS->min_cost = cost->min;
+	CONSTS->w_cost	  = COST_BIAS / ((double) (cost->max - cost->min));
+	CONSTS->w_prox	  = PROX_BIAS / ((double) max_prox);
+
+	HANDLE_MALLOC(CONST->goal, sizeof(Coords));
 }
 
 inline size_t calc_prox(struct Coords *c0,
