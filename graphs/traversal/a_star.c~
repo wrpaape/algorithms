@@ -18,9 +18,9 @@ int best_successor(const void *vnode1, const void *vnode2)
 	return node1->score < node2->score;
 }
 
-void a_star_node_to_string(char *buffer, const void *vstep)
+void a_star_node_to_string(char *buffer, const void *vnode)
 {
-	struct AStarNode *node = (struct AStarNode *) vstep;
+	struct AStarNode *node = (struct AStarNode *) vnode;
 
 	sprintf(buffer, "  {"
 			"\n    cost:  %zu,"
@@ -63,7 +63,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 			      + (g_to_y_max > y_goal ? g_to_y_max : y_goal);
 
 
-	struct AStarConstants CONSTS = {
+	struct AStarConst CONST = {
 		.min_cost   = min_cost;
 		.w_cost	    = COST_BIAS / ((double) (max_cost - min_cost));
 		.w_prox	    = PROX_BIAS / ((double) max_prox);
@@ -75,8 +75,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		.y_max_vert = y_max_vert;
 	};
 
-
-
 	/* initialize priority list of open successor nodes sorted
 	 * according to 'best_successor' */
 	struct BHeap *successors = init_bheap(best_successor);
@@ -86,32 +84,50 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	struct AStarNode *root = init_a_star_node(x_start,
 						  y_start,
 						  0,
-						  NULL,
-						  &CONSTS);
+						  &CONST);
 	bheap_insert(successors, root);
 
-
-	/* initialize 'CLOSED' coordinates table, (set all to open) */
-	bool CLOSED[x_max_horiz + 1lu][y_max_vert + 1lu] = { { false } };
+	/* initialize 'closed' coordinates table, (set all to open) */
+	bool closed[x_max_horiz + 1lu][y_max_vert + 1lu] = { { false } };
 
 	/* initialize state accumulator */
-	struct AStarState STATE
+	struct AStarState STATE = {
+		.successors   = successors,
+		.path	      = NULL,
+		.closed       = closed,
+		.branch_count = 0
+	}
 
-	/* 'close' starting coordinates and set first generation successors */
+	/* begin pathfinding */
 
 	clock_t time_start = clock();
 
-	a_star_do_next(successors, , &CONSTS, x_start, y_start);
+	a_star_do_next(&STATE, &CONST);
 
 	clock_t time_finish = clock();
 
+	/* build and return results accumulator */
+	return a_star_build_results(&STATE, &CONST, time_start, time_finish);
+}
 
+void a_star_do_next(struct AStarState *STATE,
+		    struct AStarConst *CONST)
+{
+	struct AStarNode *node = bheap_extract(STATE->successors);
 
-	/* initialize results accumulator */
+	char buff[64];
+
+	a_star_node_to_string(buff, )
+}
+
+struct AStarResults *a_star_build_results(struct AStarState *STATE,
+					  struct AStarConst *CONST,
+					  clock_t time_start,
+					  clock_t time_finish)
+{
 	struct AStarResults *results;
 
 	HANDLE_MALLOC(results, sizeof(struct AStarResults));
-
 
 	return NULL;
 }
@@ -119,13 +135,12 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 struct AStarNode *init_a_star_node(const size_t x,
 				   const size_t y,
 				   const int cost,
-				   struct AStarNode *prev,
-				   struct AStarConstants *CONSTS)
+				   struct AStarConst *CONST)
 {
-	const size_t prox  = calc_prox(x, y, CONSTS->x_goal, CONSTS->y_goal);
+	const size_t prox  = calc_prox(x, y, CONST->x_goal, CONST->y_goal);
 
-	const double score = ((cost * CONSTS->w_cost) + CONSTS->min_cost)
-			   +  (prox * CONSTS->w_prox);
+	const double score = ((cost * CONST->w_cost) + CONST->min_cost)
+			   +  (prox * CONST->w_prox);
 
 
 	struct AStarNode *node;
@@ -137,7 +152,6 @@ struct AStarNode *init_a_star_node(const size_t x,
 	node->prox  = prox;
 	node->cost  = cost;
 	node->score = score;
-	node->prev  = prev;
 
 	return node;
 }

@@ -14,7 +14,7 @@
 /* }; */
 
 
-struct AStarConstants {
+struct AStarConst {
 	const int min_cost;
 	const double w_cost;
 	const double w_prox;
@@ -38,9 +38,10 @@ struct AStarNode {
 };
 
 struct AStarState {
-	size_t branch_count;
+	struct BHeap *successors;
 	struct AStarNode *path;
 	bool **closed;
+	size_t branch_count;
 };
 
 
@@ -56,7 +57,15 @@ struct AStarResults {
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts);
 
-void init_a_star_constants(struct AStarConstants *CONSTS,
+void a_star_do_next(struct AStarState *STATE,
+		    struct AStarConst *CONST);
+
+struct AStarResults *a_star_build_results(struct AStarState *STATE,
+					  struct AStarConst *CONST,
+					  clock_t time_start,
+					  clock_t time_finish);
+
+void init_a_star_constants(struct AStarConst *CONST,
 			   struct Bounds *cost,
 			   struct Coords *goal,
 			   const size_t x_max,
