@@ -34,43 +34,67 @@ void a_star_node_to_string(char *buffer, const void *vstep)
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts)
 {
-	/* unpack map info */
+	/* unpack cost map and enpoints */
+
 	int **costs = map->costs;
 
-	struct Coords *start = pts->start;
-	struct Coords *goal  = pts->goal;
-	struct Coords *horz  = pts->horz;
-	struct Coords *vert  = pts->vert;
+	const size_t min_cost = map->act->min;
+	const size_t max_cost = map->act->max;
 
-	const size_t x_max = horz->x;
-	const size_t y_max = vert->y;
+	const size_t x_start = pts->goal->x;
+	const size_t y_start = pts->goal->y;
+
+	const size_t x_goal = pts->goal->x;
+	const size_t y_goal = pts->goal->y;
+
+	const size_t x_max_horz = pts->horz->x;
+	const size_t y_max_horz = pts->horz->y;
+
+	const size_t x_max_vert = pts->vert->x;
+	const size_t y_max_vert = pts->vert->y;
 
 
 	/* initialize weights for determining heuristic, other constants */
-	struct AStarConstants CONSTS;
+	const size_t g_to_x_max = x_max_horz - x_goal;
+	const size_t g_to_y_max = y_max_vert - y_goal;
 
-	init_a_star_constants(&CONSTS, map->est, goal, x_max, y_max);
+	/* calculate furthest distance from goal within map bounds */
+	const size_t max_prox = (g_to_x_max > x_goal ? g_to_x_max : x_goal)
+			      + (g_to_y_max > y_goal ? g_to_y_max : y_goal);
 
-	/* initialize 'DEAD' coordinates table, (set all to open) */
-	bool DEAD[x_max + 1lu][y_max + 1lu] = { { false } };
+
+	struct AStarConstants CONSTS = {
+		.min_cost   = min_cost;
+		.w_cost	    = COST_BIAS / ((double) (max_cost - min_cost));
+		.w_prox	    = PROX_BIAS / ((double) max_prox);
+		.x_goal	    = x_goal;
+		.y_goal	    = y_goal;
+		.x_max_horz = x_max_horz;
+		.y_max_horz = y_max_horz;
+		.x_max_vert = x_max_vert;
+		.y_max_vert = y_max_vert;
+	};
+
+
+	/* initialize 'CLOSED' coordinates table, (set all to open) */
+	bool CLOSED[x_max_horiz + 1lu][y_max_vert + 1lu] = { { false } };
 
 	/* initialize priority list of open successor nodes sorted
 	 * according to 'best_successor' */
 	struct BHeap *successors = init_bheap(best_successor);
 
-
 	/* 'close' starting coordinates and set first generation successors */
-	a_star_update_state(DEAD, successors, start, CONSTS);
-
+	a_star_update_state(successors, CLOSED, &CONSTS, x_start, y_start);
 
 
 
 	/* initialize results accumulator */
 	struct AStarResults *results;
+
 	HANDLE_MALLOC(results, sizeof(struct AStarResults));
 
-
-	results->head
+	results->x_start = x_start;
+	results->y_start = y_start;
 
 	clock_t time_start = clock();
 	clock_t time_finish = clock();
@@ -78,44 +102,17 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	return results;
 }
 
-void a_star_update_state(bool **DEAD,
-			 struct BHeap *successors,
-			 struct Coords *parent,
-			 struct AStarConstants *CONSTS)
+void a_star_update_state(struct BHeap *successors,
+			 bool **CLOSED,
+			 struct AStarConstants *CONSTS,
+			 const size_t x_prev,
+			 const size_t y_prev)
 {
-	parent;
-
-	/* 'kill' parent coordinates */
-	DEAD[parent->x][start->y] = true;
+	/* 'close' previous coordinates */
+	CLOSED[x_prev][y_prev] = true;
 }
 
 
-
-void init_a_star_constants(struct Bounds *cost,
-			   struct Coords *goal,
-			   const size_t x_max,
-			   const size_t y_max)
-{
-
-	const size_t g_x = goal->x;
-	const size_t g_y = goal->y;
-
-	const size_t g_to_x_max = x_max - g_x;
-	const size_t g_to_y_max = y_max - g_y;
-
-	const size_t max_prox = (g_to_x_max > g_x ? g_to_x_max : g_x)
-			      + (g_to_y_max > g_y ? g_to_y_max : g_y);
-
-
-	struct AStarConstants constants = {
-	}
-
-	CONSTS->min_cost = cost->min;
-	CONSTS->w_cost	  = COST_BIAS / ((double) (cost->max - cost->min));
-	CONSTS->w_prox	  = PROX_BIAS / ((double) max_prox);
-
-	HANDLE_MALLOC(CONST->goal, sizeof(Coords));
-}
 
 inline size_t calc_prox(struct Coords *c0,
 			struct Coords *c1)
@@ -128,40 +125,39 @@ void report_a_star_results(struct AStarResults *results)
 {
 	struct AStarNode *node = results->best->head;
 
-	size_t prev_x = results->start->x;
-	size_t prev_y = results->start->y;
+	size_t x_prev = results->x_start;
+	size_t y_prev = results->y_start;
 
-	size_t next_x, next_y;
+	size_t x_next, y_next;
 	char *dir;
 
 
 	while (1) {
+		x_next = node->x;
+		y_next = node->y;
 
-		next_x = node->coords->x;
-		next_y = node->coords->y;
-
-		if (next_x > prev_x)
+		if (x_next > x_prev)
 			dir = " DOWN ";
 
-		else if(next_x < prev_x)
+		else if(x_next < x_prev)
 			dir = "  UP  ";
 
-		else if(next_y > prev_x)
+		else if(y_next > x_prev)
 			dir = "RIGHT ";
 
 		else
 			dir = " LEFT ";
 
 		printf("(%zu, %zu) %s to (%zu, %zu) at a cost of %d\n",
-		       prev_x, prev_y, dir, next_x, next_y, node->cost);
+		       x_prev, y_prev, dir, x_next, y_next, node->cost);
 
 		node = node->next;
 
 		if (node == NULL)
 			break;
 
-		prev_x = next_x;
-		prev_y = next_y;
+		x_prev = x_next;
+		y_prev = y_next;
 	}
 
 

@@ -18,15 +18,24 @@ struct AStarConstants {
 	const int min_cost;
 	const double w_cost;
 	const double w_prox;
-	struct Coords *lims;
-	struct Coords *goal;
+	const size_t x_goal;
+	const size_t y_goal;
+	const size_t x_max_horz;
+	const size_t y_max_horz;
+	const size_t x_max_vert;
+	const size_t y_max_vert;
+};
+
+struct AStarState {
 };
 
 struct AStarNode {
 	int cost;
+	size_t x;
+	size_t y;
 	size_t prox;
 	double score;
-	struct Coords *coords;
+	struct AStarNode *prev;
 	struct AStarNode *next;
 };
 
@@ -37,12 +46,13 @@ struct AStarBranch {
 
 
 struct AStarResults {
+	size_t x_start;
+	size_t y_start;
 	size_t min_step_count;
 	size_t best_step_count;
 	size_t branch_count;
 	int total_cost;
 	clock_t time_elapsed;
-	struct Coords *start;
 	struct AStarBranch *best;
 };
 

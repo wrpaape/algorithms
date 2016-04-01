@@ -28,7 +28,7 @@ struct Endpoints *define_endpoints(struct CostMap *map)
 	HANDLE_MALLOC(vert,  sizeof(struct Coords));
 
 	horz->x = map->res->x * 2lu;
-	vert->x  = horz->x - 1lu;
+	vert->x = horz->x - 1lu;
 
 	vert->y = map->res->y;
 	horz->y = vert->y - 1lu;
