@@ -88,7 +88,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	bheap_insert(successors, root);
 
 	/* initialize 'closed' coordinates table, (set all to open) */
-
+	/* TODO: back to lookup types */
 	enum AStarNodeType **LOOKUP;
 
 	HANDLE_MALLOC(closed, sizeof(bool *) * (x_max_horz + 1lu));

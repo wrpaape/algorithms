@@ -67,33 +67,35 @@ void max_linear(const int *data,
 		struct SubArrayTup *max_tup)
 {
 	int max_start;
+	int sub_start;
 	int max_finish;
+	int sub_finish;
 	int max_sum;
-	int next_start;
-	int next_finish;
-	int next_sum;
+	int sub_sum;
+	int next;
 
 	max_start  = start;
+	sub_start  = start;
 	max_finish = start;
+	sub_finish = start;
 	max_sum    = data[start];
+	sub_sum    = max_sum;
 
-	for (next_finish = start + 1; next_finish <= finish; ++next_finish) {
+	for (sub_finish = start + 1; sub_finish <= finish; ++sub_finish) {
 
-		next_sum = 0;
+		next = data[sub_finish];
+		sub_sum += next;
 
-		for (next_start = next_finish;
-		     next_start >= max_start;
-		     --next_start) {
+		if (next > sub_sum) {
+			sub_start = sub_finish;
+			sub_sum   = next;
+		}
 
-			next_sum += data[next_start];
 
-			if (next_sum > max_sum) {
-				max_start  = next_start;
-				max_finish = next_finish;
-				max_sum	   = next_sum;
-				break;
-			}
-
+		if (sub_sum > max_sum) {
+			max_start  = sub_start;
+			max_finish = sub_finish;
+			max_sum	   = sub_sum;
 		}
 	}
 

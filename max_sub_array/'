@@ -73,6 +73,7 @@ void max_linear(const int *data,
 	int max_sum;
 	int sub_sum;
 	int next;
+	int i;
 
 	max_start  = start;
 	sub_start  = start;
@@ -81,14 +82,14 @@ void max_linear(const int *data,
 	max_sum    = data[start];
 	sub_sum    = max_sum;
 
-	for (sub_finish = start + 1; sub_finish <= finish; ++sub_finish) {
+	for (i = start + 1; i <= finish; ++i) {
 
-		next = data[sub_finish];
+		next = data[i];
 		sub_sum += next;
 
 		if (next > sub_sum) {
-			sub_start = sub_finish;
-			sub_sum   = next;
+			sub_start  = i;
+			sub_sum    = next;
 		}
 
 
