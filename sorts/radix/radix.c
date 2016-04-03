@@ -4,6 +4,7 @@
 #include <math.h>
 #include <limits.h>
 #include <errno.h>
+#include "radix.h"
 
 #define EXIT_ON_ERROR(format, ...)	\
 do {					\
@@ -22,7 +23,6 @@ do {					\
 } while (0)
 
 #define INT_BITS (sizeof(int) * CHAR_BIT)
-
 
 
 int main(int argc, char *argv[]) {
@@ -55,21 +55,25 @@ int main(int argc, char *argv[]) {
 
 
 	/* ignoring program name */
-	int i = 1;
-	int clz;
+	char *str;
 	int val;
+	int clz;
+	int i = 1;
 	int min_clz = INT_BITS;
 	struct IntNode *num = num_list;
 
 	while (1) {
-		val = (int) strtol(argv[i], NULL, 10);
+		str = argv[i];
+		val = (int) strtol(str, NULL, 10);
 		clz = __builtin_clz(val);
+
+		strcpy_adv_ptr(&r_buff_ptr, str);
 
 		if (clz < min_clz)
 			min_clz = clz;
 
 		num->val = val;
-		strcpy_adv_ptr(&r_buff_ptr, argv[i]);
+		num->str = str;
 
 		if (i < num_count) {
 			strcpy_adv_ptr(&r_buff_ptr, " ,");
@@ -88,10 +92,25 @@ int main(int argc, char *argv[]) {
 	radix_sort(&num_list, min_clz);
 
 
+	num = num_list;
+
 	while (1) {
+		strcpy_adv_ptr(&s_buff_ptr, num->str);
+		num = num->nxt;
+
+		if (num == NULL) {
+			strcpy_adv_ptr(&s_buff_ptr, "\n}");
+			*s_buff_ptr = '\0';
+			break;
+		}
+
+		strcpy_adv_ptr(&s_buff_ptr, " ,");
 	}
 
-	return 0;
+	puts(raw_buff);
+	puts(sorted_buff);
+
+	return EXIT_SUCCESS;
 }
 
 void radix_sort(struct IntNode **head_ptr, const int min_clz)
