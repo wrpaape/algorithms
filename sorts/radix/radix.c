@@ -50,9 +50,8 @@ int main(int argc, char *argv[]) {
 	strcpy_adv_ptr(&s_buff_ptr, "sorted: {\n\t");
 
 
-	/* convert ‘argv’ to list of integers ‘num_list’ and init buckets */
+	/* convert 'argv' to list of integers 'num_list' */
 	struct IntNode *num_list = malloc(sizeof(struct IntNode) * num_count);
-
 
 	/* ignoring program name */
 	char *str;
@@ -89,6 +88,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+
 	radix_sort(&num_list, min_clz);
 
 
@@ -116,6 +116,94 @@ int main(int argc, char *argv[]) {
 void radix_sort(struct IntNode **head_ptr, const int min_clz)
 {
 	const int MAX_SHIFT = INT_BITS - min_clz;
+
+	struct IntNode **sml_ptr;
+	struct IntNode **big_ptr;
+	struct IntNode *sml_head;
+	struct IntNode *big_head;
+	struct IntNode *num = *head_ptr;
+
+	int bit = 1;
+	int shift = 1;
+
+	while (1) {
+		if (num->val & bit) {
+			big_head = num;
+			big_ptr  = &num->nxt;
+
+			while (1) {
+				num = num->nxt;
+
+				if (num == NULL) {
+					*big_ptr = NULL;
+					num = big_head;
+					goto NEXT_NUM;
+				}
+
+				if (num->val & bit) {
+					*big_ptr = num;
+					big_ptr  = &num->nxt;
+
+				} else {
+					sml_head = num;
+					sml_ptr  = &num->nxt;
+					break;
+				}
+			}
+
+		} else {
+			sml_head = num;
+			sml_ptr  = &num->nxt;
+
+			while (1) {
+				num = num->nxt;
+
+				if (num == NULL) {
+					*sml_ptr = NULL;
+					num = sml_head;
+					goto NEXT_NUM;
+				}
+
+				if (num->val & bit) {
+					big_head = num;
+					big_ptr  = &num->nxt;
+					break;
+
+				} else {
+					*sml_ptr = num;
+					sml_ptr  = &num->nxt;
+				}
+			}
+		}
+
+
+		for (num = num->nxt; num != NULL; num = num->nxt) {
+
+			if (num->val & bit) {
+				*big_ptr = num;
+				big_ptr  = &num->nxt;
+
+			} else {
+				*sml_ptr = num;
+				sml_ptr  = &num->nxt;
+			}
+
+		}
+
+		*big_ptr = NULL;
+		*sml_ptr = big_head;
+
+		num = sml_head;
+
+NEXT_NUM:
+		if (shift > MAX_SHIFT) {
+			*head_ptr = num;
+			return;
+		}
+
+		bit = 1 << shift;
+		++shift;
+	}
 }
 
 
