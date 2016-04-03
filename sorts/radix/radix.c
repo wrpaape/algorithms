@@ -22,17 +22,18 @@ do {					\
 		exit(EXIT_FAILURE);	\
 } while (0)
 
-#define UINT_BITS (sizeof(unsigned int) * CHAR_BIT)
+#define UINT_BITS ((int) (sizeof(unsigned int) * CHAR_BIT))
 
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
 	if (argc < 2)
-		EXIT_ON_ERROR("pls provide at least 1 non-negative integer to be sorted");
+		EXIT_ON_ERROR("pls provide at least 1 non-negative integer");
 
 	const size_t num_count = argc - 1lu;
 
-	const size_t MAX_DEC_DIGITS = ((size_t) floor(log10(-((double) UINT_MAX)))) + 1lu;
+	const size_t MAX_DEC_DIGITS = ((size_t) floor(log10((double) UINT_MAX)))
+				    + 1lu;
 
 				      /* larger of labels + null byte */
 	const size_t SAFE_BUFF_SIZE = sizeof("sorted: {\n\t\n}")
@@ -54,6 +55,7 @@ int main(int argc, char *argv[]) {
 
 	/* convert 'argv' to list of integers 'num_list' */
 	struct UIntNode *num_list = malloc(sizeof(struct UIntNode) * num_count);
+
 
 	/* ignoring program name */
 	char *str;
@@ -89,7 +91,6 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 	}
-
 
 	radix_sort(&num_list, min_clz);
 
@@ -198,7 +199,7 @@ void radix_sort(struct UIntNode **head_ptr, const int min_clz)
 		num = sml_head;
 
 NEXT_NUM:
-		if (shift > MAX_SHIFT) {
+		if (shift == MAX_SHIFT) {
 			*head_ptr = num;
 			return;
 		}
