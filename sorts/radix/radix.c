@@ -22,22 +22,24 @@ do {					\
 		exit(EXIT_FAILURE);	\
 } while (0)
 
-#define INT_BITS (sizeof(int) * CHAR_BIT)
+#define UINT_BITS (sizeof(unsigned int) * CHAR_BIT)
 
 
 int main(int argc, char *argv[]) {
 
 	if (argc < 2)
-		EXIT_ON_ERROR("pls provide at least 1 integer to be sorted");
+		EXIT_ON_ERROR("pls provide at least 1 non-negative integer to be sorted");
 
 	const size_t num_count = argc - 1lu;
 
-	/* abs(INT_MIN) > abs(INT_MAX) in 2’s compliment architectures */
-	const size_t MAX_DEC_DIGITS = ((size_t) floor(log10(-((double) INT_MIN)))) + 1lu;
+	const size_t MAX_DEC_DIGITS = ((size_t) floor(log10(-((double) UINT_MAX)))) + 1lu;
 
-	const size_t SAFE_BUFF_SIZE = sizeof("sorted: {\n\t\n}")	   /* larger of labels + null byte */
-				    + ((MAX_DEC_DIGITS + 1lu) * num_count) /* for ASCII dec chars + sign char */
-				    + (2lu * (num_count - 1lu));           /* for pad chars  ", " */
+				      /* larger of labels + null byte */
+	const size_t SAFE_BUFF_SIZE = sizeof("sorted: {\n\t\n}")
+				      /* for ASCII dec chars and pad char ", " */
+				    + ((MAX_DEC_DIGITS + 2lu) * num_count)
+				      /* exclude padding for last num */
+				    - 2lu;
 
 	char *raw_buff	  = malloc(sizeof(char) * SAFE_BUFF_SIZE);
 	char *sorted_buff = malloc(sizeof(char) * SAFE_BUFF_SIZE);
@@ -51,19 +53,19 @@ int main(int argc, char *argv[]) {
 
 
 	/* convert 'argv' to list of integers 'num_list' */
-	struct IntNode *num_list = malloc(sizeof(struct IntNode) * num_count);
+	struct UIntNode *num_list = malloc(sizeof(struct UIntNode) * num_count);
 
 	/* ignoring program name */
 	char *str;
-	int val;
+	unsigned int val;
 	int clz;
 	int i = 1;
-	int min_clz = INT_BITS;
-	struct IntNode *num = num_list;
+	int min_clz = UINT_BITS;
+	struct UIntNode *num = num_list;
 
 	while (1) {
 		str = argv[i];
-		val = (int) strtol(str, NULL, 10);
+		val = (unsigned int) strtol(str, NULL, 10);
 		clz = __builtin_clz(val);
 
 		strcpy_adv_ptr(&r_buff_ptr, str);
@@ -75,7 +77,7 @@ int main(int argc, char *argv[]) {
 		num->str = str;
 
 		if (i < num_count) {
-			strcpy_adv_ptr(&r_buff_ptr, " ,");
+			strcpy_adv_ptr(&r_buff_ptr, ", ");
 			num->nxt = num_list + i;
 			num = num->nxt;
 			++i;
@@ -104,7 +106,7 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 
-		strcpy_adv_ptr(&s_buff_ptr, " ,");
+		strcpy_adv_ptr(&s_buff_ptr, ", ");
 	}
 
 	puts(raw_buff);
@@ -113,15 +115,15 @@ int main(int argc, char *argv[]) {
 	return EXIT_SUCCESS;
 }
 
-void radix_sort(struct IntNode **head_ptr, const int min_clz)
+void radix_sort(struct UIntNode **head_ptr, const int min_clz)
 {
-	const int MAX_SHIFT = INT_BITS - min_clz;
+	const int MAX_SHIFT = UINT_BITS - min_clz;
 
-	struct IntNode **sml_ptr;
-	struct IntNode **big_ptr;
-	struct IntNode *sml_head;
-	struct IntNode *big_head;
-	struct IntNode *num = *head_ptr;
+	struct UIntNode **sml_ptr;
+	struct UIntNode **big_ptr;
+	struct UIntNode *sml_head;
+	struct UIntNode *big_head;
+	struct UIntNode *num = *head_ptr;
 
 	int bit = 1;
 	int shift = 1;
