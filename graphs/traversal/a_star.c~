@@ -88,18 +88,78 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	bheap_insert(successors, root);
 
 	/* initialize 'closed' coordinates table, (set all to open) */
+	/* TODO: back to lookup types */
 
-	enum AStarNodeType **LOOKUP;
+	const size_t count_rows = x_max_horz + 1lu;
+	const size_t count_horz_y = y_max_vert;
+	const size_t count_vert_y = y_max_vert + 1lu;
 
-	HANDLE_MALLOC(closed, sizeof(bool *) * (x_max_horz + 1lu));
+	const size_t horz_row_bytes = sizeof(enum AStarNodeType) * count_horz_y;
+	const size_t vert_row_bytes = sizeof(enum AStarNodeType) * count_vert_y;
 
-	bool closed[x_max_horz + 1lu][y_max_vert + 1lu] = { { false } };
+	enum AStarNodeType **type_map;
+	enum AStarNodeType *type_row;
+
+	size_t x, y;
+
+
+	HANDLE_MALLOC(type_map,
+		      sizeof(enum AStarNodeType *) * (x_max_horz + 1lu));
+
+	/* set first row of horizontal nodes to min bounds */
+	type_row = type_map[0lu];
+	HANDLE_MALLOC(type_row, horz_row_bytes);
+
+	for (y = 0lu; y < count_horz_y; ++y)
+		type_row[y] = MIN_BOUND_HORZ;
+
+
+	/* fill inner nodes */
+	x = 1lu;
+
+	while (1) {
+		type_row = type_map[x];
+		HANDLE_MALLOC(type_row, vert_row_bytes);
+
+		/* set first and last cells of vert row to bounds */
+		type_row[0lu]	     = MIN_BOUND_VERT;
+		type_row[y_max_vert] = MAX_BOUND_VERT;
+
+		for (y = 1lu; y < y_max_vert; ++y)
+			type_row[y] = INNER_VERT;
+
+		if (x == x_max_vert)
+			break;
+
+		++x;
+		type_row = type_map[x];
+
+		for (y = 0lu; y < count_horz_y; ++y)
+			type_row[y] = INNER_HORZ;
+
+		++x;
+	}
+
+	/* set last row of horizontal nodes to max bounds */
+	type_row = type_map[x_max_horiz];
+	HANDLE_MALLOC(type_row, horz_row_bytes);
+
+	for (y = 0lu; y < count_horz_y; ++y)
+		type_row[y] = MAX_BOUND_HORZ;
+
+
+	/* set goal coordinates */
+	type_map[x_goal][y_goal] = GOAL;
+
+
+
+
 
 	/* initialize state accumulator */
 	struct AStarState STATE = {
 		.successors   = successors,
 		.path	      = NULL,
-		.closed       = closed,
+		.type_map     = type_map,
 		.branch_count = 0
 	}
 

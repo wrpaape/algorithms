@@ -45,7 +45,7 @@ struct AStarNode {
 struct AStarState {
 	struct BHeap *successors;
 	struct AStarNode *path;
-	bool **closed;
+	enum AStarNodeType **type_map;
 	size_t branch_count;
 };
 
