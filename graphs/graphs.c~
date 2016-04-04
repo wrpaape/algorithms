@@ -23,6 +23,7 @@ int main(void)
 	init_rng();
 	/* char buffer[1lu << 16]; */
 	/* pretty_print_cost_map(buffer, map, pts); */
+	/* puts(buffer); */
 
 	struct CostMap *map = make_cost_map(80lu, 40lu, 1, 9);
 
@@ -34,7 +35,6 @@ int main(void)
 
 	free_a_star_results(results);
 
-	puts(buffer);
 
 	free_endpoints(pts);
 

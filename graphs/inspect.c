@@ -4,7 +4,7 @@
 #include "inspect.h"
 
 const char *LABELS[] = {
-	[START] = "start",    [GOAL ] = "goal!",    [VERT1] = "vertex 1",
+	[START] = "start",    [_GOAL] = "goal!",    [VERT1] = "vertex 1",
 	[VERT2] = "vertex 2", [VERT3] = "vertex 3", [VERT4] = "vertex 4",
 	[VERT5] = "vertex 5", [VERT6] = "vertex 6", [VERT7] = "vertex 7",
 	[TEL1A] = "teleporter entrance 1", [TEL2A] = "teleporter entrance 2",
@@ -63,7 +63,7 @@ void tour_graph(struct Vertex *vert)
 	}
 
 	printf("YOU %s!\n\ntotal cost: %d\n",
-	       (vert->id == GOAL) ? "WIN" : "LOSE", total);
+	       (vert->id == _GOAL) ? "WIN" : "LOSE", total);
 }
 
 void print_edge_bheap(struct BHeap *heap)

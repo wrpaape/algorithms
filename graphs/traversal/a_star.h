@@ -1,12 +1,6 @@
 #ifndef GRAPHS_TRAVERSAL_A_STAR_H
 #include <time.h>
 
-/* enum AStarNodePosition { */
-/* 	GOAL, */
-/* 	HORZ, */
-/* 	VERT */
-/* }; */
-
 enum AStarNodeType {
 	GOAL,
 	CLOSED,
@@ -80,9 +74,8 @@ void report_a_star_results(struct AStarResults *results);
 
 void a_star_node_to_string(char *buffer, const void *vstep);
 
-inline size_t calc_prox(const size_t x0, const size_t y0,
-			const size_t x1, const size_t y1);
-
+static inline size_t calc_prox(const size_t x0, const size_t y0,
+			       const size_t x1, const size_t y1);
 
 inline void free_a_star_results(struct AStarResults *results)
 {

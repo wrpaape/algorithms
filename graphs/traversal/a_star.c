@@ -87,8 +87,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 						  &CONST);
 	bheap_insert(successors, root);
 
-	/* initialize 'closed' coordinates table, (set all to open) */
-	/* TODO: back to lookup types */
+	/* initialize lookup table of node types, 'node_map', (set all to open) */
 
 	const size_t count_rows = x_max_horz + 1lu;
 	const size_t count_horz_y = y_max_vert;
@@ -104,7 +103,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 
 	HANDLE_MALLOC(type_map,
-		      sizeof(enum AStarNodeType *) * (x_max_horz + 1lu));
+		      sizeof(enum AStarNodeType *) * count_rows);
 
 	/* set first row of horizontal nodes to min bounds */
 	type_row = type_map[0lu];
@@ -118,10 +117,10 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	x = 1lu;
 
 	while (1) {
+		/* set first and last cells of vert row to bounds */
 		type_row = type_map[x];
 		HANDLE_MALLOC(type_row, vert_row_bytes);
 
-		/* set first and last cells of vert row to bounds */
 		type_row[0lu]	     = MIN_BOUND_VERT;
 		type_row[y_max_vert] = MAX_BOUND_VERT;
 
@@ -131,8 +130,10 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		if (x == x_max_vert)
 			break;
 
+		/* set inner row of horz cells */
 		++x;
 		type_row = type_map[x];
+		HANDLE_MALLOC(type_row, horz_row_bytes);
 
 		for (y = 0lu; y < count_horz_y; ++y)
 			type_row[y] = INNER_HORZ;
@@ -141,18 +142,14 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	}
 
 	/* set last row of horizontal nodes to max bounds */
-	type_row = type_map[x_max_horiz];
+	type_row = type_map[x_max_horz];
 	HANDLE_MALLOC(type_row, horz_row_bytes);
 
 	for (y = 0lu; y < count_horz_y; ++y)
 		type_row[y] = MAX_BOUND_HORZ;
 
-
 	/* set goal coordinates */
 	type_map[x_goal][y_goal] = GOAL;
-
-
-
 
 
 	/* initialize state accumulator */
@@ -161,7 +158,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		.path	      = NULL,
 		.type_map     = type_map,
 		.branch_count = 0
-	}
+	};
 
 	/* begin pathfinding */
 
@@ -227,7 +224,7 @@ inline size_t calc_prox(const size_t x0, const size_t y0,
 			const size_t x1, const size_t y1)
 {
 	return (x1 > x0 ? (x1 - x0) : (x0 - x1))
-	       (y1 > y0 ? (y1 - y0) : (y0 - y1));
+	     + (y1 > y0 ? (y1 - y0) : (y0 - y1));
 }
 
 void report_a_star_results(struct AStarResults *results)

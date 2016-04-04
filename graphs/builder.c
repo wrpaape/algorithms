@@ -74,7 +74,7 @@ struct Vertex *build_graph1(void)
 		    *dead1, *dead2, *dead3, *dead4, *dead5, *dead6, *dead7,
 		    *dead8, *dead9;
 
-	INIT(start, START, 3); INIT(goal,  GOAL,  0); INIT(vert1, VERT1, 2);
+	INIT(start, START, 3); INIT(goal,  _GOAL,  0); INIT(vert1, VERT1, 2);
 	INIT(vert2, VERT2, 2); INIT(vert3, VERT3, 2); INIT(vert4, VERT4, 2);
 	INIT(vert5, VERT5, 2); INIT(vert6, VERT6, 2); INIT(vert7, VERT7, 2);
 	INIT(tel1a, TEL1A, 1); INIT(tel2a, TEL2A, 1); INIT(tel3a, TEL3A, 1);
