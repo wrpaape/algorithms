@@ -36,13 +36,11 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 {
 	/* unpack cost map and enpoints */
 
-	int **costs = map->costs;
-
 	const size_t min_cost = map->act->min;
 	const size_t max_cost = map->act->max;
 
-	const size_t x_start = pts->goal->x;
-	const size_t y_start = pts->goal->y;
+	const size_t x_start = pts->start->x;
+	const size_t y_start = pts->start->y;
 
 	const size_t x_goal = pts->goal->x;
 	const size_t y_goal = pts->goal->y;
@@ -58,12 +56,24 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	const size_t g_to_x_max = x_max_horz - x_goal;
 	const size_t g_to_y_max = y_max_vert - y_goal;
 
+
 	/* calculate furthest distance from goal within map bounds */
 	const size_t max_prox = (g_to_x_max > x_goal ? g_to_x_max : x_goal)
 			      + (g_to_y_max > y_goal ? g_to_y_max : y_goal);
 
+	printf("max_prox: %zu\n", max_prox);
+	printf("g_to_x_max: %zu\n", g_to_x_max);
+	printf("g_to_y_max: %zu\n", g_to_y_max);
+	printf("x_max_horz: %zu\n", x_max_horz);
+	printf("y_max_horz: %zu\n", y_max_horz);
+	printf("x_goal: %zu\n", x_goal);
+	printf("y_goal: %zu\n", y_goal);
+	printf("x_start: %zu\n", x_start);
+	printf("y_start: %zu\n", y_start);
+	fflush(stdout);
 
 	struct AStarConst CONST = {
+		.costs	    = map->costs,
 		.min_cost   = min_cost,
 		.w_cost	    = COST_BIAS / ((double) (max_cost - min_cost)),
 		.w_prox	    = PROX_BIAS / ((double) max_prox),
@@ -149,11 +159,12 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 						  0,
 						  &CONST);
 
+	root->prev = NULL;
 
 	/* initialize state accumulator */
 	struct AStarState STATE = {
 		.successors   = successors,
-		.path	      = NULL,
+		.path	      = root,
 		.type_map     = type_map,
 		.branch_count = 0
 	};
@@ -180,6 +191,7 @@ void a_star_do_next(struct AStarState *STATE,
 	/* update STATE */
 
 	++(STATE->branch_count);
+	STATE->path->next = node;
 	node->prev = STATE->path;
 	STATE->path = node;
 
@@ -199,7 +211,7 @@ struct AStarResults *a_star_build_results(struct AStarState *STATE,
 
 	HANDLE_MALLOC(results, sizeof(struct AStarResults));
 
-	resutls->time_elapse = time_finish - time_start;
+	results->time_elapsed = time_finish - time_start;
 
 	return NULL;
 }
@@ -231,6 +243,12 @@ struct AStarNode *init_a_star_node(const size_t x,
 inline size_t calc_prox(const size_t x0, const size_t y0,
 			const size_t x1, const size_t y1)
 {
+	printf("x0: %zu\n", x0);
+	printf("y0: %zu\n", y0);
+	printf("x1: %zu\n", x1);
+	printf("y1: %zu\n", y1);
+	fflush(stdout);
+
 	return (x1 > x0 ? (x1 - x0) : (x0 - x1))
 	     + (y1 > y0 ? (y1 - y0) : (y0 - y1));
 }
@@ -289,4 +307,47 @@ void report_a_star_results(struct AStarResults *results)
 	/*        best->total_cost, */
 	/*        results->branch_count, */
 	/*        ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC); */
+}
+
+inline void next_successors_MIN_BOUND_HORZ(struct BHeap *successors,
+					   struct AStarConst *CONST,
+					   const size_t x,
+					   const size_t y)
+{
+
+	const int cost_above = CONST->costs[x / 2lu][y];
+
+	/* insert upper sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(x + 2lu, y,	cost_above, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x + 1lu, y,	cost_above, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x + 1lu, y + 1lu, cost_above, CONST));
+}
+
+inline void next_successors_MAX_BOUND_HORZ(struct BHeap *successors,
+					   struct AStarConst *CONST,
+					   const size_t x,
+					   const size_t y)
+{
+
+	const int cost_below = CONST->costs[(x / 2lu) - 1lu][y];
+
+	/* insert upper sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(x - 2lu, y,	cost_below, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x - 1lu, y,	cost_below, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x - 1lu, y + 1lu, cost_below, CONST));
+}
+
+inline void next_successors_INNER_HORZ(struct BHeap *successors,
+				       struct AStarConst *CONST,
+				       const size_t x,
+				       const size_t y)
+{
+	next_successors_MIN_BOUND_HORZ(successors, CONST, x, y);
+	next_successors_MAX_BOUND_HORZ(successors, CONST, x, y);
 }

@@ -33,7 +33,7 @@ struct Endpoints *define_endpoints(struct CostMap *map)
 	vert->y = map->res->y;
 	horz->y = vert->y - 1lu;
 
-	const int32_t l_x = ((int32_t) horz->x) * 2;
+	const int32_t l_x = (int32_t) horz->x;
 	const int32_t l_y = (int32_t) horz->y;
 	const int32_t h_x = l_x / 2;
 	const int32_t h_y = l_y / 2;
