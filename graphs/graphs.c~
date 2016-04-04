@@ -33,12 +33,11 @@ int main(void)
 
 	report_a_star_results(results);
 
-	free_a_star_results(results);
+	/* free_a_star_results(results); */
 
+	/* free_endpoints(pts); */
 
-	free_endpoints(pts);
-
-	free_cost_map(map);
+	/* free_cost_map(map); */
 
 	return 0;
 

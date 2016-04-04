@@ -22,11 +22,11 @@ void a_star_node_to_string(char *buffer, const void *vnode)
 {
 	struct AStarNode *node = (struct AStarNode *) vnode;
 
-	sprintf(buffer, "  {"
-			"\n    cost:  %d,"
-			"\n    prox:  %zu,"
-			"\n    score: %f"
-			"\n  }",
+	sprintf(buffer, "  {\n"
+			"    cost:  %d,\n"
+			"    prox:  %zu,\n"
+			"    score: %f\n"
+			"  }\n",
 		node->cost, node->prox, node->score);
 }
 
@@ -75,18 +75,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		.y_max_vert = y_max_vert
 	};
 
-	/* initialize priority list of open successor nodes sorted
-	 * according to 'best_successor' */
-	struct BHeap *successors = init_bheap(best_successor);
-
-	/* initialize root node and insert into successors */
-
-	struct AStarNode *root = init_a_star_node(x_start,
-						  y_start,
-						  0,
-						  &CONST);
-	bheap_insert(successors, root);
-
 	/* initialize lookup table of node types, 'node_map', (set all to open) */
 
 	const size_t count_rows = x_max_horz + 1lu;
@@ -100,7 +88,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	enum AStarNodeType *type_row;
 
 	size_t x, y;
-
 
 	HANDLE_MALLOC(type_map,
 		      sizeof(enum AStarNodeType *) * count_rows);
@@ -151,6 +138,18 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	/* set goal coordinates */
 	type_map[x_goal][y_goal] = GOAL;
 
+	/* initialize priority list of open successor nodes sorted
+	 * according to 'best_successor' */
+	struct BHeap *successors = init_bheap(best_successor);
+
+	/* initialize root node and set as 1st path node successors */
+
+	struct AStarNode *root = init_a_star_node(x_start,
+						  y_start,
+						  0,
+						  &CONST);
+	bheap_insert(successors, root);
+
 
 	/* initialize state accumulator */
 	struct AStarState STATE = {
@@ -177,7 +176,13 @@ void a_star_do_next(struct AStarState *STATE,
 {
 	struct AStarNode *node = bheap_extract(STATE->successors);
 
-	char buff[64];
+	/* update STATE */
+
+	++(STATE->branch_count);
+	node->prev = STATE->path;
+	STATE->path = node;
+
+	char buff[300];
 
 	a_star_node_to_string(buff, node);
 
@@ -192,6 +197,8 @@ struct AStarResults *a_star_build_results(struct AStarState *STATE,
 	struct AStarResults *results;
 
 	HANDLE_MALLOC(results, sizeof(struct AStarResults));
+
+	resutls->time_elapse = time_finish - time_start;
 
 	return NULL;
 }
@@ -224,7 +231,7 @@ inline size_t calc_prox(const size_t x0, const size_t y0,
 			const size_t x1, const size_t y1)
 {
 	return (x1 > x0 ? (x1 - x0) : (x0 - x1))
-	       (y1 > y0 ? (y1 - y0) : (y0 - y1));
+	     + (y1 > y0 ? (y1 - y0) : (y0 - y1));
 }
 
 void report_a_star_results(struct AStarResults *results)
@@ -282,20 +289,3 @@ void report_a_star_results(struct AStarResults *results)
 	/*        results->branch_count, */
 	/*        ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC); */
 }
-
-/* inline size_t calc_max_prox(struct Coords *lims, */
-/* 			    struct Coords *goal) */
-/* { */
-/* 	const size_t goal_max_dx = lims->x - goal->x; */
-/* 	const size_t goal_max_dy = lims->y - goal->y; */
-
-/* 	return (goal_max_dx > goal->x ? goal_max_dx : goal->x) */
-/* 	     + (goal_max_dy > goal->y ? goal_max_dy : goal->y); */
-/* } */
-
-/* inline size_t calc_prox(struct Coords *c0, */
-/* 			struct Coords *c1) */
-/* { */
-/* 	return (c1->x > c0->x ? (c1->x - c0->x) : (c0->x - c1->x) */
-/* 	     + (c1->y > c0->y ? (c1->y - c0->y) : (c0->y - c1->y); */
-/* } */

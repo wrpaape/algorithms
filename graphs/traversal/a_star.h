@@ -83,6 +83,7 @@ inline void free_a_star_results(struct AStarResults *results)
 	     node != NULL;
 	     free(node->prev), node = node->next);
 
+
 	free(results);
 }
 #define GRAPHS_TRAVERSAL_A_STAR_H

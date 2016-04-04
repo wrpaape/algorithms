@@ -75,13 +75,14 @@ void report_a_star_results(struct AStarResults *results);
 void a_star_node_to_string(char *buffer, const void *vstep);
 
 static inline size_t calc_prox(const size_t x0, const size_t y0,
-			const size_t x1, const size_t y1);
+			       const size_t x1, const size_t y1);
 
 inline void free_a_star_results(struct AStarResults *results)
 {
 	for (struct AStarNode *node = results->path->next;
 	     node != NULL;
 	     free(node->prev), node = node->next);
+
 
 	free(results);
 }
