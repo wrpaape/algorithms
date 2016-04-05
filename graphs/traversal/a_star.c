@@ -156,11 +156,12 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	/* look up root node generator */
 	SuccessorGenFun root_gen = gen_map[x_start][y_start];
 
+	puts("YOYOYO");
+
 	/* close generator for root node */
 	gen_map[x_start][y_start] = NULL;
 
 
-	puts("YOYOYO");
 
 	/* generate first round of successors, inserting them into
 	 * 'successors' */
