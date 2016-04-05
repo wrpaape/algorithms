@@ -78,20 +78,20 @@ void a_star_node_to_string(char *buffer, const void *vstep);
 static inline size_t calc_prox(const size_t x0, const size_t y0,
 			       const size_t x1, const size_t y1);
 
-static inline void next_successors_MIN_BOUND_HORZ(struct BHeap *successors,
-						  struct AStarConst *CONST,
-						  const size_t x,
-						  const size_t y);
+inline void next_successors_MIN_BOUND_HORZ(struct BHeap *successors,
+					   struct AStarConst *CONST,
+					   const size_t x,
+					   const size_t y);
 
-static inline void next_successors_MAX_BOUND_HORZ(struct BHeap *successors,
-						  struct AStarConst *CONST,
-						  const size_t x,
-						  const size_t y);
+inline void next_successors_MAX_BOUND_HORZ(struct BHeap *successors,
+					   struct AStarConst *CONST,
+					   const size_t x,
+					   const size_t y);
 
-static inline void next_successors_INNER_HORZ(struct BHeap *successors,
-					      struct AStarConst *CONST,
-					      const size_t x,
-					      const size_t y);
+inline void next_successors_INNER_HORZ(struct BHeap *successors,
+				       struct AStarConst *CONST,
+				       const size_t x,
+				       const size_t y);
 
 inline void free_a_star_results(struct AStarResults *results)
 {

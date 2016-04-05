@@ -64,6 +64,8 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	printf("max_prox: %zu\n", max_prox);
 	printf("g_to_x_max: %zu\n", g_to_x_max);
 	printf("g_to_y_max: %zu\n", g_to_y_max);
+	printf("x_max_horz: %zu\n", x_max_horz);
+	printf("y_max_horz: %zu\n", y_max_horz);
 	printf("x_goal: %zu\n", x_goal);
 	printf("y_goal: %zu\n", y_goal);
 	printf("x_start: %zu\n", x_start);
