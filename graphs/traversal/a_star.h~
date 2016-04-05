@@ -28,6 +28,11 @@ struct AStarConst {
 	const size_t y_max_vert;
 };
 
+typedef void (*SuccessorGenFun)(struct BHeap *,
+		 struct AStarConst *,
+		 const size_t,
+		 const size_t) SuccessorGenFun;
+
 
 struct AStarNode {
 	size_t x;
@@ -42,8 +47,8 @@ struct AStarNode {
 struct AStarState {
 	struct BHeap *successors;
 	struct AStarNode *path;
-	enum AStarNodeType **type_map;
 	size_t branch_count;
+	SuccessorGenFun **gen_map;
 };
 
 
@@ -55,6 +60,7 @@ struct AStarResults {
 	clock_t time_elapsed;
 	struct AStarNode *path;
 };
+
 
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts);
@@ -80,20 +86,35 @@ void a_star_node_to_string(char *buffer, const void *vstep);
 static inline size_t calc_prox(const size_t x0, const size_t y0,
 			       const size_t x1, const size_t y1);
 
-void next_successors_MIN_BOUND_HORZ(struct BHeap *successors,
+void generate_successors_MIN_BOUND_HORZ(struct BHeap *successors,
+					struct AStarConst *CONST,
+					const size_t x,
+					const size_t y);
+
+void generate_successors_MAX_BOUND_HORZ(struct BHeap *successors,
+					struct AStarConst *CONST,
+					const size_t x,
+					const size_t y);
+
+void generate_successors_INNER_HORZ(struct BHeap *successors,
 				    struct AStarConst *CONST,
 				    const size_t x,
 				    const size_t y);
 
-void next_successors_MAX_BOUND_HORZ(struct BHeap *successors,
+void generate_successors_MIN_BOUND_VERT(struct BHeap *successors,
+					struct AStarConst *CONST,
+					const size_t x,
+					const size_t y);
+
+void generate_successors_MAX_BOUND_VERT(struct BHeap *successors,
+					struct AStarConst *CONST,
+					const size_t x,
+					const size_t y);
+
+void generate_successors_INNER_VERT(struct BHeap *successors,
 				    struct AStarConst *CONST,
 				    const size_t x,
 				    const size_t y);
-
-void next_successors_INNER_HORZ(struct BHeap *successors,
-				struct AStarConst *CONST,
-				const size_t x,
-				const size_t y);
 
 inline void free_a_star_results(struct AStarResults *results)
 {

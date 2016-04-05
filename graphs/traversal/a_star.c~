@@ -61,16 +61,16 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	const size_t max_prox = (g_to_x_max > x_goal ? g_to_x_max : x_goal)
 			      + (g_to_y_max > y_goal ? g_to_y_max : y_goal);
 
-	printf("max_prox: %zu\n", max_prox);
-	printf("g_to_x_max: %zu\n", g_to_x_max);
-	printf("g_to_y_max: %zu\n", g_to_y_max);
-	printf("x_max_horz: %zu\n", x_max_horz);
-	printf("y_max_horz: %zu\n", y_max_horz);
-	printf("x_goal: %zu\n", x_goal);
-	printf("y_goal: %zu\n", y_goal);
-	printf("x_start: %zu\n", x_start);
-	printf("y_start: %zu\n", y_start);
-	fflush(stdout);
+/* 	printf("max_prox: %zu\n", max_prox); */
+/* 	printf("g_to_x_max: %zu\n", g_to_x_max); */
+/* 	printf("g_to_y_max: %zu\n", g_to_y_max); */
+/* 	printf("x_max_horz: %zu\n", x_max_horz); */
+/* 	printf("y_max_horz: %zu\n", y_max_horz); */
+/* 	printf("x_goal: %zu\n", x_goal); */
+/* 	printf("y_goal: %zu\n", y_goal); */
+/* 	printf("x_start: %zu\n", x_start); */
+/* 	printf("y_start: %zu\n", y_start); */
+/* 	fflush(stdout); */
 
 	struct AStarConst CONST = {
 		.costs	    = map->costs,
@@ -87,29 +87,29 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		.y_max_vert = y_max_vert
 	};
 
-	/* initialize lookup table of node types, 'node_map', (set all to open) */
+	/* initialize lookup table of successor generator functions, 'gen_map' */
 
-	const size_t count_rows = x_max_horz + 1lu;
+	const size_t count_rows	  = x_max_horz + 1lu;
 	const size_t count_horz_y = y_max_vert;
 	const size_t count_vert_y = y_max_vert + 1lu;
 
-	const size_t horz_row_bytes = sizeof(enum AStarNodeType) * count_horz_y;
-	const size_t vert_row_bytes = sizeof(enum AStarNodeType) * count_vert_y;
 
-	enum AStarNodeType **type_map;
-	enum AStarNodeType *type_row;
+	const size_t horz_row_bytes = sizeof(SuccessorGenFun *) * count_horz_y;
+	const size_t vert_row_bytes = sizeof(SuccessorGenFun *) * count_vert_y;
+
+	SuccessorGenFun **gen_map;
+	SuccessorGenFun *gen_row;
 
 	size_t x, y;
 
-	HANDLE_MALLOC(type_map,
-		      sizeof(enum AStarNodeType *) * count_rows);
+	HANDLE_MALLOC(gen_map, sizeof(SuccessorGenFun *) * count_rows);
 
 	/* set first row of horizontal nodes to min bounds */
-	type_row = type_map[0lu];
-	HANDLE_MALLOC(type_row, horz_row_bytes);
+	gen_row = gen_map[0lu];
+	HANDLE_MALLOC(gen_row, horz_row_bytes);
 
 	for (y = 0lu; y < count_horz_y; ++y)
-		type_row[y] = MIN_BOUND_HORZ;
+		gen_row[y] = generate_successors_MIN_BOUND_HORZ;
 
 
 	/* fill inner nodes */
@@ -117,61 +117,67 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 	while (1) {
 		/* set first and last cells of vert row to bounds */
-		type_row = type_map[x];
-		HANDLE_MALLOC(type_row, vert_row_bytes);
+		gen_row = gen_map[x];
+		HANDLE_MALLOC(gen_row, vert_row_bytes);
 
-		type_row[0lu]	     = MIN_BOUND_VERT;
-		type_row[y_max_vert] = MAX_BOUND_VERT;
+		gen_row[0lu]	    = generate_successors_MIN_BOUND_VERT;
+		gen_row[y_max_vert] = generate_successors_MAX_BOUND_VERT;
 
 		for (y = 1lu; y < y_max_vert; ++y)
-			type_row[y] = INNER_VERT;
+			gen_row[y] = generate_successors_INNER_VERT;
 
 		if (x == x_max_vert)
 			break;
 
 		/* set inner row of horz cells */
 		++x;
-		type_row = type_map[x];
-		HANDLE_MALLOC(type_row, horz_row_bytes);
+		gen_row = gen_map[x];
+		HANDLE_MALLOC(gen_row, horz_row_bytes);
 
 		for (y = 0lu; y < count_horz_y; ++y)
-			type_row[y] = INNER_HORZ;
+			gen_row[y] = generate_successors_INNER_HORZ;
 
 		++x;
 	}
 
 	/* set last row of horizontal nodes to max bounds */
-	type_row = type_map[x_max_horz];
-	HANDLE_MALLOC(type_row, horz_row_bytes);
+	gen_row = gen_map[x_max_horz];
+	HANDLE_MALLOC(gen_row, horz_row_bytes);
 
 	for (y = 0lu; y < count_horz_y; ++y)
-		type_row[y] = MAX_BOUND_HORZ;
+		gen_row[y] = generate_successors_MAX_BOUND_HORZ;
 
-	/* set goal coordinates */
-	type_map[x_goal][y_goal] = GOAL;
+
+	/* initialize root noode */
+	struct AStarNode *root = init_a_star_node(x_start,
+						  y_start,
+						  0,
+						  &CONST);
+	root->prev = NULL;
 
 	/* initialize priority list of open successor nodes sorted
 	 * according to 'best_successor' */
 	struct BHeap *successors = init_bheap(best_successor);
 
-	/* initialize root node and set as 1st path node successors */
-
-	struct AStarNode *root = init_a_star_node(x_start,
-						  y_start,
-						  0,
-						  &CONST);
-
-	root->prev = NULL;
-
 	/* initialize state accumulator */
 	struct AStarState STATE = {
 		.successors   = successors,
 		.path	      = root,
-		.type_map     = type_map,
-		.branch_count = 0
+		.gen_map      = gen_map,
+		.branch_count = 1lu
 	};
 
-	bheap_insert(successors, root);
+	/* look up root node generator */
+	SuccessorGenFun root_gen = gen_map[x_start][y_start];
+
+	/* close generator for root node */
+	gen_map[x_start][y_start] = NULL;
+
+
+	/* generate first round of successors, inserting them into
+	 * 'successors' */
+	root_gen(successors, &CONST, x_start, y_start);
+
 
 	/* begin pathfinding */
 
@@ -193,8 +199,8 @@ void a_star_do_next(struct AStarState *STATE,
 	/* update STATE */
 
 	++(STATE->branch_count);
-	STATE->path->next = node;
 	node->prev = STATE->path;
+	STATE->path->next = node;
 	STATE->path = node;
 
 	char buff[300];
@@ -313,10 +319,10 @@ void report_a_star_results(struct AStarResults *results)
 
 /* successor generators
  * ========================================================================== */
-void next_successors_MIN_BOUND_HORZ(struct BHeap *successors,
-				    struct AStarConst *CONST,
-				    const size_t x,
-				    const size_t y)
+void generate_successors_MIN_BOUND_HORZ(struct BHeap *successors,
+					struct AStarConst *CONST,
+					const size_t x,
+					const size_t y)
 {
 
 	const size_t x_above = 0lu;
@@ -334,10 +340,10 @@ void next_successors_MIN_BOUND_HORZ(struct BHeap *successors,
 		     init_a_star_node(x_upper, y_upper, cost_above, CONST));
 }
 
-void next_successors_MAX_BOUND_HORZ(struct BHeap *successors,
-				    struct AStarConst *CONST,
-				    const size_t x,
-				    const size_t y)
+void generate_successors_MAX_BOUND_HORZ(struct BHeap *successors,
+					struct AStarConst *CONST,
+					const size_t x,
+					const size_t y)
 {
 
 	const size_t x_below = CONST->x_max_cost;
@@ -355,10 +361,10 @@ void next_successors_MAX_BOUND_HORZ(struct BHeap *successors,
 		     init_a_star_node(x_lower, y_upper, cost_below, CONST));
 }
 
-void next_successors_INNER_HORZ(struct BHeap *successors,
-				struct AStarConst *CONST,
-				const size_t x,
-				const size_t y)
+void generate_successors_INNER_HORZ(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    const size_t x,
+				    const size_t y)
 {
 	const size_t x_above = x / 2lu;
 	const size_t x_below = x_above - 1lu;
@@ -387,10 +393,10 @@ void next_successors_INNER_HORZ(struct BHeap *successors,
 		     init_a_star_node(x_lower, y_upper, cost_below, CONST));
 }
 
-void next_successors_MIN_BOUND_VERT(struct BHeap *successors,
-				    struct AStarConst *CONST,
-				    const size_t x,
-				    const size_t y)
+void generate_successors_MIN_BOUND_VERT(struct BHeap *successors,
+					struct AStarConst *CONST,
+					const size_t x,
+					const size_t y)
 {
 
 	const size_t x_level = x / 2lu;
@@ -409,17 +415,17 @@ void next_successors_MIN_BOUND_VERT(struct BHeap *successors,
 		     init_a_star_node(x_lower, y_right, cost_right, CONST));
 }
 
-void next_successors_MAX_BOUND_VERT(struct BHeap *successors,
-				    struct AStarConst *CONST,
-				    const size_t x,
-				    const size_t y)
+void generate_successors_MAX_BOUND_VERT(struct BHeap *successors,
+					struct AStarConst *CONST,
+					const size_t x,
+					const size_t y)
 {
 
 	const size_t x_level = x / 2lu;
 	const size_t x_upper = x + 1lu;
 	const size_t x_lower = x - 1lu;
 	const size_t y_left  = CONST->y_max_cost;
-	const size_t y_floor = y_left - 1;
+	const size_t y_floor = y_left - 1lu;
 	const int cost_left  = CONST->costs[x_level][y_left];
 
 	/* insert left-side sucessors */
@@ -431,10 +437,10 @@ void next_successors_MAX_BOUND_VERT(struct BHeap *successors,
 		     init_a_star_node(x_lower, y_left,	cost_left, CONST));
 }
 
-void next_successors_INNER_VERT(struct BHeap *successors,
-				struct AStarConst *CONST,
-				const size_t x,
-				const size_t y)
+void generate_successors_INNER_VERT(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    const size_t x,
+				    const size_t y)
 {
 	const size_t x_level = x / 2lu;
 	const size_t x_upper = x + 1lu;
