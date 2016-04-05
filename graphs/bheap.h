@@ -61,16 +61,8 @@ inline void bheap_insert(struct BHeap *heap,
 			 void *next)
 {
 	do_insert(heap->nodes, next, heap->count, heap->compare);
+
 	++(heap->count);
-
-	if (heap->count == heap->alloc)
-		resize_bheap(heap, heap->alloc * 2lu);
-}
-
-inline void bheap_insert_safe(struct BHeap *heap,
-			      void *next)
-{
-	bheap_insert(heap, next);
 
 	if (heap->count == heap->alloc)
 		resize_bheap(heap, heap->alloc * 2lu);

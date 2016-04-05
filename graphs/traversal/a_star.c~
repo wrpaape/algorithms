@@ -82,22 +82,22 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	const size_t count_horz_y = y_max_vert;
 	const size_t count_vert_y = y_max_vert + 1lu;
 
-	const size_t horz_row_bytes = sizeof(AdjacentsGenFun) * count_horz_y;
-	const size_t vert_row_bytes = sizeof(AdjacentsGenFun) * count_vert_y;
+	const size_t horz_row_bytes = sizeof(SuccessorsGenFun) * count_horz_y;
+	const size_t vert_row_bytes = sizeof(SuccessorsGenFun) * count_vert_y;
 
-	AdjacentsGenFun **gen_map;
-	AdjacentsGenFun *gen_row;
+	SuccessorsGenFun **gen_map;
+	SuccessorsGenFun *gen_row;
 
 	size_t x, y;
 
-	HANDLE_MALLOC(gen_map, sizeof(AdjacentsGenFun *) * count_rows);
+	HANDLE_MALLOC(gen_map, sizeof(SuccessorsGenFun *) * count_rows);
 
 	/* set first row of horizontal nodes to min bounds */
 	HANDLE_MALLOC(gen_row, horz_row_bytes);
 	gen_map[0lu] = gen_row;
 
 	for (y = 0lu; y < count_horz_y; ++y)
-		gen_row[y] = &generate_adjacents_MIN_BOUND_HORZ;
+		gen_row[y] = &generate_successors_MIN_BOUND_HORZ;
 
 
 	/* fill inner nodes */
@@ -108,12 +108,12 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		HANDLE_MALLOC(gen_row, vert_row_bytes);
 		gen_map[x] = gen_row;
 
-		gen_row[0lu] = &generate_adjacents_MIN_BOUND_VERT;
+		gen_row[0lu] = &generate_successors_MIN_BOUND_VERT;
 
 		for (y = 1lu; y < y_max_vert; ++y)
-			gen_row[y] = &generate_adjacents_INNER_VERT;
+			gen_row[y] = &generate_successors_INNER_VERT;
 
-		gen_row[y_max_vert] = &generate_adjacents_MAX_BOUND_VERT;
+		gen_row[y_max_vert] = &generate_successors_MAX_BOUND_VERT;
 
 		if (x == x_max_vert)
 			break;
@@ -124,7 +124,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		gen_map[x] = gen_row;
 
 		for (y = 0lu; y < count_horz_y; ++y)
-			gen_row[y] = &generate_adjacents_INNER_HORZ;
+			gen_row[y] = &generate_successors_INNER_HORZ;
 
 		++x;
 	}
@@ -134,42 +134,14 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	gen_map[x_max_horz] = gen_row;
 
 	for (y = 0lu; y < count_horz_y; ++y)
-		gen_row[y] = generate_adjacents_MAX_BOUND_HORZ;
+		gen_row[y] = generate_successors_MAX_BOUND_HORZ;
 
 
-	/* initialize root noode */
-	struct AStarNode *root = init_a_star_node(x_start,
-						  y_start,
-						  0,
-						  NULL,
-						  &CONST);
-	root->prev = NULL;
 
-	/* initialize priority list of open successor nodes sorted
-	 * according to 'best_successor' */
-	struct BHeap *successors = init_bheap(&best_successor);
-
-	/* initialize state accumulator */
-	struct AStarState STATE = {
-		.successors   = successors,
-		.path	      = root,
-		.gen_map      = gen_map,
-		.branch_count = 1lu
-	};
-
-	/* look up root node generator */
-	AdjacentsGenFun root_gen = gen_map[x_start][y_start];
-
-	/* close generator for root node */
-	gen_map[x_start][y_start] = NULL;
 
 	printf("x_start: %zu\ny_start: %zu\n", x_start, y_start);
 	printf("x_goal:  %zu\ny_goal:  %zu\n", x_goal,  y_goal);
 
-
-	/* generate first round of successors, inserting them into
-	 * 'successors' */
-	root_gen(successors, &CONST, x_start, y_start);
 
 
 	/* begin pathfinding */
@@ -184,9 +156,41 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	return a_star_build_results(&STATE, &CONST, time_start, time_finish);
 }
 
-void find_best_path(struct AStarState *STATE,
+void find_best_path(struct AStarResults *results,
+		    SuccessorsGenFun **gen_map,
+		    struct BHeap *successors,
 		    struct AStarConst *CONST)
 {
+	/* initialize root noode */
+	struct AStarNode *root = init_a_star_node(&CONST,
+						  NULL,
+						  0,
+						  x_start,
+						  y_start);
+
+	/* initialize priority list of open successor nodes sorted
+	 * according to 'best_successor' */
+	struct BHeap *successors = init_bheap(&best_successor);
+
+	/* insert root node */
+	bheap_insert(successors, root);
+
+	/* initialize state accumulator */
+	struct AStarState STATE = {
+		.successors   = successors,
+		.gen_map      = gen_map,
+		.branch_count = 1lu
+	};
+
+	/* look up root node generator */
+	SuccessorsGenFun root_gen = gen_map[x_start][y_start];
+
+	/* close generator for root node */
+	gen_map[x_start][y_start] = NULL;
+
+	/* generate first round of successors, inserting them into
+	 * 'successors' */
+	root_gen(successors, &CONST, x_start, y_start);
 
 	/* update STATE
 	 * ================================================================== */
@@ -233,11 +237,11 @@ struct AStarResults *a_star_build_results(struct AStarState *STATE,
 	return NULL;
 }
 
-struct AStarNode *init_a_star_node(const size_t x,
-				   const size_t y,
-				   const int cost,
+struct AStarNode *init_a_star_node(struct AStarConst *CONST,
 				   struct AStarNode *parent,
-				   struct AStarConst *CONST)
+				   const int cost,
+				   const size_t x,
+				   const size_t y)
 {
 	const size_t prox = calc_prox(x, y, CONST->x_goal, CONST->y_goal);
 
@@ -320,157 +324,4 @@ void report_a_star_results(struct AStarResults *results)
 	/*        best->total_cost, */
 	/*        results->branch_count, */
 	/*        ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC); */
-}
-
-/* successor generators
- * ========================================================================== */
-void generate_adjacents_MIN_BOUND_HORZ(struct AStarAdjsBuff *buffer,
-				       struct AStarNode *parent,
-				       struct AStarConst *Const)
-{
-
-	buffer->count = 3lu;
-	const size_t y_parent = parent->y;
-	const size_t x_above = 0lu;
-	const size_t x_upper = 1lu;
-	const size_t x_ceil  = 2lu;
-	const size_t y_upper = y + 1lu;
-	const int cost_above = CONST->costs[x_above][y];
-
-	/* insert upper sucessors */
-	bheap_insert(successors,
-		     init_a_star_node(x_ceil,  y,	cost_above, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_upper, y,	cost_above, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_upper, y_upper, cost_above, CONST));
-}
-
-void generate_adjacents_MAX_BOUND_HORZ(struct BHeap *successors,
-					struct AStarConst *CONST,
-					const size_t x,
-					const size_t y)
-{
-
-	const size_t x_below = CONST->x_max_cost;
-	const size_t x_lower = x - 1lu;
-	const size_t x_floor = x - 2lu;
-	const size_t y_upper = y + 1lu;
-	const int cost_below = CONST->costs[x_below][y];
-
-	/* insert lower sucessors */
-	bheap_insert(successors,
-		     init_a_star_node(x_floor, y,	cost_below, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_lower, y,	cost_below, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_lower, y_upper, cost_below, CONST));
-}
-
-void generate_adjacents_INNER_HORZ(struct BHeap *successors,
-				    struct AStarConst *CONST,
-				    const size_t x,
-				    const size_t y)
-{
-	const size_t x_above = x / 2lu;
-	const size_t x_below = x_above - 1lu;
-	const size_t x_ceil  = x + 2lu;
-	const size_t x_upper = x + 1lu;
-	const size_t x_lower = x - 1lu;
-	const size_t x_floor = x - 2lu;
-	const size_t y_upper = y + 1lu;
-	const int cost_above = CONST->costs[x_above][y];
-	const int cost_below = CONST->costs[x_below][y];
-
-	/* insert upper sucessors */
-	bheap_insert(successors,
-		     init_a_star_node(x_ceil,  y,	cost_above, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_upper, y,	cost_above, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_upper, y_upper, cost_above, CONST));
-
-	/* insert lower sucessors */
-	bheap_insert(successors,
-		     init_a_star_node(x_floor, y,	cost_below, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_lower, y,	cost_below, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_lower, y_upper, cost_below, CONST));
-}
-
-void generate_adjacents_MIN_BOUND_VERT(struct BHeap *successors,
-					struct AStarConst *CONST,
-					const size_t x,
-					const size_t y)
-{
-
-	const size_t x_level = x / 2lu;
-	const size_t x_upper = x + 1lu;
-	const size_t x_lower = x - 1lu;
-	const size_t y_right = 0lu;
-	const size_t y_ceil  = 1lu;
-	const int cost_right = CONST->costs[x_level][y_right];
-
-	/* insert right-side sucessors */
-	bheap_insert(successors,
-		     init_a_star_node(x,       y_ceil,	cost_right, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_upper, y_right,	cost_right, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_lower, y_right, cost_right, CONST));
-}
-
-void generate_adjacents_MAX_BOUND_VERT(struct BHeap *successors,
-					struct AStarConst *CONST,
-					const size_t x,
-					const size_t y)
-{
-
-	const size_t x_level = x / 2lu;
-	const size_t x_upper = x + 1lu;
-	const size_t x_lower = x - 1lu;
-	const size_t y_left  = CONST->y_max_cost;
-	const size_t y_floor = y_left - 1lu;
-	const int cost_left  = CONST->costs[x_level][y_left];
-
-	/* insert left-side sucessors */
-	bheap_insert(successors,
-		     init_a_star_node(x,       y_floor,	cost_left, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_upper, y_left,	cost_left, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_lower, y_left,	cost_left, CONST));
-}
-
-void generate_adjacents_INNER_VERT(struct BHeap *successors,
-				   struct AStarConst *CONST,
-				   const size_t x,
-				   const size_t y)
-{
-	const size_t x_level = x / 2lu;
-	const size_t x_upper = x + 1lu;
-	const size_t x_lower = x - 1lu;
-	const size_t y_ceil  = y + 1lu;
-	const size_t y_right = y;
-	const size_t y_left  = y - 1lu;
-	const size_t y_floor = y - 2lu;
-	const int cost_left  = CONST->costs[x_level][y_left];
-	const int cost_right = CONST->costs[x_level][y_right];
-
-	/* insert right-side sucessors */
-	bheap_insert(successors,
-		     init_a_star_node(x,       y_ceil,	cost_right, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_upper, y_right,	cost_right, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_lower, y_right, cost_right, CONST));
-
-	/* insert left-side sucessors */
-	bheap_insert(successors,
-		     init_a_star_node(x,       y_floor,	cost_left, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_upper, y_left,	cost_left, CONST));
-	bheap_insert(successors,
-		     init_a_star_node(x_lower, y_left,	cost_left, CONST));
 }

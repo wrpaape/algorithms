@@ -36,9 +36,6 @@ inline void resize_bheap(struct BHeap *heap, const size_t size)
 extern inline void bheap_insert(struct BHeap *heap,
 				void *next);
 
-extern inline void bheap_insert_safe(struct BHeap *heap,
-				     void *next);
-
 void bheap_insert_array(struct BHeap *heap,
 			const size_t length,
 			void **array)
