@@ -91,11 +91,11 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	HANDLE_MALLOC(gen_map, sizeof(SuccessorGenFun *) * count_rows);
 
 	/* set first row of horizontal nodes to min bounds */
-	gen_row = gen_map[0lu];
 	HANDLE_MALLOC(gen_row, horz_row_bytes);
+	gen_map[0lu] = gen_row;
 
 	for (y = 0lu; y < count_horz_y; ++y)
-		gen_row[y] = generate_successors_MIN_BOUND_HORZ;
+		gen_row[y] = &generate_successors_MIN_BOUND_HORZ;
 
 
 	/* fill inner nodes */
@@ -103,32 +103,33 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 	while (1) {
 		/* set first and last cells of vert row to bounds */
-		gen_row = gen_map[x];
 		HANDLE_MALLOC(gen_row, vert_row_bytes);
+		gen_map[x] = gen_row;
 
-		gen_row[0lu]	    = generate_successors_MIN_BOUND_VERT;
-		gen_row[y_max_vert] = generate_successors_MAX_BOUND_VERT;
+		gen_row[0lu] = &generate_successors_MIN_BOUND_VERT;
 
 		for (y = 1lu; y < y_max_vert; ++y)
-			gen_row[y] = generate_successors_INNER_VERT;
+			gen_row[y] = &generate_successors_INNER_VERT;
+
+		gen_row[y_max_vert] = &generate_successors_MAX_BOUND_VERT;
 
 		if (x == x_max_vert)
 			break;
 
 		/* set inner row of horz cells */
 		++x;
-		gen_row = gen_map[x];
 		HANDLE_MALLOC(gen_row, horz_row_bytes);
+		gen_map[x] = gen_row;
 
 		for (y = 0lu; y < count_horz_y; ++y)
-			gen_row[y] = generate_successors_INNER_HORZ;
+			gen_row[y] = &generate_successors_INNER_HORZ;
 
 		++x;
 	}
 
 	/* set last row of horizontal nodes to max bounds */
-	gen_row = gen_map[x_max_horz];
 	HANDLE_MALLOC(gen_row, horz_row_bytes);
+	gen_map[x_max_horz] = gen_row;
 
 	for (y = 0lu; y < count_horz_y; ++y)
 		gen_row[y] = generate_successors_MAX_BOUND_HORZ;
@@ -153,6 +154,8 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		.branch_count = 1lu
 	};
 
+
+	puts("YOYOYO");
 	/* look up root node generator */
 	SuccessorGenFun root_gen = gen_map[x_start][y_start];
 
@@ -160,7 +163,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	gen_map[x_start][y_start] = NULL;
 
 
-	puts("YOYOYO");
 
 	/* generate first round of successors, inserting them into
 	 * 'successors' */
