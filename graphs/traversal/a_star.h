@@ -29,9 +29,9 @@ struct AStarConst {
 };
 
 typedef void (*SuccessorGenFun)(struct BHeap *,
-		 struct AStarConst *,
-		 const size_t,
-		 const size_t);
+				struct AStarConst *,
+				const size_t,
+				const size_t);
 
 
 struct AStarNode {

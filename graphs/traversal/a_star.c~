@@ -35,7 +35,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts)
 {
 	/* unpack cost map and enpoints */
-
 	const size_t min_cost = map->act->min;
 	const size_t max_cost = map->act->max;
 
@@ -61,17 +60,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	const size_t max_prox = (g_to_x_max > x_goal ? g_to_x_max : x_goal)
 			      + (g_to_y_max > y_goal ? g_to_y_max : y_goal);
 
-/* 	printf("max_prox: %zu\n", max_prox); */
-/* 	printf("g_to_x_max: %zu\n", g_to_x_max); */
-/* 	printf("g_to_y_max: %zu\n", g_to_y_max); */
-/* 	printf("x_max_horz: %zu\n", x_max_horz); */
-/* 	printf("y_max_horz: %zu\n", y_max_horz); */
-/* 	printf("x_goal: %zu\n", x_goal); */
-/* 	printf("y_goal: %zu\n", y_goal); */
-/* 	printf("x_start: %zu\n", x_start); */
-/* 	printf("y_start: %zu\n", y_start); */
-/* 	fflush(stdout); */
-
 	struct AStarConst CONST = {
 		.costs	    = map->costs,
 		.min_cost   = min_cost,
@@ -88,11 +76,9 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	};
 
 	/* initialize lookup table of successor generator functions, 'gen_map' */
-
 	const size_t count_rows	  = x_max_horz + 1lu;
 	const size_t count_horz_y = y_max_vert;
 	const size_t count_vert_y = y_max_vert + 1lu;
-
 
 	const size_t horz_row_bytes = sizeof(SuccessorGenFun *) * count_horz_y;
 	const size_t vert_row_bytes = sizeof(SuccessorGenFun *) * count_vert_y;
@@ -229,11 +215,19 @@ struct AStarNode *init_a_star_node(const size_t x,
 				   const int cost,
 				   struct AStarConst *CONST)
 {
-	const size_t prox  = calc_prox(x, y, CONST->x_goal, CONST->y_goal);
+	const size_t prox = calc_prox(x, y, CONST->x_goal, CONST->y_goal);
+
 
 	const double score = ((cost * CONST->w_cost) + CONST->min_cost)
 			   +  (prox * CONST->w_prox);
 
+	printf("prox:   %zu\n", prox);
+	printf("score:  %f\n", score);
+	printf("x_goal: %zu\n", CONST->x_goal);
+	printf("y_goal: %zu\n", CONST->y_goal);
+	printf("x:      %zu\n", x);
+	printf("y:      %zu\n", y);
+	fflush(stdout);
 
 	struct AStarNode *node;
 
