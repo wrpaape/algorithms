@@ -77,6 +77,8 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		.min_cost   = min_cost,
 		.w_cost	    = COST_BIAS / ((double) (max_cost - min_cost)),
 		.w_prox	    = PROX_BIAS / ((double) max_prox),
+		.x_max_cost = map->res->x - 1lu,
+		.y_max_cost = y_max_horz,
 		.x_goal	    = x_goal,
 		.y_goal	    = y_goal,
 		.x_max_horz = x_max_horz,
@@ -309,45 +311,154 @@ void report_a_star_results(struct AStarResults *results)
 	/*        ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC); */
 }
 
-inline void next_successors_MIN_BOUND_HORZ(struct BHeap *successors,
-					   struct AStarConst *CONST,
-					   const size_t x,
-					   const size_t y)
+/* successor generators
+ * ========================================================================== */
+void next_successors_MIN_BOUND_HORZ(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    const size_t x,
+				    const size_t y)
 {
 
-	const int cost_above = CONST->costs[x / 2lu][y];
+	const size_t x_above = 0lu;
+	const size_t x_upper = 1lu;
+	const size_t x_ceil  = 2lu;
+	const size_t y_upper = y + 1lu;
+	const int cost_above = CONST->costs[x_above][y];
 
 	/* insert upper sucessors */
 	bheap_insert(successors,
-		     init_a_star_node(x + 2lu, y,	cost_above, CONST));
+		     init_a_star_node(x_ceil,  y,	cost_above, CONST));
 	bheap_insert(successors,
-		     init_a_star_node(x + 1lu, y,	cost_above, CONST));
+		     init_a_star_node(x_upper, y,	cost_above, CONST));
 	bheap_insert(successors,
-		     init_a_star_node(x + 1lu, y + 1lu, cost_above, CONST));
+		     init_a_star_node(x_upper, y_upper, cost_above, CONST));
 }
 
-inline void next_successors_MAX_BOUND_HORZ(struct BHeap *successors,
-					   struct AStarConst *CONST,
-					   const size_t x,
-					   const size_t y)
+void next_successors_MAX_BOUND_HORZ(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    const size_t x,
+				    const size_t y)
 {
 
-	const int cost_below = CONST->costs[(x / 2lu) - 1lu][y];
+	const size_t x_below = CONST->x_max_cost;
+	const size_t x_lower = x - 1lu;
+	const size_t x_floor = x - 2lu;
+	const size_t y_upper = y + 1lu;
+	const int cost_below = CONST->costs[x_below][y];
+
+	/* insert lower sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(x_floor, y,	cost_below, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_lower, y,	cost_below, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_lower, y_upper, cost_below, CONST));
+}
+
+void next_successors_INNER_HORZ(struct BHeap *successors,
+				struct AStarConst *CONST,
+				const size_t x,
+				const size_t y)
+{
+	const size_t x_above = x / 2lu;
+	const size_t x_below = x_above - 1lu;
+	const size_t x_ceil  = x + 2lu;
+	const size_t x_upper = x + 1lu;
+	const size_t x_lower = x - 1lu;
+	const size_t x_floor = x - 2lu;
+	const size_t y_upper = y + 1lu;
+	const int cost_above = CONST->costs[x_above][y];
+	const int cost_below = CONST->costs[x_below][y];
 
 	/* insert upper sucessors */
 	bheap_insert(successors,
-		     init_a_star_node(x - 2lu, y,	cost_below, CONST));
+		     init_a_star_node(x_ceil,  y,	cost_above, CONST));
 	bheap_insert(successors,
-		     init_a_star_node(x - 1lu, y,	cost_below, CONST));
+		     init_a_star_node(x_upper, y,	cost_above, CONST));
 	bheap_insert(successors,
-		     init_a_star_node(x - 1lu, y + 1lu, cost_below, CONST));
+		     init_a_star_node(x_upper, y_upper, cost_above, CONST));
+
+	/* insert lower sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(x_floor, y,	cost_below, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_lower, y,	cost_below, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_lower, y_upper, cost_below, CONST));
 }
 
-inline void next_successors_INNER_HORZ(struct BHeap *successors,
-				       struct AStarConst *CONST,
-				       const size_t x,
-				       const size_t y)
+void next_successors_MIN_BOUND_VERT(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    const size_t x,
+				    const size_t y)
 {
-	next_successors_MIN_BOUND_HORZ(successors, CONST, x, y);
-	next_successors_MAX_BOUND_HORZ(successors, CONST, x, y);
+
+	const size_t x_level = x / 2lu;
+	const size_t x_upper = x + 1lu;
+	const size_t x_lower = x - 1lu;
+	const size_t y_right = 0lu;
+	const size_t y_ceil  = 1lu;
+	const int cost_right = CONST->costs[x_level][y_right];
+
+	/* insert right-side sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(x,       y_ceil,	cost_right, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_upper, y_right,	cost_right, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_lower, y_right, cost_right, CONST));
+}
+
+void next_successors_MAX_BOUND_VERT(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    const size_t x,
+				    const size_t y)
+{
+
+	const size_t x_level = x / 2lu;
+	const size_t x_upper = x + 1lu;
+	const size_t x_lower = x - 1lu;
+	const size_t y_left  = CONST->y_max_cost;
+	const size_t y_floor = y_left - 1;
+	const int cost_left  = CONST->costs[x_level][y_left];
+
+	/* insert left-side sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(x,       y_floor,	cost_left, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_upper, y_left,	cost_left, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_lower, y_left,	cost_left, CONST));
+}
+
+void next_successors_INNER_VERT(struct BHeap *successors,
+				struct AStarConst *CONST,
+				const size_t x,
+				const size_t y)
+{
+	const size_t x_level = x / 2lu;
+	const size_t x_upper = x + 1lu;
+	const size_t x_lower = x - 1lu;
+	const size_t y_ceil  = y + 1lu;
+	const size_t y_right = y;
+	const size_t y_left  = y - 1lu;
+	const size_t y_floor = y - 2lu;
+	const int cost_left  = CONST->costs[x_level][y_left];
+	const int cost_right = CONST->costs[x_level][y_right];
+
+	/* insert right-side sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(x,       y_ceil,	cost_right, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_upper, y_right,	cost_right, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_lower, y_right, cost_right, CONST));
+
+	/* insert left-side sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(x,       y_floor,	cost_left, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_upper, y_left,	cost_left, CONST));
+	bheap_insert(successors,
+		     init_a_star_node(x_lower, y_left,	cost_left, CONST));
 }
