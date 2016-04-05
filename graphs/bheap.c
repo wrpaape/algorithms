@@ -33,6 +33,12 @@ inline void resize_bheap(struct BHeap *heap, const size_t size)
 
 /* insertion
  ******************************************************************************/
+extern inline void bheap_insert(struct BHeap *heap,
+				void *next);
+
+extern inline void bheap_insert_safe(struct BHeap *heap,
+				     void *next);
+
 void bheap_insert_array(struct BHeap *heap,
 			const size_t length,
 			void **array)
@@ -55,16 +61,6 @@ void bheap_insert_array(struct BHeap *heap,
 }
 
 
-void bheap_insert(struct BHeap *heap,
-		  void *next)
-{
-	do_insert(heap->nodes, next, heap->count, heap->compare);
-
-	++(heap->count);
-
-	if (heap->count == heap->alloc)
-		resize_bheap(heap, heap->alloc * 2lu);
-}
 
 
 void do_insert(void **nodes,

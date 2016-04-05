@@ -24,6 +24,28 @@ inline struct BHeap *init_bheap(int (*compare)(const void *,
 	return heap;
 }
 
+inline struct BHeap *init_bheap_with_size(int (*compare)(const void *,
+							 const void *),
+					  const size_t size)
+{
+	struct BHeap *heap;
+
+	HANDLE_MALLOC(heap, sizeof(struct BHeap));
+	HANDLE_MALLOC(heap->nodes, sizeof(void *) * size);
+
+	/* include sentinel node at index 0 in 'count', i.e. count >= 1 */
+	heap->count   = 1lu;
+	heap->alloc   = size;
+	heap->compare = compare;
+
+	return heap;
+}
+
+inline void clear_bheap(struct BHeap *heap)
+{
+	heap->count = 1lu;
+}
+
 inline void free_bheap(struct BHeap *heap)
 {
 	free(heap->nodes);
@@ -35,8 +57,21 @@ static inline void resize_bheap(struct BHeap *heap,
 
 /* insertion
  ******************************************************************************/
-void bheap_insert(struct BHeap *heap,
-		  void *next);
+inline void bheap_insert(struct BHeap *heap,
+			 void *next)
+{
+	do_insert(heap->nodes, next, heap->count, heap->compare);
+	++(heap->count);
+}
+
+inline void bheap_insert_safe(struct BHeap *heap,
+			      void *next)
+{
+	bheap_insert(heap, next);
+
+	if (heap->count == heap->alloc)
+		resize_bheap(heap, heap->alloc * 2lu);
+}
 
 void bheap_insert_array(struct BHeap *heap,
 			const size_t length,
@@ -47,7 +82,6 @@ void do_insert(void **nodes,
 	       const size_t next_i,
 	       int (*compare)(const void *,
 			      const void *));
-
 
 
 

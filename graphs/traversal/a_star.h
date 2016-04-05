@@ -28,12 +28,6 @@ struct AStarConst {
 	const size_t y_max_vert;
 };
 
-typedef void (*SuccessorGenFun)(struct BHeap *,
-				struct AStarConst *,
-				const size_t,
-				const size_t);
-
-
 struct AStarNode {
 	size_t x;
 	size_t y;
@@ -43,6 +37,11 @@ struct AStarNode {
 	struct AStarNode *prev;
 	struct AStarNode *next;
 };
+
+typedef void (*SuccessorGenFun)(struct BHeap *,
+				struct AStarConst *,
+				const size_t,
+				const size_t);
 
 struct AStarState {
 	struct BHeap *successors;
