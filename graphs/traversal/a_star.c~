@@ -80,8 +80,8 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	const size_t count_horz_y = y_max_vert;
 	const size_t count_vert_y = y_max_vert + 1lu;
 
-	const size_t horz_row_bytes = sizeof(SuccessorGenFun *) * count_horz_y;
-	const size_t vert_row_bytes = sizeof(SuccessorGenFun *) * count_vert_y;
+	const size_t horz_row_bytes = sizeof(SuccessorGenFun) * count_horz_y;
+	const size_t vert_row_bytes = sizeof(SuccessorGenFun) * count_vert_y;
 
 	SuccessorGenFun **gen_map;
 	SuccessorGenFun *gen_row;
@@ -160,6 +160,8 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	gen_map[x_start][y_start] = NULL;
 
 
+	puts("YOYOYO");
+
 	/* generate first round of successors, inserting them into
 	 * 'successors' */
 	root_gen(successors, &CONST, x_start, y_start);
@@ -184,12 +186,14 @@ void a_star_do_next(struct AStarState *STATE,
 
 	/* update STATE */
 
+
 	++(STATE->branch_count);
 	node->prev = STATE->path;
 	STATE->path->next = node;
 	STATE->path = node;
 
 	char buff[300];
+
 
 	a_star_node_to_string(buff, node);
 
@@ -217,17 +221,9 @@ struct AStarNode *init_a_star_node(const size_t x,
 {
 	const size_t prox = calc_prox(x, y, CONST->x_goal, CONST->y_goal);
 
-
 	const double score = ((cost * CONST->w_cost) + CONST->min_cost)
 			   +  (prox * CONST->w_prox);
 
-	printf("prox:   %zu\n", prox);
-	printf("score:  %f\n", score);
-	printf("x_goal: %zu\n", CONST->x_goal);
-	printf("y_goal: %zu\n", CONST->y_goal);
-	printf("x:      %zu\n", x);
-	printf("y:      %zu\n", y);
-	fflush(stdout);
 
 	struct AStarNode *node;
 
@@ -245,12 +241,6 @@ struct AStarNode *init_a_star_node(const size_t x,
 inline size_t calc_prox(const size_t x0, const size_t y0,
 			const size_t x1, const size_t y1)
 {
-	printf("x0: %zu\n", x0);
-	printf("y0: %zu\n", y0);
-	printf("x1: %zu\n", x1);
-	printf("y1: %zu\n", y1);
-	fflush(stdout);
-
 	return (x1 > x0 ? (x1 - x0) : (x0 - x1))
 	     + (y1 > y0 ? (y1 - y0) : (y0 - y1));
 }
@@ -370,6 +360,20 @@ void generate_successors_INNER_HORZ(struct BHeap *successors,
 	const int cost_above = CONST->costs[x_above][y];
 	const int cost_below = CONST->costs[x_below][y];
 
+	puts("INNER_HORZ NODE at");
+	printf("x: %zu\n", x);
+	printf("y: %zu\n\n", y);
+	printf("x_above: %zu\n", x_above);
+	printf("x_below: %zu\n", x_below);
+	printf("x_ceil:  %zu\n", x_ceil);
+	printf("x_upper: %zu\n", x_upper);
+	printf("x_lower: %zu\n", x_lower);
+	printf("x_floor: %zu\n", x_floor);
+	printf("y_upper: %zu\n", y_upper);
+	printf("cost_above: %d\n", cost_above);
+	printf("cost_below: %d\n", cost_below);
+	fflush(stdout);
+
 	/* insert upper sucessors */
 	bheap_insert(successors,
 		     init_a_star_node(x_ceil,  y,	cost_above, CONST));
@@ -445,6 +449,20 @@ void generate_successors_INNER_VERT(struct BHeap *successors,
 	const size_t y_floor = y - 2lu;
 	const int cost_left  = CONST->costs[x_level][y_left];
 	const int cost_right = CONST->costs[x_level][y_right];
+
+	puts("INNER_VERT NODE at");
+	printf("x: %zu\n", x);
+	printf("y: %zu\n\n", y);
+	printf("x_level: %zu\n", x_level);
+	printf("x_upper: %zu\n", x_upper);
+	printf("x_lower: %zu\n", x_lower);
+	printf("y_ceil:  %zu\n", y_ceil);
+	printf("y_right: %zu\n", y_right);
+	printf("y_left:  %zu\n", y_left);
+	printf("y_floor: %zu\n", y_floor);
+	printf("cost_left:  %d\n", cost_left);
+	printf("cost_right: %d\n", cost_right);
+	fflush(stdout);
 
 	/* insert right-side sucessors */
 	bheap_insert(successors,
