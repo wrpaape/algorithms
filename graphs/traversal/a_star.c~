@@ -82,22 +82,22 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	const size_t count_horz_y = y_max_vert;
 	const size_t count_vert_y = y_max_vert + 1lu;
 
-	const size_t horz_row_bytes = sizeof(SuccessorGenFun) * count_horz_y;
-	const size_t vert_row_bytes = sizeof(SuccessorGenFun) * count_vert_y;
+	const size_t horz_row_bytes = sizeof(AdjacentsGenFun) * count_horz_y;
+	const size_t vert_row_bytes = sizeof(AdjacentsGenFun) * count_vert_y;
 
-	SuccessorGenFun **gen_map;
-	SuccessorGenFun *gen_row;
+	AdjacentsGenFun **gen_map;
+	AdjacentsGenFun *gen_row;
 
 	size_t x, y;
 
-	HANDLE_MALLOC(gen_map, sizeof(SuccessorGenFun *) * count_rows);
+	HANDLE_MALLOC(gen_map, sizeof(AdjacentsGenFun *) * count_rows);
 
 	/* set first row of horizontal nodes to min bounds */
 	HANDLE_MALLOC(gen_row, horz_row_bytes);
 	gen_map[0lu] = gen_row;
 
 	for (y = 0lu; y < count_horz_y; ++y)
-		gen_row[y] = &generate_successors_MIN_BOUND_HORZ;
+		gen_row[y] = &generate_adjacents_MIN_BOUND_HORZ;
 
 
 	/* fill inner nodes */
@@ -108,12 +108,12 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		HANDLE_MALLOC(gen_row, vert_row_bytes);
 		gen_map[x] = gen_row;
 
-		gen_row[0lu] = &generate_successors_MIN_BOUND_VERT;
+		gen_row[0lu] = &generate_adjacents_MIN_BOUND_VERT;
 
 		for (y = 1lu; y < y_max_vert; ++y)
-			gen_row[y] = &generate_successors_INNER_VERT;
+			gen_row[y] = &generate_adjacents_INNER_VERT;
 
-		gen_row[y_max_vert] = &generate_successors_MAX_BOUND_VERT;
+		gen_row[y_max_vert] = &generate_adjacents_MAX_BOUND_VERT;
 
 		if (x == x_max_vert)
 			break;
@@ -124,7 +124,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		gen_map[x] = gen_row;
 
 		for (y = 0lu; y < count_horz_y; ++y)
-			gen_row[y] = &generate_successors_INNER_HORZ;
+			gen_row[y] = &generate_adjacents_INNER_HORZ;
 
 		++x;
 	}
@@ -134,13 +134,14 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	gen_map[x_max_horz] = gen_row;
 
 	for (y = 0lu; y < count_horz_y; ++y)
-		gen_row[y] = generate_successors_MAX_BOUND_HORZ;
+		gen_row[y] = generate_adjacents_MAX_BOUND_HORZ;
 
 
 	/* initialize root noode */
 	struct AStarNode *root = init_a_star_node(x_start,
 						  y_start,
 						  0,
+						  NULL,
 						  &CONST);
 	root->prev = NULL;
 
@@ -157,7 +158,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	};
 
 	/* look up root node generator */
-	SuccessorGenFun root_gen = gen_map[x_start][y_start];
+	AdjacentsGenFun root_gen = gen_map[x_start][y_start];
 
 	/* close generator for root node */
 	gen_map[x_start][y_start] = NULL;
@@ -175,7 +176,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 	clock_t time_start = clock();
 
-	a_star_do_next(&STATE, &CONST);
+	find_best_path(&STATE, &CONST);
 
 	clock_t time_finish = clock();
 
@@ -183,7 +184,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	return a_star_build_results(&STATE, &CONST, time_start, time_finish);
 }
 
-void a_star_do_next(struct AStarState *STATE,
+void find_best_path(struct AStarState *STATE,
 		    struct AStarConst *CONST)
 {
 
@@ -235,6 +236,7 @@ struct AStarResults *a_star_build_results(struct AStarState *STATE,
 struct AStarNode *init_a_star_node(const size_t x,
 				   const size_t y,
 				   const int cost,
+				   struct AStarNode *parent,
 				   struct AStarConst *CONST)
 {
 	const size_t prox = calc_prox(x, y, CONST->x_goal, CONST->y_goal);
@@ -252,6 +254,7 @@ struct AStarNode *init_a_star_node(const size_t x,
 	node->prox  = prox;
 	node->cost  = cost;
 	node->score = score;
+	node->prev  = parent;
 
 	return node;
 }
@@ -321,12 +324,13 @@ void report_a_star_results(struct AStarResults *results)
 
 /* successor generators
  * ========================================================================== */
-void generate_successors_MIN_BOUND_HORZ(struct BHeap *successors,
-					struct AStarConst *CONST,
-					const size_t x,
-					const size_t y)
+void generate_adjacents_MIN_BOUND_HORZ(struct AStarAdjsBuff *buffer,
+				       struct AStarNode *parent,
+				       struct AStarConst *Const)
 {
 
+	buffer->count = 3lu;
+	const size_t y_parent = parent->y;
 	const size_t x_above = 0lu;
 	const size_t x_upper = 1lu;
 	const size_t x_ceil  = 2lu;
@@ -342,7 +346,7 @@ void generate_successors_MIN_BOUND_HORZ(struct BHeap *successors,
 		     init_a_star_node(x_upper, y_upper, cost_above, CONST));
 }
 
-void generate_successors_MAX_BOUND_HORZ(struct BHeap *successors,
+void generate_adjacents_MAX_BOUND_HORZ(struct BHeap *successors,
 					struct AStarConst *CONST,
 					const size_t x,
 					const size_t y)
@@ -363,7 +367,7 @@ void generate_successors_MAX_BOUND_HORZ(struct BHeap *successors,
 		     init_a_star_node(x_lower, y_upper, cost_below, CONST));
 }
 
-void generate_successors_INNER_HORZ(struct BHeap *successors,
+void generate_adjacents_INNER_HORZ(struct BHeap *successors,
 				    struct AStarConst *CONST,
 				    const size_t x,
 				    const size_t y)
@@ -395,7 +399,7 @@ void generate_successors_INNER_HORZ(struct BHeap *successors,
 		     init_a_star_node(x_lower, y_upper, cost_below, CONST));
 }
 
-void generate_successors_MIN_BOUND_VERT(struct BHeap *successors,
+void generate_adjacents_MIN_BOUND_VERT(struct BHeap *successors,
 					struct AStarConst *CONST,
 					const size_t x,
 					const size_t y)
@@ -417,7 +421,7 @@ void generate_successors_MIN_BOUND_VERT(struct BHeap *successors,
 		     init_a_star_node(x_lower, y_right, cost_right, CONST));
 }
 
-void generate_successors_MAX_BOUND_VERT(struct BHeap *successors,
+void generate_adjacents_MAX_BOUND_VERT(struct BHeap *successors,
 					struct AStarConst *CONST,
 					const size_t x,
 					const size_t y)
@@ -439,10 +443,10 @@ void generate_successors_MAX_BOUND_VERT(struct BHeap *successors,
 		     init_a_star_node(x_lower, y_left,	cost_left, CONST));
 }
 
-void generate_successors_INNER_VERT(struct BHeap *successors,
-				    struct AStarConst *CONST,
-				    const size_t x,
-				    const size_t y)
+void generate_adjacents_INNER_VERT(struct BHeap *successors,
+				   struct AStarConst *CONST,
+				   const size_t x,
+				   const size_t y)
 {
 	const size_t x_level = x / 2lu;
 	const size_t x_upper = x + 1lu;

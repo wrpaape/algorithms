@@ -28,8 +28,6 @@ struct AStarConst {
 	const size_t y_max_vert;
 };
 
-
-
 struct AStarNode {
 	size_t x;
 	size_t y;
@@ -40,16 +38,20 @@ struct AStarNode {
 	struct AStarNode *next;
 };
 
-typedef void (*SuccessorGenFun)(struct BHeap *,
-				struct AStarConst *,
-				const size_t,
-				const size_t);
+struct AStarAdjsBuff {
+	size_t count;
+	struct AStarNode adjacents[6lu];
+};
+
+typedef void (*AdjacentsGenFun)(struct AStarAdjsBuff *
+				struct AStarNode *,
+				struct AStarConst *);
 
 struct AStarState {
 	struct BHeap *successors;
 	struct AStarNode *path;
 	size_t branch_count;
-	SuccessorGenFun **gen_map;
+	AdjacentsGenFun **gen_map;
 };
 
 
@@ -69,9 +71,10 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 struct AStarNode *init_a_star_node(const size_t x,
 				   const size_t y,
 				   const int cost,
+				   struct AStarNode *parent,
 				   struct AStarConst *CONST);
 
-void a_star_do_next(struct AStarState *STATE,
+void find_best_path(struct AStarState *STATE,
 		    struct AStarConst *CONST);
 
 struct AStarResults *a_star_build_results(struct AStarState *STATE,
