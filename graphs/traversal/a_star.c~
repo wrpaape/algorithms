@@ -137,8 +137,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 		gen_row[y] = generate_successors_MAX_BOUND_HORZ;
 
 
-
-
 	printf("x_start: %zu\ny_start: %zu\n", x_start, y_start);
 	printf("x_goal:  %zu\ny_goal:  %zu\n", x_goal,  y_goal);
 
@@ -153,7 +151,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	clock_t time_finish = clock();
 
 	/* build and return results accumulator */
-	return a_star_build_results(&STATE, &CONST, time_start, time_finish);
+	return a_star_complete_results(&STATE, &CONST, time_start, time_finish);
 }
 
 void find_best_path(struct AStarResults *results,
@@ -161,19 +159,6 @@ void find_best_path(struct AStarResults *results,
 		    struct BHeap *successors,
 		    struct AStarConst *CONST)
 {
-	/* initialize root noode */
-	struct AStarNode *root = init_a_star_node(&CONST,
-						  NULL,
-						  0,
-						  x_start,
-						  y_start);
-
-	/* initialize priority list of open successor nodes sorted
-	 * according to 'best_successor' */
-	struct BHeap *successors = init_bheap(&best_successor);
-
-	/* insert root node */
-	bheap_insert(successors, root);
 
 	/* initialize state accumulator */
 	struct AStarState STATE = {
@@ -223,7 +208,7 @@ void find_best_path(struct AStarResults *results,
 	puts(buff);
 }
 
-struct AStarResults *a_star_build_results(struct AStarState *STATE,
+struct AStarResults *a_star_complete_results(struct AStarState *STATE,
 					  struct AStarConst *CONST,
 					  clock_t time_start,
 					  clock_t time_finish)
@@ -324,4 +309,283 @@ void report_a_star_results(struct AStarResults *results)
 	/*        best->total_cost, */
 	/*        results->branch_count, */
 	/*        ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC); */
+}
+
+
+/* successor generators
+ * ========================================================================== */
+void generate_successors_MIN_BOUND_HORZ(struct BHeap *successors,
+					struct AStarConst *CONST,
+					struct AStartNode *parent,
+					const size_t x_parent,
+					const size_t y_parent,
+					size_t *branch_count)
+{
+
+	const size_t x_above = 0lu;
+	const size_t x_upper = 1lu;
+	const size_t x_ceil  = 2lu;
+	const size_t y_upper = y_parent + 1lu;
+	const int cost_above = CONST->costs[x_above][y_parent];
+
+	/* insert upper sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_above,
+				      x_ceil,
+				      y_parent));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_above,
+				      x_upper,
+				      y_parent));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_above,
+				      x_upper,
+				      y_upper));
+
+	/* increment 'branch_count' */
+	(*branch_count) += 3lu;
+}
+
+void generate_successors_MAX_BOUND_HORZ(struct BHeap *successors,
+					struct AStarConst *CONST,
+					struct AStartNode *parent,
+					const size_t x_parent,
+					const size_t y_parent,
+					size_t *branch_count)
+{
+
+	const size_t x_below = CONST->x_max_cost;
+	const size_t x_lower = x_parent - 1lu;
+	const size_t x_floor = x_parent - 2lu;
+	const size_t y_upper = y_parent + 1lu;
+	const int cost_below = CONST->costs[x_below][y_parent];
+
+	/* insert lower sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_below,
+				      x_floor,
+				      y_parent));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_below,
+				      x_lower,
+				      y_parent));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_below,
+				      x_lower,
+				      y_upper));
+
+	/* increment 'branch_count' */
+	(*branch_count) += 3lu;
+}
+
+void generate_successors_INNER_HORZ(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    struct AStartNode *parent,
+				    const size_t x_parent,
+				    const size_t y_parent,
+				    size_t *branch_count);
+{
+	const size_t x_above = x_parent / 2lu;
+	const size_t x_below = x_above  - 1lu;
+	const size_t x_ceil  = x_parent + 2lu;
+	const size_t x_upper = x_parent + 1lu;
+	const size_t x_lower = x_parent - 1lu;
+	const size_t x_floor = x_parent - 2lu;
+	const size_t y_upper = y_parent + 1lu;
+	const int cost_above = CONST->costs[x_above][y_parent];
+	const int cost_below = CONST->costs[x_below][y_parent];
+
+	/* insert upper sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_above,
+				      x_ceil,
+				      y_parent));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_above,
+				      x_upper,
+				      y_parent));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_above,
+				      x_upper,
+				      y_upper));
+
+	/* insert lower sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_below,
+				      x_floor,
+				      y_parent));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_below,
+				      x_lower,
+				      y_parent));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_below,
+				      x_lower,
+				      y_upper));
+
+	/* increment 'branch_count' */
+	(*branch_count) += 6lu;
+}
+
+void generate_successors_MIN_BOUND_VERT(struct BHeap *successors,
+					struct AStarConst *CONST,
+					struct AStartNode *parent,
+					const size_t x_parent,
+					const size_t y_parent,
+					size_t *branch_count);
+{
+
+	const size_t x_level = x_parent / 2lu;
+	const size_t x_upper = x_parent + 1lu;
+	const size_t x_lower = x_parent - 1lu;
+	const size_t y_right = 0lu;
+	const size_t y_ceil  = 1lu;
+	const int cost_right = CONST->costs[x_level][y_right];
+
+	/* insert right-side sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_right,
+				      x_parent,
+				      y_ceil));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_right,
+				      x_upper,
+				      y_right));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_right,
+				      x_lower,
+				      y_right));
+
+	/* increment 'branch_count' */
+	(*branch_count) += 3lu;
+}
+
+void generate_successors_MAX_BOUND_VERT(struct BHeap *successors,
+					struct AStarConst *CONST,
+					struct AStartNode *parent,
+					const size_t x_parent,
+					const size_t y_parent,
+					size_t *branch_count)
+{
+
+	const size_t x_level = x_parent / 2lu;
+	const size_t x_upper = x_parent + 1lu;
+	const size_t x_lower = x_parent - 1lu;
+	const size_t y_left  = CONST->y_max_cost;
+	const size_t y_floor = y_left - 1lu;
+	const int cost_left  = CONST->costs[x_level][y_left];
+
+	/* insert left-side sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_left,
+				      x_parent,
+				      y_floor));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_left,
+				      x_upper,
+				      y_left));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_left,
+				      x_lower,
+				      y_left));
+
+	/* increment 'branch_count' */
+	(*branch_count) += 3lu;
+}
+
+void generate_successors_INNER_VERT(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    struct AStartNode *parent,
+				    const size_t x_parent,
+				    const size_t y_parent,
+				    size_t *branch_count)
+{
+	const size_t x_level = x_parent / 2lu;
+	const size_t x_upper = x_parent + 1lu;
+	const size_t x_lower = x_parent - 1lu;
+	const size_t y_ceil  = y_parent + 1lu;
+	const size_t y_right = y_parent;
+	const size_t y_left  = y_parent - 1lu;
+	const size_t y_floor = y_parent - 2lu;
+	const int cost_left  = CONST->costs[x_level][y_left];
+	const int cost_right = CONST->costs[x_level][y_right];
+
+	/* insert right-side sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_right,
+				      x_parent,
+				      y_ceil));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_right,
+				      x_upper,
+				      y_right));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_right,
+				      x_lower,
+				      y_right));
+
+	/* insert left-side sucessors */
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_left,
+				      x_parent,
+				      y_floor));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_left,
+				      x_upper,
+				      y_left));
+	bheap_insert(successors,
+		     init_a_star_node(CONST,
+				      parent,
+				      cost_left,
+				      x_lower,
+				      y_left));
+
+	/* increment 'branch_count' */
+	(*branch_count) += 6lu;
 }
