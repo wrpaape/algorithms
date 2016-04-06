@@ -22,14 +22,18 @@ int main(void)
 {
 	init_rng();
 	/* char buffer[1lu << 16]; */
-	/* pretty_print_cost_map(buffer, map, pts); */
-	/* puts(buffer); */
 
 	struct CostMap *map = make_cost_map(80lu, 40lu, 1, 9);
 
+
 	struct Endpoints *pts = define_endpoints(map);
 
+
 	struct AStarResults *results = a_star_least_cost_path(map, pts);
+
+	/* pretty_print_cost_map(buffer, map, pts); */
+
+	/* puts(buffer); */
 
 	report_a_star_results(results);
 
