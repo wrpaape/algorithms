@@ -213,18 +213,35 @@ void a_star_find_path(struct AStarNode **path,
 }
 
 struct AStarResults *a_star_build_results(struct AStarConst *CONST,
-					  struct AStarNode *path,
+					  struct AStarNode *reverse_path,
 					  size_t branch_count,
 					  clock_t time_start,
 					  clock_t time_finish)
 {
 	struct AStarResults *results;
+	struct AStarNode *node;
+	struct AStarNode *prev_node;
+	size_t best_step_count = 0lu;
+	int total_cost = 0lu;
+
+	for (node = reverse_path, prev_node = node->prev;
+	     prev_node != NULL;
+	     node = prev_node,	  prev_node = node->prev) {
+
+		prev_node->next = node;
+		++best_step_count;
+		total_cost += node->cost;
+	}
 
 	HANDLE_MALLOC(results, sizeof(struct AStarResults));
 
-	results->path = path;
-	results->branch_count = branch_count;
-	results->time_elapsed = time_finish - time_start;
+
+	results->min_step_count  = node->prox;
+	results->best_step_count = best_step_count;
+	results->branch_count	 = branch_count;
+	results->total_cost	 = total_cost;
+	results->time_elapsed	 = time_finish - time_start;
+	results->path		 = node;
 
 	return results;
 }

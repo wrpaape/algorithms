@@ -1,18 +1,6 @@
 #ifndef GRAPHS_TRAVERSAL_A_STAR_H
 #include <time.h>
 
-enum AStarNodeType {
-	GOAL,
-	CLOSED,
-	INNER_HORZ,
-	INNER_VERT,
-	MIN_BOUND_HORZ,
-	MIN_BOUND_VERT,
-	MAX_BOUND_HORZ,
-	MAX_BOUND_VERT
-};
-
-
 struct AStarConst {
 	int **costs;
 	const int min_cost;
@@ -36,6 +24,15 @@ struct AStarNode {
 	double score;
 	struct AStarNode *prev;
 	struct AStarNode *next;
+};
+
+struct AStarResults {
+	size_t min_step_count;
+	size_t best_step_count;
+	size_t branch_count;
+	int total_cost;
+	clock_t time_elapsed;
+	struct AStarNode *path;
 };
 
 
@@ -74,23 +71,15 @@ void insert_children_INNER_VERT(struct BHeap *successors,
 				struct AStarNode *parent,
 				size_t *branch_count);
 
-struct AStarResults {
-	size_t min_step_count;
-	size_t best_step_count;
-	size_t branch_count;
-	int total_cost;
-	clock_t time_elapsed;
-	struct AStarNode *path;
-};
 
 struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 					    struct Endpoints *pts);
 
-void find_best_path(struct AStarNode **path,
-		    size_t *branch_count,
-		    struct BHeap *successors,
-		    struct AStarConst *CONST,
-		    ExpansionFun **exp_map);
+void a_star_find_path(struct AStarNode **path,
+		      size_t *branch_count,
+		      struct BHeap *successors,
+		      struct AStarConst *CONST,
+		      ExpansionFun **exp_map);
 
 struct AStarNode *init_a_star_node(struct AStarConst *CONST,
 				   struct AStarNode *parent,
