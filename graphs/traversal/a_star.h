@@ -46,32 +46,32 @@ typedef void (*ExpansionFun)(struct BHeap *,
 
 void insert_children_MIN_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarConst *CONST,
-				    struct AStartNode *parent,
+				    struct AStarNode *parent,
 				    size_t *branch_count);
 
 void insert_children_MAX_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarConst *CONST,
-				    struct AStartNode *parent,
+				    struct AStarNode *parent,
 				    size_t *branch_count);
 
 void insert_children_INNER_HORZ(struct BHeap *successors,
 				struct AStarConst *CONST,
-				struct AStartNode *parent,
+				struct AStarNode *parent,
 				size_t *branch_count);
 
 void insert_children_MIN_BOUND_VERT(struct BHeap *successors,
 				    struct AStarConst *CONST,
-				    struct AStartNode *parent,
+				    struct AStarNode *parent,
 				    size_t *branch_count);
 
 void insert_children_MAX_BOUND_VERT(struct BHeap *successors,
 				    struct AStarConst *CONST,
-				    struct AStartNode *parent,
+				    struct AStarNode *parent,
 				    size_t *branch_count);
 
 void insert_children_INNER_VERT(struct BHeap *successors,
 				struct AStarConst *CONST,
-				struct AStartNode *parent,
+				struct AStarNode *parent,
 				size_t *branch_count);
 
 struct AStarResults {
@@ -83,11 +83,14 @@ struct AStarResults {
 	struct AStarNode *path;
 };
 
-void find_best_path(struct AStarNode **path,
-		    size_t *branch_count,
-		    struct BHeap *successors,
-		    struct AStarConst *CONST,
-		    ExpansionFun **exp_map);
+struct AStarResults *a_star_least_cost_path(struct CostMap *map,
+					    struct Endpoints *pts);
+
+void a_star_find_path(struct AStarNode **path,
+		      size_t *branch_count,
+		      struct BHeap *successors,
+		      struct AStarConst *CONST,
+		      ExpansionFun **exp_map);
 
 struct AStarNode *init_a_star_node(struct AStarConst *CONST,
 				   struct AStarNode *parent,

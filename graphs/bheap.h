@@ -52,11 +52,35 @@ inline void free_bheap(struct BHeap *heap)
 	free(heap);
 }
 
-static inline void resize_bheap(struct BHeap *heap,
-				const size_t size);
+inline void resize_bheap(struct BHeap *heap,
+			 const size_t size)
+{
+	void **nodes = realloc(heap->nodes, sizeof(void *) * size);
+
+	if (nodes == NULL) {
+		EXIT_ON_FAILURE("failed to reallocate number of nodes"
+				"from %lu to %lu",
+				heap->alloc, size);
+	}
+
+	heap->nodes = nodes;
+	heap->alloc = size;
+}
+
+
 
 /* insertion
  ******************************************************************************/
+void do_insert(void **nodes,
+	       void *next,
+	       const size_t next_i,
+	       int (*compare)(const void *,
+			      const void *));
+
+void bheap_insert_array(struct BHeap *heap,
+			const size_t length,
+			void **array);
+
 inline void bheap_insert(struct BHeap *heap,
 			 void *next)
 {
@@ -68,15 +92,6 @@ inline void bheap_insert(struct BHeap *heap,
 		resize_bheap(heap, heap->alloc * 2lu);
 }
 
-void bheap_insert_array(struct BHeap *heap,
-			const size_t length,
-			void **array);
-
-void do_insert(void **nodes,
-	       void *next,
-	       const size_t next_i,
-	       int (*compare)(const void *,
-			      const void *));
 
 
 

@@ -9,24 +9,9 @@ extern inline struct BHeap *init_bheap(int (*compare)(const void *,
 
 extern inline void free_bheap(struct BHeap *heap);
 
-inline void resize_bheap(struct BHeap *heap, const size_t size)
-{
-	void **nodes = realloc(heap->nodes, sizeof(void *) * size);
 
-	if (nodes == NULL) {
-		EXIT_ON_FAILURE("failed to reallocate number of nodes"
-				"from %lu to %lu",
-				heap->alloc, size);
-	}
-
-	heap->nodes = nodes;
-	heap->alloc = size;
-}
-
-
-
-
-
+extern inline void resize_bheap(struct BHeap *heap,
+				const size_t size);
 
 
 
@@ -56,7 +41,6 @@ void bheap_insert_array(struct BHeap *heap,
 
 	heap->count = next_count;
 }
-
 
 
 

@@ -138,7 +138,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 
 	/* initialize root node */
-	struct AStarNode *root = init_a_star_node(CONST,
+	struct AStarNode *root = init_a_star_node(&CONST,
 						  NULL,
 						  0,
 						  x_start,
@@ -160,11 +160,11 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 
 	clock_t time_start = clock();
 
-	find_best_path(&path,
-		       &branch_count,
-		       successors,
-		       &CONST,
-		       exp_map);
+	a_star_find_path(&path,
+			 &branch_count,
+			 successors,
+			 &CONST,
+			 exp_map);
 
 	clock_t time_finish = clock();
 
@@ -176,18 +176,18 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 				    time_finish);
 }
 
-void find_best_path(struct AStarNode **path,
-		    size_t *branch_count,
-		    struct BHeap *successors,
-		    struct AStarConst *CONST,
-		    ExpansionFun **exp_map)
+void a_star_find_path(struct AStarNode **path,
+		      size_t *branch_count,
+		      struct BHeap *successors,
+		      struct AStarConst *CONST,
+		      ExpansionFun **exp_map)
 {
 	struct AStarNode *node;
 	ExpansionFun exp_fun;
 
 	while (1) {
 		/* pop next successor, 'node' from 'successors' */
-		node = bheap_extract(STATE->successors);
+		node = bheap_extract(successors);
 
 		/* if proximity to goal is zero... */
 		if (node->prox == 0lu) {
@@ -323,7 +323,7 @@ void report_a_star_results(struct AStarResults *results)
  * ========================================================================== */
 void insert_children_MIN_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarConst *CONST,
-				    struct AStartNode *parent,
+				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
 
@@ -360,7 +360,7 @@ void insert_children_MIN_BOUND_HORZ(struct BHeap *successors,
 
 void insert_children_MAX_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarConst *CONST,
-				    struct AStartNode *parent,
+				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
 
@@ -398,7 +398,7 @@ void insert_children_MAX_BOUND_HORZ(struct BHeap *successors,
 
 void insert_children_INNER_HORZ(struct BHeap *successors,
 				struct AStarConst *CONST,
-				struct AStartNode *parent,
+				struct AStarNode *parent,
 				size_t *branch_count)
 {
 	const size_t x_parent = parent->x;
@@ -459,7 +459,7 @@ void insert_children_INNER_HORZ(struct BHeap *successors,
 
 void insert_children_MIN_BOUND_VERT(struct BHeap *successors,
 				    struct AStarConst *CONST,
-				    struct AStartNode *parent,
+				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
 
@@ -497,7 +497,7 @@ void insert_children_MIN_BOUND_VERT(struct BHeap *successors,
 
 void insert_children_MAX_BOUND_VERT(struct BHeap *successors,
 				    struct AStarConst *CONST,
-				    struct AStartNode *parent,
+				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
 
@@ -535,7 +535,7 @@ void insert_children_MAX_BOUND_VERT(struct BHeap *successors,
 
 void insert_children_INNER_VERT(struct BHeap *successors,
 				struct AStarConst *CONST,
-				struct AStartNode *parent,
+				struct AStarNode *parent,
 				size_t *branch_count)
 {
 	const size_t x_parent = parent->x;
