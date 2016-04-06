@@ -17,14 +17,12 @@ struct AStarConst {
 };
 
 struct AStarNode {
+	size_t gen;
 	size_t x;
 	size_t y;
-	/* size_t x_cost; */
-	/* size_t y_cost; */
 	size_t prox;
 	int cost;
 	double score;
-	/* char *dir; */
 	struct AStarNode *prev;
 	struct AStarNode *next;
 };
@@ -86,6 +84,7 @@ void a_star_find_path(struct AStarNode **path,
 
 struct AStarNode *init_a_star_node(struct AStarConst *CONST,
 				   struct AStarNode *parent,
+				   const size_t gen,
 				   const int cost,
 				   const size_t x,
 				   const size_t y);

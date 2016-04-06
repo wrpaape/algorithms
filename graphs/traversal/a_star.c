@@ -4,6 +4,7 @@
 #include "maps/paths.h"
 #include "traversal/a_star.h"
 
+#define GEN_BIAS 1.0
 #define COST_BIAS 1.0
 #define PROX_BIAS 1.0
 
@@ -140,6 +141,7 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	/* initialize root node */
 	struct AStarNode *root = init_a_star_node(&CONST,
 						  NULL,
+						  0lu,
 						  0,
 						  x_start,
 						  y_start);
@@ -249,6 +251,7 @@ struct AStarResults *a_star_build_results(struct AStarConst *CONST,
 
 struct AStarNode *init_a_star_node(struct AStarConst *CONST,
 				   struct AStarNode *parent,
+				   const size_t gen,
 				   const int cost,
 				   const size_t x,
 				   const size_t y)
@@ -256,13 +259,15 @@ struct AStarNode *init_a_star_node(struct AStarConst *CONST,
 	const size_t prox = calc_prox(x, y, CONST->x_goal, CONST->y_goal);
 
 	const double score = ((cost * CONST->w_cost) + CONST->min_cost)
-			   +  (prox * CONST->w_prox);
+			   +  (prox * CONST->w_prox)
+			   +  (gen  * GEN_BIAS);
 
 
 	struct AStarNode *node;
 
 	HANDLE_MALLOC(node, sizeof(struct AStarNode));
 
+	node->gen   = gen;
 	node->x	    = x;
 	node->y	    = y;
 	node->prox  = prox;
@@ -344,6 +349,7 @@ void insert_children_MIN_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
+	const size_t gen      = parent->gen + 1lu;
 	const size_t y_parent = parent->y;
 	const size_t x_above  = 0lu;
 	const size_t x_upper  = 1lu;
@@ -355,18 +361,21 @@ void insert_children_MIN_BOUND_HORZ(struct BHeap *successors,
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_above,
 				      x_ceil,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_above,
 				      x_upper,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_above,
 				      x_upper,
 				      y_upper));
@@ -380,6 +389,7 @@ void insert_children_MAX_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
+	const size_t gen      = parent->gen + 1lu;
 	const size_t x_parent = parent->x;
 	const size_t y_parent = parent->y;
 	const size_t x_below  = CONST->x_max_cost;
@@ -392,18 +402,21 @@ void insert_children_MAX_BOUND_HORZ(struct BHeap *successors,
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_below,
 				      x_floor,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_below,
 				      x_lower,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_below,
 				      x_lower,
 				      y_upper));
@@ -417,6 +430,7 @@ void insert_children_INNER_HORZ(struct BHeap *successors,
 				struct AStarNode *parent,
 				size_t *branch_count)
 {
+	const size_t gen      = parent->gen + 1lu;
 	const size_t x_parent = parent->x;
 	const size_t y_parent = parent->y;
 	const size_t x_above  = x_parent / 2lu;
@@ -433,18 +447,21 @@ void insert_children_INNER_HORZ(struct BHeap *successors,
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_above,
 				      x_ceil,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_above,
 				      x_upper,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_above,
 				      x_upper,
 				      y_upper));
@@ -453,18 +470,21 @@ void insert_children_INNER_HORZ(struct BHeap *successors,
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_below,
 				      x_floor,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_below,
 				      x_lower,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_below,
 				      x_lower,
 				      y_upper));
@@ -478,6 +498,7 @@ void insert_children_MIN_BOUND_VERT(struct BHeap *successors,
 				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
+	const size_t gen      = parent->gen + 1lu;
 	const size_t x_parent = parent->x;
 	const size_t y_parent  = 0lu;
 	const size_t x_level  = x_parent / 2lu;
@@ -490,18 +511,21 @@ void insert_children_MIN_BOUND_VERT(struct BHeap *successors,
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_right,
 				      x_parent,
 				      y_right));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_right,
 				      x_upper,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_right,
 				      x_lower,
 				      y_parent));
@@ -515,6 +539,7 @@ void insert_children_MAX_BOUND_VERT(struct BHeap *successors,
 				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
+	const size_t gen      = parent->gen + 1lu;
 	const size_t x_parent = parent->x;
 	const size_t x_level = x_parent / 2lu;
 	const size_t x_upper = x_parent + 1lu;
@@ -526,18 +551,21 @@ void insert_children_MAX_BOUND_VERT(struct BHeap *successors,
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_left,
 				      x_parent,
 				      y_left));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_left,
 				      x_upper,
 				      y_left));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_left,
 				      x_lower,
 				      y_left));
@@ -551,6 +579,7 @@ void insert_children_INNER_VERT(struct BHeap *successors,
 				struct AStarNode *parent,
 				size_t *branch_count)
 {
+	const size_t gen      = parent->gen + 1lu;
 	const size_t x_parent = parent->x;
 	const size_t y_parent = parent->y;
 	const size_t x_level = x_parent / 2lu;
@@ -565,18 +594,21 @@ void insert_children_INNER_VERT(struct BHeap *successors,
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_right,
 				      x_parent,
 				      y_right));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_right,
 				      x_upper,
 				      y_parent));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_right,
 				      x_lower,
 				      y_parent));
@@ -585,18 +617,21 @@ void insert_children_INNER_VERT(struct BHeap *successors,
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_left,
 				      x_parent,
 				      y_left));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_left,
 				      x_upper,
 				      y_left));
 	bheap_insert(successors,
 		     init_a_star_node(CONST,
 				      parent,
+				      gen,
 				      cost_left,
 				      x_lower,
 				      y_left));
