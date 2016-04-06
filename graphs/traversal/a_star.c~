@@ -282,57 +282,58 @@ inline size_t calc_prox(const size_t x0, const size_t y0,
 void report_a_star_results(struct AStarResults *results)
 {
 	puts("YOLO");
-	/* struct AStarNode *node = results->best->head; */
+	struct AStarNode *node = results->path;
 
-	/* size_t x_prev = results->x_start; */
-	/* size_t y_prev = results->y_start; */
+	size_t x_prev = node->x;
+	size_t y_prev = node->y;
 
-	/* size_t x_next, y_next; */
-	/* char *dir; */
+	size_t x_next, y_next;
+	char *dir;
+
+	printf("starting from: (%zu, %zu)\n\n", x_prev, y_prev);
+
+	while (1) {
+		node = node->next;
+
+		if (node == NULL)
+			break;
+
+		x_next = node->x;
+		y_next = node->y;
+
+		if (x_next > x_prev)
+			dir = " DOWN ";
+
+		else if(x_next < x_prev)
+			dir = "  UP  ";
+
+		else if(y_next > x_prev)
+			dir = "RIGHT ";
+
+		else
+			dir = " LEFT ";
+
+		printf("(%zu, %zu) %s to (%zu, %zu) at a cost of %d\n",
+		       x_prev, y_prev, dir, x_next, y_next, node->cost);
+
+		x_prev = x_next;
+		y_prev = y_next;
+	}
+
+	printf("\nfinished at: (%zu, %zu)\n", x_prev, y_prev);
 
 
-	/* while (1) { */
-	/* 	x_next = node->x; */
-	/* 	y_next = node->y; */
-
-	/* 	if (x_next > x_prev) */
-	/* 		dir = " DOWN "; */
-
-	/* 	else if(x_next < x_prev) */
-	/* 		dir = "  UP  "; */
-
-	/* 	else if(y_next > x_prev) */
-	/* 		dir = "RIGHT "; */
-
-	/* 	else */
-	/* 		dir = " LEFT "; */
-
-	/* 	printf("(%zu, %zu) %s to (%zu, %zu) at a cost of %d\n", */
-	/* 	       x_prev, y_prev, dir, x_next, y_next, node->cost); */
-
-	/* 	node = node->next; */
-
-	/* 	if (node == NULL) */
-	/* 		break; */
-
-	/* 	x_prev = x_next; */
-	/* 	y_prev = y_next; */
-	/* } */
-
-
-
-
-	/* printf("\n\n" */
-	/*        "min steps to goal: %zu\n" */
-	/*        "steps taken:       %zu\n" */
-	/*        "total cost:        %d\n" */
-	/*        "branches explored: %zu\n" */
-	/*        "time elapsed:      %f s\n", */
-	/*        results->min_step_count, */
-	/*        results->best_step_count, */
-	/*        best->total_cost, */
-	/*        results->branch_count, */
-	/*        ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC); */
+	printf("\n\n"
+	       "min steps to goal: %zu\n"
+	       "steps taken:       %zu\n"
+	       "total cost:        %d\n"
+	       "branches explored: %zu\n"
+	       "time elapsed:      %f s\n",
+	       results->min_step_count,
+	       results->best_step_count,
+	       results->total_cost,
+	       results->branch_count,
+	       ((double) results->time_elapsed) / (double) (CLOCKS_PER_SEC);
 }
 
 
