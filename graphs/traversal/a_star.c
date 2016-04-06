@@ -155,9 +155,6 @@ struct AStarResults *a_star_least_cost_path(struct CostMap *map,
 	size_t branch_count = 0lu;
 
 	/* begin pathfinding */
-	printf("x_start: %zu\ny_start: %zu\n", x_start, y_start);
-	printf("x_goal:  %zu\ny_goal:  %zu\n", x_goal,  y_goal);
-
 	clock_t time_start = clock();
 
 	a_star_find_path(&path,
@@ -281,7 +278,6 @@ inline size_t calc_prox(const size_t x0, const size_t y0,
 
 void report_a_star_results(struct AStarResults *results)
 {
-	puts("YOLO");
 	struct AStarNode *node = results->path;
 
 	size_t x_prev = node->x;
@@ -290,7 +286,7 @@ void report_a_star_results(struct AStarResults *results)
 	size_t x_next, y_next;
 	char *dir;
 
-	printf("starting from: (%zu, %zu)\n\n", x_prev, y_prev);
+	printf("starting from: (%3zu, %3zu)\n\n", x_prev, y_prev);
 
 	while (1) {
 		node = node->next;
@@ -302,25 +298,25 @@ void report_a_star_results(struct AStarResults *results)
 		y_next = node->y;
 
 		if (x_next > x_prev)
-			dir = " DOWN ";
+			dir = "DOWN  ";
 
-		else if(x_next < x_prev)
-			dir = "  UP  ";
+		else if (x_next < x_prev)
+			dir = "UP    ";
 
-		else if(y_next > x_prev)
+		else if (y_next > y_prev)
 			dir = "RIGHT ";
 
 		else
-			dir = " LEFT ";
+			dir = "LEFT  ";
 
-		printf("(%zu, %zu) %s to (%zu, %zu) at a cost of %d\n",
+		printf("(%3zu, %3zu) %s to (%3zu, %3zu) at a cost of %d\n",
 		       x_prev, y_prev, dir, x_next, y_next, node->cost);
 
 		x_prev = x_next;
 		y_prev = y_next;
 	}
 
-	printf("\nfinished at: (%zu, %zu)\n", x_prev, y_prev);
+	printf("\nfinished at: (%3zu, %3zu)\n", x_prev, y_prev);
 
 
 	printf("\n\n"
