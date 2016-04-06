@@ -19,9 +19,12 @@ struct AStarConst {
 struct AStarNode {
 	size_t x;
 	size_t y;
+	size_t x_cost;
+	size_t y_cost;
 	size_t prox;
 	int cost;
 	double score;
+	char *dir;
 	struct AStarNode *prev;
 	struct AStarNode *next;
 };

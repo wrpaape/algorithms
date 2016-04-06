@@ -72,7 +72,7 @@ void pretty_print_cost_map(char *buffer,
 						min_cost,
 						token_ratio,
 						set_start_token,
-						costs[char_row / 2]);
+						costs[char_row / 2lu]);
 		} else if (goal_x == char_row) {
 			set_cost_row_with_token(&buffer,
 						res_y,
@@ -80,13 +80,13 @@ void pretty_print_cost_map(char *buffer,
 						min_cost,
 						token_ratio,
 						set_goal_token,
-						costs[char_row / 2]);
+						costs[char_row / 2lu]);
 		} else {
 			set_unbroken_cost_row(&buffer,
 					      res_y,
 					      min_cost,
 					      token_ratio,
-					      costs[char_row / 2]);
+					      costs[char_row / 2lu]);
 		}
 
 		++char_row;

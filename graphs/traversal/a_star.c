@@ -383,8 +383,8 @@ void insert_children_MAX_BOUND_HORZ(struct BHeap *successors,
 	const size_t x_parent = parent->x;
 	const size_t y_parent = parent->y;
 	const size_t x_below  = CONST->x_max_cost;
-	const size_t x_lower  = x_parent - 1lu;
 	const size_t x_floor  = x_parent - 2lu;
+	const size_t x_lower  = x_parent - 1lu;
 	const size_t y_upper  = y_parent + 1lu;
 	const int cost_below  = CONST->costs[x_below][y_parent];
 
