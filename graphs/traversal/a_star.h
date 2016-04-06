@@ -39,62 +39,40 @@ struct AStarNode {
 };
 
 
-typedef void (*SuccessorsGenFun)(struct BHeap *
-				 struct AStarConst *,
-				 struct AStarNode *,
-				 const size_t,
-				 const size_t,
-				 size_t *);
+typedef void (*ExpansionFun)(struct BHeap *,
+			     struct AStarConst *,
+			     struct AStarNode *,
+			     size_t *);
 
-void generate_successors_MIN_BOUND_HORZ(struct BHeap *successors,
-					struct AStarConst *CONST,
-					struct AStartNode *parent,
-					const size_t x_parent,
-					const size_t y_parent,
-					size_t *branch_count);
-
-void generate_successors_MAX_BOUND_HORZ(struct BHeap *successors,
-					struct AStarConst *CONST,
-					struct AStartNode *parent,
-					const size_t x_parent,
-					const size_t y_parent,
-					size_t *branch_count);
-
-void generate_successors_INNER_HORZ(struct BHeap *successors,
+void insert_children_MIN_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarConst *CONST,
 				    struct AStartNode *parent,
-				    const size_t x_parent,
-				    const size_t y_parent,
 				    size_t *branch_count);
 
-void generate_successors_MIN_BOUND_VERT(struct BHeap *successors,
-					struct AStarConst *CONST,
-					struct AStartNode *parent,
-					const size_t x_parent,
-					const size_t y_parent,
-					size_t *branch_count);
-
-void generate_successors_MAX_BOUND_VERT(struct BHeap *successors,
-					struct AStarConst *CONST,
-					struct AStartNode *parent,
-					const size_t x_parent,
-					const size_t y_parent,
-					size_t *branch_count);
-
-void generate_successors_INNER_VERT(struct BHeap *successors,
+void insert_children_MAX_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarConst *CONST,
 				    struct AStartNode *parent,
-				    const size_t x_parent,
-				    const size_t y_parent,
 				    size_t *branch_count);
 
-struct AStarState {
-	struct BHeap *successors;
-	struct AStarNode *path;
-	size_t branch_count;
-	SuccessorsGenFun **gen_map;
-};
+void insert_children_INNER_HORZ(struct BHeap *successors,
+				struct AStarConst *CONST,
+				struct AStartNode *parent,
+				size_t *branch_count);
 
+void insert_children_MIN_BOUND_VERT(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    struct AStartNode *parent,
+				    size_t *branch_count);
+
+void insert_children_MAX_BOUND_VERT(struct BHeap *successors,
+				    struct AStarConst *CONST,
+				    struct AStartNode *parent,
+				    size_t *branch_count);
+
+void insert_children_INNER_VERT(struct BHeap *successors,
+				struct AStarConst *CONST,
+				struct AStartNode *parent,
+				size_t *branch_count);
 
 struct AStarResults {
 	size_t min_step_count;
@@ -105,9 +83,11 @@ struct AStarResults {
 	struct AStarNode *path;
 };
 
-
-struct AStarResults *a_star_least_cost_path(struct CostMap *map,
-					    struct Endpoints *pts);
+void find_best_path(struct AStarNode **path,
+		    size_t *branch_count,
+		    struct BHeap *successors,
+		    struct AStarConst *CONST,
+		    ExpansionFun **exp_map);
 
 struct AStarNode *init_a_star_node(struct AStarConst *CONST,
 				   struct AStarNode *parent,
@@ -115,20 +95,11 @@ struct AStarNode *init_a_star_node(struct AStarConst *CONST,
 				   const size_t x,
 				   const size_t y);
 
-struct AStarState {
-	struct BHeap *successors;
-	struct AStarNode *path;
-	size_t branch_count;
-	SuccessorsGenFun **gen_map;
-};
-
-void find_best_path(struct AStarState *STATE,
-		    struct AStarConst *CONST);
-
-struct AStarResults *a_star_complete_results(struct AStarState *STATE,
-					     struct AStarConst *CONST,
-					     clock_t time_start,
-					     clock_t time_finish);
+struct AStarResults *a_star_build_results(struct AStarConst *CONST,
+					  struct AStarNode *path,
+					  size_t branch_count,
+					  clock_t time_start,
+					  clock_t time_finish);
 
 
 void report_a_star_results(struct AStarResults *results);
