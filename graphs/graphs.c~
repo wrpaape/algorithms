@@ -20,8 +20,10 @@ int min_cost(const void *vedge1, const void *vedge2)
 
 int main(void)
 {
-	init_rng();
 	char buffer[1lu << 16];
+
+	init_rng();
+
 
 	struct CostMap *map = make_cost_map(80lu, 40lu, 1, 9);
 

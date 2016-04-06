@@ -344,9 +344,6 @@ void insert_children_MIN_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
-	printf("MIN_BOUND_HORZ:  parent->x: %3zu, parent->y: %3zu\n",
-	       parent->x, parent->y);
-	fflush(stdout);
 	const size_t y_parent = parent->y;
 	const size_t x_above  = 0lu;
 	const size_t x_upper  = 1lu;
@@ -383,9 +380,6 @@ void insert_children_MAX_BOUND_HORZ(struct BHeap *successors,
 				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
-	printf("MAX_BOUND_HORZ:  parent->x: %3zu, parent->y: %3zu\n",
-	       parent->x, parent->y);
-	fflush(stdout);
 	const size_t x_parent = parent->x;
 	const size_t y_parent = parent->y;
 	const size_t x_below  = CONST->x_max_cost;
@@ -423,9 +417,6 @@ void insert_children_INNER_HORZ(struct BHeap *successors,
 				struct AStarNode *parent,
 				size_t *branch_count)
 {
-	printf("INNER_HORZ:  parent->x: %3zu, parent->y: %3zu\n",
-	       parent->x, parent->y);
-	fflush(stdout);
 	const size_t x_parent = parent->x;
 	const size_t y_parent = parent->y;
 	const size_t x_above  = x_parent / 2lu;
@@ -487,9 +478,6 @@ void insert_children_MIN_BOUND_VERT(struct BHeap *successors,
 				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
-	printf("MIN_BOUND_VERT:  parent->x: %3zu, parent->y: %3zu\n",
-	       parent->x, parent->y);
-	fflush(stdout);
 	const size_t x_parent = parent->x;
 	const size_t y_parent  = 0lu;
 	const size_t x_level  = x_parent / 2lu;
@@ -527,9 +515,6 @@ void insert_children_MAX_BOUND_VERT(struct BHeap *successors,
 				    struct AStarNode *parent,
 				    size_t *branch_count)
 {
-	printf("MAX_BOUND_VERT:  parent->x: %3zu, parent->y: %3zu\n",
-	       parent->x, parent->y);
-	fflush(stdout);
 	const size_t x_parent = parent->x;
 	const size_t x_level = x_parent / 2lu;
 	const size_t x_upper = x_parent + 1lu;
@@ -566,9 +551,6 @@ void insert_children_INNER_VERT(struct BHeap *successors,
 				struct AStarNode *parent,
 				size_t *branch_count)
 {
-	printf("INNER_VERT:  parent->x: %3zu, parent->y: %3zu\n",
-	       parent->x, parent->y);
-	fflush(stdout);
 	const size_t x_parent = parent->x;
 	const size_t y_parent = parent->y;
 	const size_t x_level = x_parent / 2lu;

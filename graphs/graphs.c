@@ -20,8 +20,10 @@ int min_cost(const void *vedge1, const void *vedge2)
 
 int main(void)
 {
+	char buffer[1lu << 16];
+
 	init_rng();
-	/* char buffer[1lu << 16]; */
+
 
 	struct CostMap *map = make_cost_map(80lu, 40lu, 1, 9);
 
@@ -31,9 +33,9 @@ int main(void)
 
 	struct AStarResults *results = a_star_least_cost_path(map, pts);
 
-	/* pretty_print_cost_map(buffer, map, pts); */
+	pretty_print_cost_map(buffer, map, pts);
 
-	/* puts(buffer); */
+	puts(buffer);
 
 	report_a_star_results(results);
 
