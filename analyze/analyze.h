@@ -5,7 +5,7 @@ void parse_procedures(void (**procedures)(void),
 		      char *args[],
 		      const size_t count);
 
-void report_procedures(void (**procedures)(void),
+void run_procedures(void (**procedures)(void),
 		       const size_t count);
 
 

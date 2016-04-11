@@ -4,6 +4,7 @@
 #include "analyze.h"
 
 #define TOTAL_COUNT_PROCEDURES 1lu
+#define DEF_PROC_I 0lu
 
 static void (*PROC_MAP[])(void) = {
 	&run_tree_compare
@@ -11,8 +12,16 @@ static void (*PROC_MAP[])(void) = {
 
 int main(int argc, char *argv[])
 {
-	if (argc == 1)
-		EXIT_ON_FAILURE("please provide a procedure");
+	if (argc == 1) {
+		void (*procedures[1ul])(void) = {
+			PROC_MAP[DEF_PROC_I]
+		};
+
+		run_procedures(&procedures[0ul], 1ul);
+
+		return 0;
+	}
+
 
 	const size_t count = argc - 1ul;
 
@@ -20,7 +29,7 @@ int main(int argc, char *argv[])
 
 	parse_procedures(&procedures[0ul], &argv[1ul], count);
 
-	report_procedures(&procedures[0ul], count);
+	run_procedures(&procedures[0ul], count);
 
 	return 0;
 }
@@ -35,7 +44,7 @@ void parse_procedures(void (**procedures)(void),
 	long proc_i;
 
 	for (size_t i = 0ul; i < count; ++i) {
-		proc_i = strtol(args[i], NULL, 10);
+		proc_i = strtol(args[i], NULL, 10) - 1l;
 
 		if ((proc_i < 0ul) || (proc_i >= TOTAL_COUNT_PROCEDURES))
 			EXIT_ON_FAILURE("invalid procedure: %ld", proc_i);
@@ -44,7 +53,7 @@ void parse_procedures(void (**procedures)(void),
 	}
 }
 
-void report_procedures(void (**procedures)(void),
+void run_procedures(void (**procedures)(void),
 		       const size_t count)
 {
 	clock_t time_start;
@@ -60,7 +69,7 @@ void report_procedures(void (**procedures)(void),
 		procedures[i]();
 		time_finish = clock();
 
-		printf("\n\nFINISHED IN %zu µs\n", time_finish - time_start);
+		printf("\nFINISHED IN %zu µs\n", time_finish - time_start);
 	}
 
 }
