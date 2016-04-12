@@ -10,34 +10,48 @@ void run_tree_compare(void)
 	struct BTree *tree4 = init_tree4();
 	struct BTree *tree5 = init_tree5();
 	struct BTree *tree6 = init_tree6();
+	struct BTree *tree7 = init_tree7();
 
 	compare_trees(tree1, tree2);
 	compare_trees(tree1, tree3);
 	compare_trees(tree1, tree4);
 	compare_trees(tree1, tree5);
 	compare_trees(tree1, tree6);
+	compare_trees(tree1, tree7);
 
 	free_tree(tree1);
 	free_tree(tree2);
 	free_tree(tree3);
 	free_tree(tree4);
 	free_tree(tree5);
+	free_tree(tree6);
+	free_tree(tree7);
 }
 
-inline void compare_trees(struct BTree *tree1,
-			  struct BTree *tree2)
-{
-	printf("\n================================\n"
-	       "%s:\n%s\n\nis **%s**\n\n%s:\n%s"
-	       "\n================================\n",
-	       tree1->name,
-	       tree1->display,
-	       similar_binary_trees(tree1->root, tree2->root)
-	       ? "SIMILAR TO" : "DIFFERENT THAN",
-	       tree2->name,
-	       tree2->display);
-}
-
+/*
+ * WORSE CASE: compare tree with completely mirrored counterpart
+ *
+ *	for each pair of nodes:
+ *		(1)  compare node1 with NULL
+ *		(2)  compare node2 with NULL
+ *		(3)  deference node1 for value
+ *		(4)  deference node2 for value
+ *		(5)  compare node1->value with node2->value
+ *		(6)  deference node1 for l_child
+ *		(7)  deference node2 for l_child
+ *		(8)  repeat steps 1..5 for left children
+ *		(9)  deference node1 for r_child
+ *		(10) deference node2 for r_child
+ *		(11) repeat steps 1..5 for right children
+ *		(12) deference node1 for l_child
+ *		(13) deference node2 for r_child
+ *		(14) repeat steps 1..5 for swapped children
+ *		(15) deference node1 for r_child
+ *		(16) deference node2 for l_child
+ *		(17) repeat steps 1..5 for swapped children
+ *
+ *
+ */
 bool similar_binary_trees(struct BTreeNode *node1,
 			  struct BTreeNode *node2)
 {
@@ -54,6 +68,24 @@ bool similar_binary_trees(struct BTreeNode *node1,
 	    &&  similar_binary_trees(node1->r_child, node2->r_child))
 	    || (similar_binary_trees(node1->l_child, node2->r_child)
 	    &&  similar_binary_trees(node1->r_child, node2->l_child));
+}
+
+inline void compare_trees(struct BTree *tree1,
+			  struct BTree *tree2)
+{
+	printf("================================\n"
+	       "%s:\n"
+	       "%s\n\n"
+	       "is **%s**\n\n"
+	       "%s:\n"
+	       "%s\n"
+	       "================================\n",
+	       tree1->name,
+	       tree1->display,
+	       similar_binary_trees(tree1->root, tree2->root)
+	       ? "SIMILAR TO" : "DIFFERENT THAN",
+	       tree2->name,
+	       tree2->display);
 }
 
 struct BTree *init_tree1(void)
@@ -169,13 +201,34 @@ struct BTree *init_tree6(void)
 	set_children(nodes[1], nodes[3], nodes[4]);
 	set_children(nodes[2], NULL,	 NULL);
 	set_children(nodes[3], NULL,	 NULL);
-	set_children(nodes[4], NULL, nodes[5]);
+	set_children(nodes[4], nodes[5], NULL);
 	set_children(nodes[5], NULL,	 NULL);
 
 	return build_tree("Binary Tree 6",
 			  "        ┌────── 0 ──────┐\n"
 			  "        2       ┌────── 1 ──────┐\n"
 			  "                3       ┌────── 4\n"
+			  "                        5",
+			  nodes[0]);
+}
+
+struct BTree *init_tree7(void)
+{
+	struct BTreeNode *nodes[6];
+
+	init_nodes(&nodes[0], 6);
+
+	set_children(nodes[0], nodes[2], nodes[1]);
+	set_children(nodes[1], nodes[4], nodes[3]);
+	set_children(nodes[2], NULL,	 NULL);
+	set_children(nodes[3], NULL,	 NULL);
+	set_children(nodes[4], NULL,	 nodes[5]);
+	set_children(nodes[5], NULL,	 NULL);
+
+	return build_tree("Binary Tree 7",
+			  "        ┌────── 0 ──────┐\n"
+			  "        2       ┌────── 1 ──────┐\n"
+			  "                4 ──────┐       3\n"
 			  "                        5",
 			  nodes[0]);
 }
