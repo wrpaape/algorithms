@@ -49,70 +49,185 @@ bool inspect_similar_trees(struct BTreeNode *node1,
 }
 
 /*
- * BEST/TRIVIAL CASE: node1 is NULL
+ * TRIVIAL CASE A (best/least expensive):
  *
- *	C₀	(1)  copy local variable 'node1'
- *	C₀	(2)  copy local variable 'node2'
- *	C₁	(3)  call function
- *	C₂	(4)  compare node1 with NULL
- *	C₂	(5)  compare node2 with NULL
- *	C₅	(6)  return control to previous stack frame
+ *	conditions:
  *
- *	overhead = 2C₀ + C₁ + 2C₂ + C₅
- *		 = C_MIN
+ *		- node1 pointer is NULL
+ *		or
+ *		- node2 pointer is NULL
  *
- * WORST CASE: compare balanced tree with completely mirrored counterpart
  *
- *	C₀	(1)  copy local variable 'node1'
- *	C₀	(2)  copy local variable 'node2'
+ *	overhead:
  *
- *	C₁	(3)  call function
+ *		C₀	(1)  copy parameter 'node1'
+ *		C₀	(2)  copy parameter 'node2'
+ *		C₁	(3)  call function
+ *		C₂	(4)  compare node1 with NULL
+ *		C₂	(5)  compare node2 with NULL
+ *		C₅	(6)  return control to previous stack frame
  *
- *	C₂	(4)  compare node1 with NULL
- *	C₂	(5)  compare node2 with NULL
+ *	ΣC_nodes = 2C₀ + C₁ + 2C₂ + C₅
+ *		 = CA
  *
- *	C₃	(6)  deference node1 pointer
- *	C₄	(7)  access node1 field 'value'
- *	C₃	(8)  deference node2 pointer
- *	C₄	(9)  access node2 field 'value'
  *
- *	C₂	(10) compare node1->value with node2->value
+ * TRIVIAL CASE B:
  *
- *	C₃	(11) deference node1 pointer
- *	C₄	(12) access node1 field 'l_child'
- *	C₃	(13) deference node2 pointer
- *	C₄	(14) access node2 field 'l_child'
+ *	conditions:
  *
- *		(15) repeat for left children
+ *		- node1 pointer is valid
+ *		- node2 pointer is valid
+ *		- node1->value != node2->value
  *
- *	C₃	(16) deference node1 pointer
- *	C₄	(17) access node1 field 'r_child'
- *	C₃	(18) deference node2 pointer
- *	C₄	(19) access node2 field 'r_child'
+ *	overhead:
  *
- *		(20) repeat for right children
+ *		C₀	(1)  copy parameter 'node1'
+ *		C₀	(2)  copy parameter 'node2'
+ *		C₁	(3)  call function
+ *		C₂	(4)  compare node1 with NULL
+ *		C₂	(5)  compare node2 with NULL
+ *		C₃	(6)  deference node1 pointer
+ *		C₄	(7)  access node1 field 'value'
+ *		C₃	(8)  deference node2 pointer
+ *		C₄	(9)  access node2 field 'value'
+ *		C₂	(10) compare node1->value with node2->value
+ *		C₅	(11) return control to previous stack frame
  *
- *	C₃	(21) deference node1 pointer
- *	C₄	(22) access node1 field 'l_child'
- *	C₃	(23) deference node2 pointer
- *	C₄	(24) access node2 field 'r_child'
+ *	ΣC_nodes = 2C₀ + C₁ + 3C₂ + 2C₃ + 2C₄ + C₅
+ *		 = TA  + C₂ + 2C₃ + 2C₄
+ *		 = TB
  *
- *		(25) repeat for swapped children
  *
- *	C₃	(26) deference node1 pointer
- *	C₄	(27) access node1 field 'r_child'
- *	C₃	(28) deference node2 pointer
- *	C₄	(29) access node2 field 'l_child'
  *
- *		(30) repeat steps for swapped children
+ * RECURSIVE CASE A:
  *
- *	C₅	(31) return control to previous stack frame
+ *	conditions:
  *
- *	overhead = 2C₀ + C₁ + 3C₂ + 10C₃ + 10C₄ + C₅ + ΣC₍₁₅₎ + ΣC₍₂₀₎ + ΣC₍₂₅₎ + ΣC₍₃₀₎
+ *		- node1 pointer is valid
+ *		- node2 pointer is valid
+ *		- node1->value == node2->value
+ *		- node1->l_child is NULL
+ *		- node2->l_child is NULL
+ *		- node1->r_child is NULL
+ *		- node2->r_child is NULL
+ *
+ *	overhead:
+ *
+ *		C₀	(1)  copy parameter 'node1'
+ *		C₀	(2)  copy parameter 'node2'
+ *		C₁	(3)  call function
+ *		C₂	(4)  compare node1 with NULL
+ *		C₂	(5)  compare node2 with NULL
+ *		C₃	(6)  deference node1 pointer
+ *		C₄	(7)  access node1 field 'value'
+ *		C₃	(8)  deference node2 pointer
+ *		C₄	(9)  access node2 field 'value'
+ *		C₂	(10) compare node1->value with node2->value
+ *		C₃	(11) deference node1 pointer
+ *		C₄	(12) access node1 field 'l_child'
+ *		C₃	(13) deference node2 pointer
+ *		C₄	(14) access node2 field 'l_child'
+ *		TA	(15) TRIVIAL CASE A
+ *		C₃	(16) deference node1 pointer
+ *		C₄	(17) access node1 field 'r_child'
+ *		C₃	(18) deference node2 pointer
+ *		C₄	(19) access node2 field 'r_child'
+ *		TA	(20) TRIVIAL CASE A
+ *		C₅	(21) return control to previous stack frame
+ *
+ *	ΣC_nodes = 2C₀ + C₁ + 3C₂ + 6C₃ + 6C₄ + C₅ + ΣC_children
+ *		 = 3TA + C₂ + 6C₃ + 6C₄
+ *		 = RA
+ *
+ *
+ * RECURSIVE CASE B (worst/most expensive):
+ *
+ *	conditions:
+ *
+ *		- node1 pointer is valid
+ *		- node2 pointer is valid
+ *		- node1->value == node2->value
+ *		- node1->l_child is valid
+ *		- node2->l_child is valid
+ *		- node1->r_child is valid
+ *		- node2->r_child is valid
+ *
+ *		- node1->l_child is     similar to node2->l_child
+ *		- node1->r_child is NOT similar to node2->r_child
+ *		- node1->l_child is     similar to node2->r_child
+ *		- node1->r_child is NOT similar to node2->l_child (implied)
+ *
+ *
+ *	overhead:
+ *
+ *		C₀	(1)  copy parameter 'node1'
+ *		C₀	(2)  copy parameter 'node2'
+ *
+ *		C₁	(3)  call function
+ *
+ *		C₂	(4)  compare node1 with NULL
+ *		C₂	(5)  compare node2 with NULL
+ *
+ *		C₃	(6)  deference node1 pointer
+ *		C₄	(7)  access node1 field 'value'
+ *		C₃	(8)  deference node2 pointer
+ *		C₄	(9)  access node2 field 'value'
+ *
+ *		C₂	(10) compare node1->value with node2->value
+ *
+ *		C₃	(11) deference node1 pointer
+ *		C₄	(12) access node1 field 'l_child'
+ *		C₃	(13) deference node2 pointer
+ *		C₄	(14) access node2 field 'l_child'
+ *
+ *			(15) repeat for left children
+ *
+ *		C₃	(16) deference node1 pointer
+ *		C₄	(17) access node1 field 'r_child'
+ *		C₃	(18) deference node2 pointer
+ *		C₄	(19) access node2 field 'r_child'
+ *
+ *			(20) repeat for right children
+ *
+ *		C₃	(21) deference node1 pointer
+ *		C₄	(22) access node1 field 'l_child'
+ *		C₃	(23) deference node2 pointer
+ *		C₄	(24) access node2 field 'r_child'
+ *
+ *			(25) repeat for swapped children
+ *
+ *		C₃	(26) deference node1 pointer
+ *		C₄	(27) access node1 field 'r_child'
+ *		C₃	(28) deference node2 pointer
+ *		C₄	(29) access node2 field 'l_child'
+ *
+ *			(30) repeat steps for swapped children
+ *
+ *		C₅	(31) return control to previous stack frame
+ *
+ *	ΣC_nodes = 2C₀ + C₁ + 3C₂ + 10C₃ + 10C₄ + C₅ + ΣC₍₁₅₎ + ΣC₍₂₀₎ + ΣC₍₂₅₎ + ΣC₍₃₀₎
  *		 = C_MIN + C₂ + 10C₃ + 10C₄ + 4ΣC_children
  *		 = C_MAX + 4ΣC_children
  *
- *	ΣC_children = ΣC_parent
+ *
+ *
+ * CONDITIONS FOR GREATEST OVERHEAD (HYPOTHESIS):
+ *
+ *	- comparing perfect trees (all levels full) that are identical in value
+ *	  excluding the farthest right node of the bottom level
+ *
+ * ie:
+ *         ┌──────── 0 ────────┐           │          ┌──────── 0 ────────┐
+ *    ┌─── 1 ───┐         ┌─── 2 ───┐      │     ┌─── 1 ───┐         ┌─── 2 ───┐
+ * ┌─ 3 ─┐   ┌─ 4 ─┐   ┌─ 5 ─┐   ┌─ 6 ─┐   │  ┌─ 3 ─┐   ┌─ 4 ─┐   ┌─ 5 ─┐   ┌─ 6 ─┐
+ * 7     8   9     10  11    12  13    14  │  7     8   9     10  11    12  13    14
+ *
+ *	when child pointers are NULL (recursion bottoms out)...
+ *
+ *	ΣC_parent = C_MAX + 2ΣC_children
+ *		  = C_MAX + 2C_MIN
+ *
+ *	in a perfect tree, child pointers will be NULL for every leaf node
  *
  */
 bool similar_trees(struct BTreeNode *node1,
