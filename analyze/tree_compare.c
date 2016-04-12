@@ -29,27 +29,42 @@ void run_tree_compare(void)
 }
 
 /*
- * WORSE CASE: compare tree with completely mirrored counterpart
+ * BEST/TRIVIAL CASE: node1 is NULL
  *
- *	for each pair of nodes:
- *		(1)  compare node1 with NULL
- *		(2)  compare node2 with NULL
- *		(3)  deference node1 for value
- *		(4)  deference node2 for value
- *		(5)  compare node1->value with node2->value
- *		(6)  deference node1 for l_child
- *		(7)  deference node2 for l_child
- *		(8)  repeat steps 1..5 for left children
- *		(9)  deference node1 for r_child
- *		(10) deference node2 for r_child
- *		(11) repeat steps 1..5 for right children
- *		(12) deference node1 for l_child
- *		(13) deference node2 for r_child
- *		(14) repeat steps 1..5 for swapped children
- *		(15) deference node1 for r_child
- *		(16) deference node2 for l_child
+ *	C₀	(1)  copy local variable 'node1'
+ *	C₀	(2)  copy local variable 'node2'
+ *	C₁	(3)  call function
+ *	C₂	(4)  compare node1 with NULL
+ *	C₂	(5)  compare node2 with NULL
+ *	C₄	(6)  return control to previous stack frame
+ *
+ *	overhead C|min = 2C₀ + C₁ + 2C₂ + C₄
+ *
+ * WORST CASE: compare balanced tree with completely mirrored counterpart
+ *
+ *	C₀	(1)  copy local variable 'node1'
+ *	C₀	(2)  copy local variable 'node2'
+ *	C₁	(3)  call function
+ *	C₂	(4)  compare node1 with NULL
+ *	C₂	(5)  compare node2 with NULL
+ *	C₃	(6)  deference node1 for value
+ *	C₃	(7)  deference node2 for value
+ *	C₂	(8)  compare node1->value with node2->value
+ *	C₃	(9)  deference node1 for l_child
+ *	C₃	(10) deference node2 for l_child
+ *		(11) repeat steps 1..5 for left children
+ *	C₃	(12) deference node1 for r_child
+ *	C₃	(13) deference node2 for r_child
+ *		(14) repeat steps 1..5 for right children
+ *	C₃	(15) deference node1 for l_child (ignore caching)
+ *	C₃	(16) deference node2 for r_child (ignore caching)
  *		(17) repeat steps 1..5 for swapped children
+ *	C₃	(18) deference node1 for r_child (ignore caching)
+ *	C₃	(19) deference node2 for l_child (ignore caching)
+ *		(20) repeat steps 1..5 for swapped children
+ *	C₄	(21) return control to previous stack frame
  *
+ *	overhead C|max = 2C₀ + C₁ + 3C₂ + 10C₃ + C₄
  *
  */
 bool similar_binary_trees(struct BTreeNode *node1,
@@ -59,7 +74,7 @@ bool similar_binary_trees(struct BTreeNode *node1,
 		return node2 == NULL;
 
 	if (node2 == NULL)
-		return node1 == NULL;
+		return false;
 
 	if (node1->value != node2->value)
 		return false;
