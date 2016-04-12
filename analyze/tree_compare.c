@@ -9,11 +9,13 @@ void run_tree_compare(void)
 	struct BTree *tree3 = init_tree3();
 	struct BTree *tree4 = init_tree4();
 	struct BTree *tree5 = init_tree5();
+	struct BTree *tree6 = init_tree6();
 
 	compare_trees(tree1, tree2);
 	compare_trees(tree1, tree3);
 	compare_trees(tree1, tree4);
 	compare_trees(tree1, tree5);
+	compare_trees(tree1, tree6);
 
 	free_tree(tree1);
 	free_tree(tree2);
@@ -25,7 +27,9 @@ void run_tree_compare(void)
 inline void compare_trees(struct BTree *tree1,
 			  struct BTree *tree2)
 {
-	printf("%s:\n%s\n\nis *%s*\n\n%s:\n%s\n\n",
+	printf("\n================================\n"
+	       "%s:\n%s\n\nis **%s**\n\n%s:\n%s"
+	       "\n================================\n",
 	       tree1->name,
 	       tree1->display,
 	       similar_binary_trees(tree1->root, tree2->root)
@@ -46,10 +50,10 @@ bool similar_binary_trees(struct BTreeNode *node1,
 	if (node1->value != node2->value)
 		return false;
 
-	return (similar_binary_trees(node1->l_child, node2->l_child)  &&
-		similar_binary_trees(node1->r_child, node2->r_child))
-	    || (similar_binary_trees(node1->l_child, node2->r_child)  &&
-		similar_binary_trees(node1->r_child, node2->l_child));
+	return (similar_binary_trees(node1->l_child, node2->l_child)
+	    &&  similar_binary_trees(node1->r_child, node2->r_child))
+	    || (similar_binary_trees(node1->l_child, node2->r_child)
+	    &&  similar_binary_trees(node1->r_child, node2->l_child));
 }
 
 struct BTree *init_tree1(void)
@@ -152,6 +156,27 @@ struct BTree *init_tree5(void)
 			  "        ┌────── 0 ──────┐\n"
 			  "┌────── 1 ──────┐       2\n"
 			  "3               4",
+			  nodes[0]);
+}
+
+struct BTree *init_tree6(void)
+{
+	struct BTreeNode *nodes[6];
+
+	init_nodes(&nodes[0], 6);
+
+	set_children(nodes[0], nodes[2], nodes[1]);
+	set_children(nodes[1], nodes[3], nodes[4]);
+	set_children(nodes[2], NULL,	 NULL);
+	set_children(nodes[3], NULL,	 NULL);
+	set_children(nodes[4], nodes[5], NULL);
+	set_children(nodes[5], NULL,	 NULL);
+
+	return build_tree("Binary Tree 6",
+			  "        ┌────── 0 ──────┐\n"
+			  "        2       ┌────── 1 ──────┐\n"
+			  "                3       ┌────── 4\n"
+			  "                        5",
 			  nodes[0]);
 }
 

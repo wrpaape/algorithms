@@ -25,6 +25,7 @@ struct BTree *init_tree2(void);
 struct BTree *init_tree3(void);
 struct BTree *init_tree4(void);
 struct BTree *init_tree5(void);
+struct BTree *init_tree6(void);
 
 static inline struct BTree *build_tree(const char *name,
 				       const char *display,
