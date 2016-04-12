@@ -6,12 +6,16 @@ void run_tree_compare(void)
 {
 	puts("ooga booga");
 
-	struct BTreeNode *root1 = init_tree1();
+	struct BTree *root1 = init_tree1();
+	struct BTree *root2 = init_tree2();
+	struct BTree *root3 = init_tree3();
+	struct BTree *root4 = init_tree4();
+	struct BTree *root5 = init_tree5();
 
 	printf("%s\n",
 	       similar_binary_trees(root1, root1) ?  "similar" : "different");
 
-	free_tree(root1);
+	free_nodes(root1);
 }
 
 bool similar_binary_trees(struct BTreeNode *node1,
@@ -30,38 +34,157 @@ bool similar_binary_trees(struct BTreeNode *node1,
 		similar_binary_trees(node1->r_child, node2->l_child));
 }
 
-/*
- *		┌────── 0 ──────┐
- *	┌──────	1 ──────┐	2
- *	3	┌────── 4
- *		5
- */
-
 struct BTreeNode *init_tree1(void)
 {
 	struct BTreeNode *nodes[6];
 
-	for (int i = 0; i < 6; ++i) {
+	init_nodes(&nodes[0], 6);
+
+	set_children(nodes[0], nodes[1], nodes[2]);
+	set_children(nodes[1], nodes[3], nodes[4]);
+	set_children(nodes[2], NULL,	 NULL);
+	set_children(nodes[3], NULL,	 NULL);
+	set_children(nodes[4], nodes[5], NULL);
+	set_children(nodes[5], NULL,	 NULL);
+
+	return build_tree("Binary Tree 1",
+			  "        ┌────── 0 ──────┐\n"
+			  "┌────── 1 ──────┐       2\n"
+			  "3       ┌────── 4\n"
+			  "        5\n",
+			  nodes[0]);
+}
+
+struct BTreeNode *init_tree2(void)
+{
+	struct BTreeNode *nodes[6];
+
+	init_nodes(&nodes[0], 6);
+
+	set_children(nodes[0], nodes[2], nodes[1]);
+	set_children(nodes[1], NULL,	 NULL);
+	set_children(nodes[2], nodes[3], nodes[4]);
+	set_children(nodes[3], NULL,	 NULL);
+	set_children(nodes[4], nodes[5], NULL);
+	set_children(nodes[5], NULL,	 NULL);
+
+	return build_tree("Binary Tree 2",
+			  "        ┌────── 0 ──────┐\n"
+			  "┌────── 2 ──────┐       1\n"
+			  "3       ┌────── 4\n"
+			  "        5\n",
+			  nodes[0]);
+}
+
+struct BTreeNode *init_tree3(void)
+{
+	struct BTreeNode *nodes[6];
+
+	init_nodes(&nodes[0], 6);
+
+	set_children(nodes[0], nodes[1], nodes[2]);
+	set_children(nodes[1], nodes[3], nodes[4]);
+	set_children(nodes[2], NULL,	 NULL);
+	set_children(nodes[3], nodes[5], NULL);
+	set_children(nodes[4], NULL,	 NULL);
+	set_children(nodes[5], NULL,	 NULL);
+
+	return build_tree("Binary Tree 3",
+			  "        ┌────── 0 ──────┐\n"
+			  "┌────── 1 ──────┐       2\n"
+			  "4       ┌────── 3\n"
+			  "        5\n",
+			  nodes[0]);
+}
+
+struct BTreeNode *init_tree4(void)
+{
+	struct BTreeNode *nodes[6];
+
+	init_nodes(&nodes[0], 6);
+
+	set_children(nodes[0], nodes[2], nodes[1]);
+	set_children(nodes[1], NULL,	 nodes[3]);
+	set_children(nodes[2], nodes[4], NULL);
+	set_children(nodes[3], NULL,	 nodes[5]);
+	set_children(nodes[4], NULL,	 NULL);
+	set_children(nodes[5], NULL,	 NULL);
+
+	return build_tree("Binary Tree 4",
+			  "        ┌────── 0 ──────┐\n"
+			  "┌────── 2               1 ──────┐\n"
+			  "4                               3 ──────┐\n"
+			  "                                        5\n",
+			  nodes[0]);
+}
+
+struct BTree *init_tree5(void)
+{
+	struct BTreeNode *nodes[5];
+
+	init_nodes(&nodes[0], 5);
+
+	set_children(nodes[0], nodes[1], nodes[2]);
+	set_children(nodes[1], nodes[3], nodes[4]);
+	set_children(nodes[2], NULL,	 NULL);
+	set_children(nodes[3], NULL,	 NULL);
+	set_children(nodes[4], NULL,	 NULL);
+
+	return build_tree("Binary Tree 5",
+			  "        ┌────── 0 ──────┐\n"
+			  "┌────── 1 ──────┐       2\n"
+			  "3               4\n",
+			  nodes[0]);
+}
+
+inline struct BTree *build_tree(char *name,
+				char *display,
+				struct BTreeNode *root)
+{
+	struct BTree *tree;
+
+	HANDLE_MALLOC(tree,	     sizeof(tree));
+	HANDLE_MALLOC(tree->name,    sizeof(name));
+	HANDLE_MALLOC(tree->display, sizeof(display));
+
+	tree->name    = name;
+	tree->display = display;
+	tree->root    = root;
+
+	return tree;
+}
+
+inline void set_children(struct BTreeNode *parent,
+			 struct BTreeNode *l_child,
+			 struct BTreeNode *r_child)
+{
+	parent->l_child = l_child;
+	parent->r_child = r_child;
+}
+
+inline void init_nodes(struct BTreeNode **nodes,
+		       const size_t count)
+{
+	for (int i = 0; i < count; ++i) {
 		HANDLE_MALLOC(nodes[i], sizeof(struct BTreeNode));
 		nodes[i]->value = i;
 	}
-
-	nodes[0]->l_child = nodes[1]; nodes[0]->r_child = nodes[2];
-	nodes[1]->l_child = nodes[3]; nodes[1]->r_child = nodes[4];
-	nodes[2]->l_child = NULL;     nodes[2]->r_child = NULL;
-	nodes[3]->l_child = NULL;     nodes[3]->r_child = NULL;
-	nodes[4]->l_child = nodes[5]; nodes[4]->r_child = NULL;
-	nodes[5]->l_child = NULL;     nodes[5]->r_child = NULL;
-
-	return nodes[0];
 }
 
-inline void free_tree(struct BTreeNode *root)
+inline void free_tree(struct BTree *tree)
+{
+	free(tree->name);
+	free(tree->display);
+	free_nodes(tree->root);
+	free(tree);
+}
+
+inline void free_nodes(struct BTreeNode *root)
 {
 	if (root == NULL)
 		return;
 
-	free_tree(root->l_child);
-	free_tree(root->r_child);
+	free_nodes(root->l_child);
+	free_nodes(root->r_child);
 	free(root);
 }
