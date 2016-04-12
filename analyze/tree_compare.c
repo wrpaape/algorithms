@@ -169,7 +169,7 @@ struct BTree *init_tree6(void)
 	set_children(nodes[1], nodes[3], nodes[4]);
 	set_children(nodes[2], NULL,	 NULL);
 	set_children(nodes[3], NULL,	 NULL);
-	set_children(nodes[4], nodes[5], NULL);
+	set_children(nodes[4], NULL, nodes[5]);
 	set_children(nodes[5], NULL,	 NULL);
 
 	return build_tree("Binary Tree 6",
