@@ -28,47 +28,10 @@ void run_tree_compare(void)
 	free_tree(tree7);
 }
 
-/*
- * BEST/TRIVIAL CASE: node1 is NULL
- *
- *	C₀	(1)  copy local variable 'node1'
- *	C₀	(2)  copy local variable 'node2'
- *	C₁	(3)  call function
- *	C₂	(4)  compare node1 with NULL
- *	C₂	(5)  compare node2 with NULL
- *	C₄	(6)  return control to previous stack frame
- *
- *	overhead C|min = 2C₀ + C₁ + 2C₂ + C₄
- *
- * WORST CASE: compare balanced tree with completely mirrored counterpart
- *
- *	C₀	(1)  copy local variable 'node1'
- *	C₀	(2)  copy local variable 'node2'
- *	C₁	(3)  call function
- *	C₂	(4)  compare node1 with NULL
- *	C₂	(5)  compare node2 with NULL
- *	C₃	(6)  deference node1 for value
- *	C₃	(7)  deference node2 for value
- *	C₂	(8)  compare node1->value with node2->value
- *	C₃	(9)  deference node1 for l_child
- *	C₃	(10) deference node2 for l_child
- *		(11) repeat steps 1..5 for left children
- *	C₃	(12) deference node1 for r_child
- *	C₃	(13) deference node2 for r_child
- *		(14) repeat steps 1..5 for right children
- *	C₃	(15) deference node1 for l_child (ignore caching)
- *	C₃	(16) deference node2 for r_child (ignore caching)
- *		(17) repeat steps 1..5 for swapped children
- *	C₃	(18) deference node1 for r_child (ignore caching)
- *	C₃	(19) deference node2 for l_child (ignore caching)
- *		(20) repeat steps 1..5 for swapped children
- *	C₄	(21) return control to previous stack frame
- *
- *	overhead C|max = 2C₀ + C₁ + 3C₂ + 10C₃ + C₄
- *
- */
-bool similar_binary_trees(struct BTreeNode *node1,
-			  struct BTreeNode *node2)
+
+bool inspect_similar_trees(struct BTreeNode *node1,
+			   struct BTreeNode *node2,
+			   struct CostAcc *costs)
 {
 	if (node1 == NULL)
 		return node2 == NULL;
@@ -79,27 +42,116 @@ bool similar_binary_trees(struct BTreeNode *node1,
 	if (node1->value != node2->value)
 		return false;
 
-	return (similar_binary_trees(node1->l_child, node2->l_child)
-	    &&  similar_binary_trees(node1->r_child, node2->r_child))
-	    || (similar_binary_trees(node1->l_child, node2->r_child)
-	    &&  similar_binary_trees(node1->r_child, node2->l_child));
+	return (similar_trees(node1->l_child, node2->l_child)
+	    &&  similar_trees(node1->r_child, node2->r_child))
+	    || (similar_trees(node1->l_child, node2->r_child)
+	    &&  similar_trees(node1->r_child, node2->l_child));
+}
+
+/*
+ * BEST/TRIVIAL CASE: node1 is NULL
+ *
+ *	C₀	(1)  copy local variable 'node1'
+ *	C₀	(2)  copy local variable 'node2'
+ *	C₁	(3)  call function
+ *	C₂	(4)  compare node1 with NULL
+ *	C₂	(5)  compare node2 with NULL
+ *	C₅	(6)  return control to previous stack frame
+ *
+ *	overhead = 2C₀ + C₁ + 2C₂ + C₅
+ *		 = C_MIN
+ *
+ * WORST CASE: compare balanced tree with completely mirrored counterpart
+ *
+ *	C₀	(1)  copy local variable 'node1'
+ *	C₀	(2)  copy local variable 'node2'
+ *
+ *	C₁	(3)  call function
+ *
+ *	C₂	(4)  compare node1 with NULL
+ *	C₂	(5)  compare node2 with NULL
+ *
+ *	C₃	(6)  deference node1 pointer
+ *	C₄	(7)  access node1 field 'value'
+ *	C₃	(8)  deference node2 pointer
+ *	C₄	(9)  access node2 field 'value'
+ *
+ *	C₂	(10) compare node1->value with node2->value
+ *
+ *	C₃	(11) deference node1 pointer
+ *	C₄	(12) access node1 field 'l_child'
+ *	C₃	(13) deference node2 pointer
+ *	C₄	(14) access node2 field 'l_child'
+ *
+ *		(15) repeat for left children
+ *
+ *	C₃	(16) deference node1 pointer
+ *	C₄	(17) access node1 field 'r_child'
+ *	C₃	(18) deference node2 pointer
+ *	C₄	(19) access node2 field 'r_child'
+ *
+ *		(20) repeat for right children
+ *
+ *	C₃	(21) deference node1 pointer
+ *	C₄	(22) access node1 field 'l_child'
+ *	C₃	(23) deference node2 pointer
+ *	C₄	(24) access node2 field 'r_child'
+ *
+ *		(25) repeat for swapped children
+ *
+ *	C₃	(26) deference node1 pointer
+ *	C₄	(27) access node1 field 'r_child'
+ *	C₃	(28) deference node2 pointer
+ *	C₄	(29) access node2 field 'l_child'
+ *
+ *		(30) repeat steps for swapped children
+ *
+ *	C₅	(31) return control to previous stack frame
+ *
+ *	overhead = 2C₀ + C₁ + 3C₂ + 10C₃ + 10C₄ + C₅ + ΣC₍₁₅₎ + ΣC₍₂₀₎ + ΣC₍₂₅₎ + ΣC₍₃₀₎
+ *		 = C_MIN + C₂ + 10C₃ + 10C₄ + 4ΣC_children
+ *		 = C_MAX + 4ΣC_children
+ *
+ *	ΣC_children = ΣC_parent
+ *
+ */
+bool similar_trees(struct BTreeNode *node1,
+		   struct BTreeNode *node2)
+{
+	if (node1 == NULL)
+		return node2 == NULL;
+
+	if (node2 == NULL)
+		return false;
+
+	if (node1->value != node2->value)
+		return false;
+
+	return (similar_trees(node1->l_child, node2->l_child)
+	    &&  similar_trees(node1->r_child, node2->r_child))
+	    || (similar_trees(node1->l_child, node2->r_child)
+	    &&  similar_trees(node1->r_child, node2->l_child));
 }
 
 inline void compare_trees(struct BTree *tree1,
 			  struct BTree *tree2)
 {
 	printf("================================\n"
-	       "%s:\n"
+	       "%s (%s nodes and depth of %s):\n"
 	       "%s\n\n"
 	       "is **%s**\n\n"
-	       "%s:\n"
+	       "%s (%s nodes and depth of %s):\n"
 	       "%s\n"
 	       "================================\n",
 	       tree1->name,
+	       tree1->count,
+	       tree1->depth,
 	       tree1->display,
-	       similar_binary_trees(tree1->root, tree2->root)
-	       ? "SIMILAR TO" : "DIFFERENT THAN",
+	       similar_trees(tree1->root, tree2->root) ?
+	       "SIMILAR TO" : "DIFFERENT THAN",
 	       tree2->name,
+	       tree2->count,
+	       tree2->depth,
 	       tree2->display);
 }
 
@@ -107,7 +159,7 @@ struct BTree *init_tree1(void)
 {
 	struct BTreeNode *nodes[6];
 
-	init_nodes(&nodes[0], 6);
+	init_nodes(&nodes[0], 6ul);
 
 	set_children(nodes[0], nodes[1], nodes[2]);
 	set_children(nodes[1], nodes[3], nodes[4]);
@@ -121,14 +173,14 @@ struct BTree *init_tree1(void)
 			  "┌────── 1 ──────┐       2\n"
 			  "3       ┌────── 4\n"
 			  "        5",
-			  nodes[0]);
+			  "6", "4", nodes[0]);
 }
 
 struct BTree *init_tree2(void)
 {
 	struct BTreeNode *nodes[6];
 
-	init_nodes(&nodes[0], 6);
+	init_nodes(&nodes[0], 6ul);
 
 	set_children(nodes[0], nodes[2], nodes[1]);
 	set_children(nodes[1], NULL,	 NULL);
@@ -142,7 +194,7 @@ struct BTree *init_tree2(void)
 			  "┌────── 2 ──────┐       1\n"
 			  "3       ┌────── 4\n"
 			  "        5",
-			  nodes[0]);
+			  "6", "4", nodes[0]);
 }
 
 struct BTree *init_tree3(void)
@@ -163,14 +215,14 @@ struct BTree *init_tree3(void)
 			  "┌────── 1 ──────┐       2\n"
 			  "4       ┌────── 3\n"
 			  "        5",
-			  nodes[0]);
+			  "6", "4", nodes[0]);
 }
 
 struct BTree *init_tree4(void)
 {
 	struct BTreeNode *nodes[6];
 
-	init_nodes(&nodes[0], 6);
+	init_nodes(&nodes[0], 6ul);
 
 	set_children(nodes[0], nodes[2], nodes[1]);
 	set_children(nodes[1], NULL,	 nodes[3]);
@@ -184,7 +236,7 @@ struct BTree *init_tree4(void)
 			  "┌────── 2               1 ──────┐\n"
 			  "4                               3 ──────┐\n"
 			  "                                        5",
-			  nodes[0]);
+			  "6", "4", nodes[0]);
 }
 
 struct BTree *init_tree5(void)
@@ -203,14 +255,14 @@ struct BTree *init_tree5(void)
 			  "        ┌────── 0 ──────┐\n"
 			  "┌────── 1 ──────┐       2\n"
 			  "3               4",
-			  nodes[0]);
+			  5ul, 3ul, nodes[0]);
 }
 
 struct BTree *init_tree6(void)
 {
 	struct BTreeNode *nodes[6];
 
-	init_nodes(&nodes[0], 6);
+	init_nodes(&nodes[0], 6ul);
 
 	set_children(nodes[0], nodes[2], nodes[1]);
 	set_children(nodes[1], nodes[3], nodes[4]);
@@ -224,14 +276,14 @@ struct BTree *init_tree6(void)
 			  "        2       ┌────── 1 ──────┐\n"
 			  "                3       ┌────── 4\n"
 			  "                        5",
-			  nodes[0]);
+			  "6", "4", nodes[0]);
 }
 
 struct BTree *init_tree7(void)
 {
 	struct BTreeNode *nodes[6];
 
-	init_nodes(&nodes[0], 6);
+	init_nodes(&nodes[0], 6ul);
 
 	set_children(nodes[0], nodes[2], nodes[1]);
 	set_children(nodes[1], nodes[4], nodes[3]);
@@ -245,22 +297,28 @@ struct BTree *init_tree7(void)
 			  "        2       ┌────── 1 ──────┐\n"
 			  "                4 ──────┐       3\n"
 			  "                        5",
-			  nodes[0]);
+			  "6", "4", nodes[0]);
 }
 
 inline struct BTree *build_tree(const char *name,
 				const char *display,
+				const char *count,
+				const char *depth,
 				struct BTreeNode *root)
 {
 	struct BTree *tree;
 
 	HANDLE_MALLOC(tree,	     sizeof(struct BTree));
-	HANDLE_MALLOC(tree->name,    sizeof(char) * 254ul);
+	HANDLE_MALLOC(tree->name,    sizeof(char) * 16ul);
 	HANDLE_MALLOC(tree->display, sizeof(char) * 254ul);
+	HANDLE_MALLOC(tree->count,   sizeof(char) * 4ul);
+	HANDLE_MALLOC(tree->depth,   sizeof(char) * 4ul);
 
 	strcpy(tree->name,    name);
 	strcpy(tree->display, display);
-	tree->root = root;
+	strcpy(tree->count,   count);
+	strcpy(tree->depth,   depth);
+	tree->root  = root;
 
 	return tree;
 }
@@ -284,9 +342,11 @@ inline void init_nodes(struct BTreeNode **nodes,
 
 inline void free_tree(struct BTree *tree)
 {
-	free(tree->name);
-	free(tree->display);
 	free_nodes(tree->root);
+	free(tree->depth);
+	free(tree->count);
+	free(tree->display);
+	free(tree->name);
 	free(tree);
 }
 

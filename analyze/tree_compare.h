@@ -9,7 +9,15 @@ struct BTreeNode {
 struct BTree {
 	char *name;
 	char *display;
+	char *count;
+	char *depth;
 	struct BTreeNode *root;
+};
+
+struct CostAcc {
+	int frames;		// includes cost of creating, entering, and returning from a new frame
+	int comparisons;	// boolean comparison of 2 primitive values (assume constant)
+	int accesses;		// includes cost of pointer deference and access of single struct field
 };
 
 void run_tree_compare(void);
@@ -17,8 +25,12 @@ void run_tree_compare(void);
 static inline void compare_trees(struct BTree *tree1,
 				 struct BTree *tree2);
 
-bool similar_binary_trees(struct BTreeNode *node1,
-			  struct BTreeNode *node2);
+bool inspect_similar_trees(struct BTreeNode *node1,
+			   struct BTreeNode *node2,
+			   struct CostAcc *costs);
+
+bool similar_trees(struct BTreeNode *node1,
+		   struct BTreeNode *node2);
 
 struct BTree *init_tree1(void);
 struct BTree *init_tree2(void);
@@ -30,6 +42,8 @@ struct BTree *init_tree7(void);
 
 static inline struct BTree *build_tree(const char *name,
 				       const char *display,
+				       const char *count,
+				       const char *depth,
 				       struct BTreeNode *root);
 
 static inline void init_nodes(struct BTreeNode **nodes,
