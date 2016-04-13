@@ -23,7 +23,7 @@ struct CostAcc {
 void run_tree_compare(void);
 
 static inline void inspect_compare_trees(struct BTree *tree1,
-					 struct BTree *tree2)
+					 struct BTree *tree2);
 
 static inline void compare_trees(struct BTree *tree1,
 				 struct BTree *tree2);

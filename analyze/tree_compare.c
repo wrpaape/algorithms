@@ -361,7 +361,7 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  * 3     3   3     3   3     3   3     4   │  3     3   3     3   3     3   3     3
  *
  * Comparing a pair of trees of this type will force the most expensive
- * case (RECURSIVE CASE D) at the top level for all comparisons of right
+ * case (RECURSIVE CASE D) at the top level and for all comparisons of right
  * subtrees.
  */
 bool similar_trees(struct BTreeNode *node1,
