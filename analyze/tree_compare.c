@@ -86,14 +86,15 @@ bool inspect_similar_trees(struct BTreeNode *node1,
 		return false;
 
 	costs->accesses += 4;
-	if (similar_trees(node1->l_child, node2->l_child) &&
-	    similar_trees(node1->r_child, node2->r_child))
+
+	if (inspect_similar_trees(node1->l_child, node2->l_child, costs) &&
+	    inspect_similar_trees(node1->r_child, node2->r_child, costs))
 		return true;
 
 	costs->accesses += 4;
 
-	return (similar_trees(node1->l_child, node2->r_child) &&
-		similar_trees(node1->r_child, node2->l_child));
+	return (inspect_similar_trees(node1->l_child, node2->r_child, costs) &&
+		inspect_similar_trees(node1->r_child, node2->l_child, costs));
 }
 
 /*
@@ -211,15 +212,63 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *		- node1->l_child is similar to node2->l_child
  *		- node1->r_child is similar to node2->r_child
  *
+ *	overhead:
+ *
+ *		C₀	(1)  copy parameter 'node1'
+ *		C₀	(2)  copy parameter 'node2'
+ *		C₁	(3)  call function
+ *		C₂	(4)  compare node1 with NULL
+ *		C₂	(5)  compare node2 with NULL
+ *		C₃	(6)  deference node1 pointer
+ *		C₄	(7)  access node1 field 'value'
+ *		C₃	(8)  deference node2 pointer
+ *		C₄	(9)  access node2 field 'value'
+ *		C₂	(10) compare node1->value with node2->value
+ *		C₃	(11) deference node1 pointer
+ *		C₄	(12) access node1 field 'l_child'
+ *		C₃	(13) deference node2 pointer
+ *		C₄	(14) access node2 field 'l_child'
+ *		RB	(15) RECURSIVE CASE B
+ *		C₃	(16) deference node1 pointer
+ *		C₄	(17) access node1 field 'r_child'
+ *		C₃	(18) deference node2 pointer
+ *		C₄	(19) access node2 field 'r_child'
+ *		RB	(20) RECURSIVE CASE B
+ *		C₅	(21) return control to previous stack frame
+ *
+ *	ΣC_nodes = 2C₀ + C₁ + 3C₂ + 6C₃ + 6C₄ + C₅ + ΣC_children
+ *		 = TA  + C₂ + 6C₃ + 6C₄
+ *		 + (count(left  subtree nodes) - count(left  subtree leaves)) * RB
+ *		 + (count(right subtree nodes) - count(right subtree leaves)) * RB
+ *		 + count(left  subtree leaves) * RA
+ *		 + count(right subtree leaves) * RA
+ *
+ *		 = O(1)
+ *		 + O(n / 2 - count(left  subtree leaves))
+ *		 + O(n / 2 - count(right subtree leaves))
+ *		 + O(count(left  subtree leaves))
+ *		 + O(count(right subtree leaves))
+ *
+ *		 assuming perfect trees (hypothetical worst case)...
+ *
+ *		   count(left  subtree leaves)
+ *		 = count(right subtree leaves)
+ *		 = ((n / 2) + 1) / 2
+ *		 = (n + 2) / 4
+ *
+ *   => ΣC_nodes = O(1)
+ *		 + 2 * O((n / 2) - ((n + 2) / 4))
+ *		 + 2 * O((n + 2) / 4)
+ *
+ *		 = O(1)
+ *		 + O((n / 2) - 2)
+ *		 + O((n / 2) + 2)
+ *
+ *		 = O(n / 2)
  *
  *
  *
- *
- *
- *
- *
- *
- * RECURSIVE CASE C (worst/most expensive):
+ * RECURSIVE CASE D (worst/most expensive):
  *
  *	conditions:
  *
@@ -253,28 +302,28 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *		C₃	(13) deference node2 pointer
  *		C₄	(14) access node2 field 'l_child'
  *
- *			(15) repeat for left children
+ *		RC	(15) RECURSIVE CASE C
  *
  *		C₃	(16) deference node1 pointer
  *		C₄	(17) access node1 field 'r_child'
  *		C₃	(18) deference node2 pointer
  *		C₄	(19) access node2 field 'r_child'
  *
- *			(20) repeat for right children
+ *		RB	(20) RECURSIVE CASE B
  *
  *		C₃	(21) deference node1 pointer
  *		C₄	(22) access node1 field 'l_child'
  *		C₃	(23) deference node2 pointer
  *		C₄	(24) access node2 field 'r_child'
  *
- *			(25) repeat for swapped children
+ *		RC	(25) RECURSIVE CASE C
  *
  *		C₃	(26) deference node1 pointer
  *		C₄	(27) access node1 field 'r_child'
  *		C₃	(28) deference node2 pointer
  *		C₄	(29) access node2 field 'l_child'
  *
- *			(30) repeat steps for swapped children
+ *		RB	(30) RECURSIVE CASE B
  *
  *		C₅	(31) return control to previous stack frame
  *
@@ -287,7 +336,8 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  * CONDITIONS FOR GREATEST OVERHEAD (HYPOTHESIS):
  *
  *	- comparing perfect trees (all levels full) that are symmetric
- *	  excluding the farthest right node of the bottom level of node1
+ *	  and identical excluding the farthest right node of the bottom
+ *	  level of node1
  *
  * ie:
  *		   node1				      node2
@@ -297,7 +347,7 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  * 3     3   3     3   3     3   3     4   │  3     3   3     3   3     3   3     3
  *
  * Comparing a pair of trees of this type will force the most expensive
- * case (RECURSIVE CASE C) at the top level for all comparisons of right
+ * case (RECURSIVE CASE D) at the top level for all comparisons of right
  * subtrees.
  */
 bool similar_trees(struct BTreeNode *node1,
