@@ -12,12 +12,12 @@ void run_tree_compare(void)
 	struct BTree *tree6 = init_tree6();
 	struct BTree *tree7 = init_tree7();
 
-	compare_trees(tree1, tree2);
-	compare_trees(tree1, tree3);
-	compare_trees(tree1, tree4);
-	compare_trees(tree1, tree5);
-	compare_trees(tree1, tree6);
-	compare_trees(tree1, tree7);
+	inspect_compare_trees(tree1, tree2);
+	inspect_compare_trees(tree1, tree3);
+	inspect_compare_trees(tree1, tree4);
+	inspect_compare_trees(tree1, tree5);
+	inspect_compare_trees(tree1, tree6);
+	inspect_compare_trees(tree1, tree7);
 
 	free_tree(tree1);
 	free_tree(tree2);
@@ -28,24 +28,72 @@ void run_tree_compare(void)
 	free_tree(tree7);
 }
 
+inline void inspect_compare_trees(struct BTree *tree1,
+				  struct BTree *tree2)
+{
+	struct CostAcc costs = {
+		.frames = 0,
+		.comparisons = 0,
+		.accesses = 0
+	};
+
+	printf("================================\n"
+	       "%s (%s nodes and depth of %s):\n"
+	       "%s\n\n"
+	       "is **%s**\n\n"
+	       "%s (%s nodes and depth of %s):\n"
+	       "%s\n\n"
+	       "OVERHEAD:\n"
+	       "%d frames\n"
+	       "%d comparisons\n"
+	       "%d accesses\n"
+	       "================================\n",
+	       tree1->name,
+	       tree1->count,
+	       tree1->depth,
+	       tree1->display,
+	       inspect_similar_trees(tree1->root,
+				     tree2->root,
+				     &costs) ?
+	       "SIMILAR TO" : "DIFFERENT THAN",
+	       tree2->name,
+	       tree2->count,
+	       tree2->depth,
+	       tree2->display,
+	       costs.frames,
+	       costs.comparisons,
+	       costs.accesses);
+}
+
 
 bool inspect_similar_trees(struct BTreeNode *node1,
 			   struct BTreeNode *node2,
 			   struct CostAcc *costs)
 {
+	++costs->frames;
+	costs->comparisons += 2;
+
 	if (node1 == NULL)
 		return node2 == NULL;
 
 	if (node2 == NULL)
 		return false;
 
+	++costs->comparisons;
+	costs->accesses += 2;
+
 	if (node1->value != node2->value)
 		return false;
 
-	return (similar_trees(node1->l_child, node2->l_child)
-	    &&  similar_trees(node1->r_child, node2->r_child))
-	    || (similar_trees(node1->l_child, node2->r_child)
-	    &&  similar_trees(node1->r_child, node2->l_child));
+	costs->accesses += 4;
+	if (similar_trees(node1->l_child, node2->l_child) &&
+	    similar_trees(node1->r_child, node2->r_child))
+		return true;
+
+	costs->accesses += 4;
+
+	return (similar_trees(node1->l_child, node2->r_child) &&
+		similar_trees(node1->r_child, node2->l_child));
 }
 
 /*
@@ -68,6 +116,7 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *		C₅	(6)  return control to previous stack frame
  *
  *	ΣC_nodes = 2C₀ + C₁ + 2C₂ + C₅
+ *		 = O(1)
  *		 = CA
  *
  *
@@ -95,6 +144,8 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *
  *	ΣC_nodes = 2C₀ + C₁ + 3C₂ + 2C₃ + 2C₄ + C₅
  *		 = TA  + C₂ + 2C₃ + 2C₄
+ *		 = O(1) + O(1)
+ *		 = O(1)
  *		 = TB
  *
  *
@@ -137,10 +188,16 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *
  *	ΣC_nodes = 2C₀ + C₁ + 3C₂ + 6C₃ + 6C₄ + C₅ + ΣC_children
  *		 = 3TA + C₂ + 6C₃ + 6C₄
+ *		 = 3O(1) + O(1)
+ *		 = O(1)
  *		 = RA
  *
  *
- * RECURSIVE CASE B (worst/most expensive):
+ *
+ *
+ *
+ *
+ * RECURSIVE CASE B:
  *
  *	conditions:
  *
@@ -151,7 +208,28 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *		- node2->l_child is valid
  *		- node1->r_child is valid
  *		- node2->r_child is valid
+ *		- node1->l_child is similar to node2->l_child
+ *		- node1->r_child is similar to node2->r_child
  *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ * RECURSIVE CASE C (worst/most expensive):
+ *
+ *	conditions:
+ *
+ *		- node1 pointer is valid
+ *		- node2 pointer is valid
+ *		- node1->value == node2->value
+ *		- node1->l_child is valid
+ *		- node2->l_child is valid
+ *		- node1->r_child is valid
+ *		- node2->r_child is valid
  *		- node1->l_child is     similar to node2->l_child
  *		- node1->r_child is NOT similar to node2->r_child
  *		- node1->l_child is     similar to node2->r_child
@@ -162,19 +240,14 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *
  *		C₀	(1)  copy parameter 'node1'
  *		C₀	(2)  copy parameter 'node2'
- *
  *		C₁	(3)  call function
- *
  *		C₂	(4)  compare node1 with NULL
  *		C₂	(5)  compare node2 with NULL
- *
  *		C₃	(6)  deference node1 pointer
  *		C₄	(7)  access node1 field 'value'
  *		C₃	(8)  deference node2 pointer
  *		C₄	(9)  access node2 field 'value'
- *
  *		C₂	(10) compare node1->value with node2->value
- *
  *		C₃	(11) deference node1 pointer
  *		C₄	(12) access node1 field 'l_child'
  *		C₃	(13) deference node2 pointer
@@ -213,22 +286,19 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *
  * CONDITIONS FOR GREATEST OVERHEAD (HYPOTHESIS):
  *
- *	- comparing perfect trees (all levels full) that are identical in value
- *	  excluding the farthest right nodes of the bottom level
+ *	- comparing perfect trees (all levels full) that are symmetric
+ *	  excluding the farthest right node of the bottom level of node1
  *
  * ie:
+ *		   node1				      node2
  *         ┌──────── 0 ────────┐           │          ┌──────── 0 ────────┐
- *    ┌─── 1 ───┐         ┌─── 2 ───┐      │     ┌─── 1 ───┐         ┌─── 2 ───┐
- * ┌─ 3 ─┐   ┌─ 4 ─┐   ┌─ 5 ─┐   ┌─ 6 ─┐   │  ┌─ 3 ─┐   ┌─ 4 ─┐   ┌─ 5 ─┐   ┌─ 6 ─┐
- * 7     8   9     10  11    12  13    14  │  7     8   9     10  11    12  13    14
+ *    ┌─── 1 ───┐         ┌─── 1 ───┐      │     ┌─── 1 ───┐         ┌─── 1 ───┐
+ * ┌─ 2 ─┐   ┌─ 2 ─┐   ┌─ 2 ─┐   ┌─ 2 ─┐   │  ┌─ 2 ─┐   ┌─ 2 ─┐   ┌─ 2 ─┐   ┌─ 2 ─┐
+ * 3     3   3     3   3     3   3     4   │  3     3   3     3   3     3   3     3
  *
- *	when child pointers are NULL (recursion bottoms out)...
- *
- *	ΣC_parent = C_MAX + 2ΣC_children
- *		  = C_MAX + 2C_MIN
- *
- *	in a perfect tree, child pointers will be NULL for every leaf node
- *
+ * Comparing a pair of trees of this type will force the most expensive
+ * case (RECURSIVE CASE C) at the top level for all comparisons of right
+ * subtrees.
  */
 bool similar_trees(struct BTreeNode *node1,
 		   struct BTreeNode *node2)
@@ -262,7 +332,8 @@ inline void compare_trees(struct BTree *tree1,
 	       tree1->count,
 	       tree1->depth,
 	       tree1->display,
-	       similar_trees(tree1->root, tree2->root) ?
+	       similar_trees(tree1->root,
+			     tree2->root) ?
 	       "SIMILAR TO" : "DIFFERENT THAN",
 	       tree2->name,
 	       tree2->count,
@@ -370,7 +441,7 @@ struct BTree *init_tree5(void)
 			  "        ┌────── 0 ──────┐\n"
 			  "┌────── 1 ──────┐       2\n"
 			  "3               4",
-			  5ul, 3ul, nodes[0]);
+			  "5", "3", nodes[0]);
 }
 
 struct BTree *init_tree6(void)

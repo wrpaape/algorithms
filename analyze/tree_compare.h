@@ -16,11 +16,14 @@ struct BTree {
 
 struct CostAcc {
 	int frames;		// includes cost of creating, entering, and returning from a new frame
-	int comparisons;	// boolean comparison of 2 primitive values (assume constant)
+	int comparisons;	// cost of boolean comparison of 2 primitive values (assume constant)
 	int accesses;		// includes cost of pointer deference and access of single struct field
 };
 
 void run_tree_compare(void);
+
+static inline void inspect_compare_trees(struct BTree *tree1,
+					 struct BTree *tree2);
 
 static inline void compare_trees(struct BTree *tree1,
 				 struct BTree *tree2);
