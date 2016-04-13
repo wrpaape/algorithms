@@ -242,12 +242,18 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *		 + (count(right subtree nodes) - count(right subtree leaves)) * RB
  *		 + count(left  subtree leaves) * RA
  *		 + count(right subtree leaves) * RA
+ *		 + 2 * (count(left  sub-subtree nodes) - count(left  sub-subtree leaves)) * RB
+ *		 + 2 * (count(right sub-subtree nodes) - count(right sub-subtree leaves)) * RB
+ *		 + 2 * count(left  sub-subtree leaves) * RA
+ *		 + 2 * count(right sub-subtree leaves) * RA
+ *		 + ...
  *
- *		 = O(1)
- *		 + O(n / 2 - count(left  subtree leaves))
- *		 + O(n / 2 - count(right subtree leaves))
- *		 + O(count(left  subtree leaves))
- *		 + O(count(right subtree leaves))
+ *		 = CONSTANT
+ *		 + RB * (n / 2 - count(left  subtree leaves))
+ *		 + RB * (n / 2 - count(right subtree leaves))
+ *		 + RA * (count(left  subtree leaves))
+ *		 + RA * (count(right subtree leaves))
+ *		 + ...
  *
  *		 assuming perfect trees (hypothetical worst case)...
  *
@@ -256,14 +262,24 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *		 = ((n / 2) + 1) / 2
  *		 = (n + 2) / 4
  *
- *   => ΣC_nodes = O(1)
- *		 + 2 * O((n / 2) - ((n + 2) / 4))
- *		 + 2 * O((n + 2) / 4)
+ *		   count(left  sub-subtree leaves)
+ *		 = count(right sub-subtree leaves)
+ *		 = ((n / 4) + 1) / 2
+ *		 = (n + 4) / 8
  *
- *		 = O(1)
- *		 + O((n / 2) - 2)
- *		 + O((n / 2) + 2)
- *		 =
+ *   => ΣC_nodes = CONSTANT
+ *		 + 2 * RB * ((n / 2) - ((n + 2) / 4))
+ *		 + 2 * RA * ((n + 2) / 4)
+ *		 + 4 * RB * ((n / 4) - ((n + 4) / 8))
+ *		 + 4 * RA * ((n + 4) / 8)
+ *		 + ...
+ *
+ *		 = CONSTANT
+ *	num	 + RB * n + (RB - RA) * ((n + 2) / 2)
+ *	tree	 + RB * n + (RB - RA) * ((n + 4) / 2)
+ *	levels	 + RB * n + (RB - RA) * ((n + 8) / 2)
+ *	 	 + ...
+ *		 = O(nlog₂n)
  *
  *
  *
@@ -327,8 +343,7 @@ bool inspect_similar_trees(struct BTreeNode *node1,
  *		C₅	(31) return control to previous stack frame
  *
  *	ΣC_nodes = 2C₀ + C₁ + 3C₂ + 10C₃ + 10C₄ + C₅ + ΣC₍₁₅₎ + ΣC₍₂₀₎ + ΣC₍₂₅₎ + ΣC₍₃₀₎
- *		 = C_MIN + C₂ + 10C₃ + 10C₄ + 4ΣC_children
- *		 = C_MAX + 4ΣC_children
+ *		 = O(2nlog₂n) (twict RECURSIVE CASE C)
  *
  *
  *
