@@ -4,6 +4,16 @@
 
 #define BUFF_SIZE (1ul << 5)
 
+
+bool test_input(const char *input)
+{
+
+	return *input != '\0';
+
+}
+
+/* hide the main function during testing */
+#ifndef TESTING
 int main(void)
 {
 	char input[BUFF_SIZE];
@@ -17,10 +27,4 @@ int main(void)
 
 	return 0;
 }
-
-bool test_input(const char *input)
-{
-
-	return *input != '\0';
-
-}
+#endif
