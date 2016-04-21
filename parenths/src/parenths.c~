@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -7,6 +8,12 @@ extern "C" {
 #include "parenths.h"
 
 #define BUFF_SIZE (1ul << 5)
+
+
+
+
+struct ColorNode
+
 
 /* hide the main function during testing */
 #ifndef TESTING
@@ -25,6 +32,13 @@ int main(void)
 }
 #endif
 
+inline struct ColorNode *init_color_cycle(void)
+{
+	struct ColorNode *cycle;
+
+	HANDLE_MALLOC(cycle, sizeof(struct ColorNode) * 5ul)
+}
+
 inline void put_token(char **d_ptr,
 		      void (*put_prefix)(char **),
 		      const char token)
@@ -38,14 +52,6 @@ inline void put_token(char **d_ptr,
 
 	*d_ptr = ptr;
 }
-
-/* static inline void put_ERROR_prefix(char **d_ptr) */
-/* { */
-/* 	char *ptr = *d_ptr; */
-/* 	PUT_ANSI_BLINK(ptr); */
-/* 	PUT_ANSI_RED(ptr); */
-/* 	*d_ptr = ptr; */
-/* } */
 
 #ifdef __cplusplus
 }
