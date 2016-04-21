@@ -2,17 +2,27 @@
 #define PARENTHS_H_
 
 #include <stdbool.h>
+#include "token.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* use C linkage */
+struct ColorNode {
+	char *code;
+};
 
+struct ParenthsStackNode {
+	struct ParenthsStackNode *prev;
+};
 
-bool test_input(const char *input);
+static inline void put_color_token(char **d_ptr,
+				   void (*put_ansi)(char **),
+				   const char token);
 
-
-#ifdef __cplusplus
+#define DEFINE_ANSI_PUT_FUNCTION(ANSI_TOKEN)	\
+void put_ ## ANSI_TOKEN(char **d_ptr) {		\
+	char *ptr = *d_ptr;			\
+	PUT_ANSI_ ## ANSI_TOKEN(ptr);		\
+	*d_ptr = ptr;				\
 }
-#endif /* use C linkage */
+
+DEFINE_ANSI_PUT_FUNCTION(RED)
 
 #endif /* ifndef PARENTHS_H_ */
