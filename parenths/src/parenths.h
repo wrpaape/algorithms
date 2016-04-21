@@ -4,15 +4,17 @@
 #include "token.h"
 
 struct ColorNode {
-	void (*put_color_prefix)(char **);
+	void (*put_prefix)(char **);
 	struct ColorNode *next;
 };
 
 struct ParenthsStackNode {
+	char *ptr;
 	struct ParenthsStackNode *prev;
 };
 
-
+inline void ColorNode push_parenths(char *ptr);
+inline void ColorNode pop_parenths(char *ptr);
 inline struct ColorNode *init_color_cycle(void);
 
 static inline void put_token(char **d_ptr,
@@ -74,10 +76,10 @@ static inline void put_ ## TYPE1 ## _ ## TYPE2 ## _prefix(char **d_ptr)	\
 	PUT_ANSI_ ## TYPE2(ptr);					\
 	*d_ptr = ptr;							\
 }
-DEF_PUT_PREFIX1(MAGENTA)
-DEF_PUT_PREFIX1(YELLOW)
 DEF_PUT_PREFIX1(BLUE)
 DEF_PUT_PREFIX1(CYAN)
+DEF_PUT_PREFIX1(MAGENTA)
+DEF_PUT_PREFIX1(YELLOW)
 DEF_PUT_PREFIX1(WHITE)
 DEF_PUT_PREFIX2(BLINK, RED)
 #undef DEF_PUT_PREFIX1

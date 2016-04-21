@@ -37,6 +37,14 @@ inline struct ColorNode *init_color_cycle(void)
 	struct ColorNode *cycle;
 
 	HANDLE_MALLOC(cycle, sizeof(struct ColorNode) * 5ul);
+
+	cycle[0ul].put_prefix = &put_BLUE;    cycle[0ul].next = &cycle[1ul];
+	cycle[1ul].put_prefix = &put_CYAN;    cycle[1ul].next = &cycle[2ul];
+	cycle[2ul].put_prefix = &put_MAGENTA; cycle[2ul].next = &cycle[3ul];
+	cycle[3ul].put_prefix = &put_YELLOW;  cycle[3ul].next = &cycle[4ul];
+	cycle[4ul].put_prefix = &put_WHITE;   cycle[4ul].next = &cycle[0ul];
+
+	return cycle;
 }
 
 inline void put_token(char **d_ptr,
