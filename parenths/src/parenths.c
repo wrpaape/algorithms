@@ -25,12 +25,12 @@ int main(void)
 
 	return 0;
 }
+#endif
 
 bool test_input(const char *input)
 {
 	return *input != '\0';
 }
-#endif
 
 
 
