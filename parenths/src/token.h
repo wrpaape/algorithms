@@ -41,32 +41,28 @@ do {				\
 	_CLOSE_ANSI(PTR);	\
 } while (0)
 
+#define _ANSI_OFF(PTR, B3) _BIG_ANSI(PTR, 50, B3)
 #define _ANSI_COLOR(PTR, B3) _BIG_ANSI(PTR, 51, B3)
 #define _ANSI_BG(PTR, B3) _BIG_ANSI(PTR, 52, B3)
 
-#define PUT_ANSI_CLEAR(PTR)	\
-do {				\
-	_OPEN_ANSI(PTR);	\
-	PUT_CHAR(PTR, 50);	\
-	PUT_CHAR(PTR, 74);	\
-} while (0)
-
 /* 4 bytes */
 #define ANSI_FAINT "\e[2m"
+#define ANSI_UNDERLINE "\e[4m"
 #define ANSI_BRIGHT "\e[1m"
 #define ANSI_RESET "\e[0m"
 #define ANSI_CLEAR "\e[2J"
 #define ANSI_BLINK "\e[5m"
 
-
 #define PUT_ANSI_RESET(PTR) _SML_ANSI(PTR, 48)
 #define PUT_ANSI_BRIGHT(PTR) _SML_ANSI(PTR, 49)
 #define PUT_ANSI_FAINT(PTR) _SML_ANSI(PTR, 50)
+#define PUT_ANSI_UNDERLINE(PTR) _SML_ANSI(PTR, 52)
 #define PUT_ANSI_BLINK(PTR) _SML_ANSI(PTR, 53)
 
 /* 5 bytes */
 #define ANSI_NORMAl "\e[22m"
 #define ANSI_BLINK_OFF "\e[25m"
+#define ANSI_NO_UNDERLINE "\e[24m"
 
 #define ANSI_WHITE_BG "\e[47m"
 #define ANSI_BLACK_BG "\e[40m"
@@ -79,8 +75,10 @@ do {				\
 #define ANSI_MAGENTA "\e[35m"
 #define ANSI_BLACK "\e[30m"
 
-#define PUT_ANSI_NORMAl(PTR) _BIG_ANSI(PTR, 50, 50)
-#define PUT_ANSI_BLINK_OFF(PTR) _BIG_ANSI(PTR, 50, 53)
+#define PUT_ANSI_NORMAl(PTR) _ANSI_OFF(PTR, 50)
+#define PUT_ANSI_NO_UNDERLINE(PTR) _ANSI_OFF(PTR, 52)
+#define PUT_ANSI_BLINK_OFF(PTR) _ANSI_OFF(PTR, 53)
+#define PUT_ANSI_CLEAR(PTR) _ANSI_OFF(PTR, 74)
 
 #define PUT_ANSI_BLACK(PTR) _ANSI_COLOR(PTR, 48)
 #define PUT_ANSI_RED(PTR) _ANSI_COLOR(PTR, 49)
@@ -190,10 +188,10 @@ do {					\
 /* GEOMETRIC SHAPES
  ******************************************************************************/
 #define _GEO_CIRC(PTR, BYTE)	\
-do {					\
-	PUT_CHAR(PTR, 226);		\
-	PUT_CHAR(PTR, 151);		\
-	PUT_CHAR(PTR, BYTE);		\
+do {				\
+	PUT_CHAR(PTR, 226);	\
+	PUT_CHAR(PTR, 151);	\
+	PUT_CHAR(PTR, BYTE);	\
 } while (0)
 
 /* ◉ */

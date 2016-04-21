@@ -1,7 +1,12 @@
 #ifndef PARENTHS_H_
 #define PARENTHS_H_
 
-#include "token.h"
+#include <stdlib.h>	/* malloc, free, exit, size_t */
+#include <stddef.h>	/* ptrdiff_t */
+#include <stdio.h>	/* printf, fprintf */
+#include <errno.h>	/* errno */
+#include <string.h>	/* strerror */
+#include "token.h"	/* ANSI escape sequence put macros */
 
 struct ColorNode {
 	void (*put_prefix)(char **);
@@ -9,19 +14,23 @@ struct ColorNode {
 	struct ColorNode *next;
 };
 
-struct ParenthsStackNode {
-	char *ptr;
-	struct ParenthsStackNode *prev;
+struct BalanceScore {
+	size_t even_pairs;
+	size_t odd_opened;
+	size_t odd_closed;
 };
 
-inline void ColorNode push_parenths(char *ptr);
-inline void ColorNode pop_parenths(char *ptr);
+void process(struct BalanceScore *score,
+	     char *__restrict__ pretty,
+	     char *__restrict__ buffer);
+
+static inline void print_score(struct BalanceScore *score);
+
 inline struct ColorNode *init_color_cycle(void);
 
 static inline void put_token(char **d_ptr,
 			     void (*put_prefix)(char **),
 			     const char token);
-
 
 #define EXIT_ON_FAILURE(format, ...)					\
 do {									\
