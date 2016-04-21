@@ -1,16 +1,14 @@
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* use C linkage */
+
 #include "parenths.h"
 #include "token.h"
 
 #define BUFF_SIZE (1ul << 5)
 
-
-bool test_input(const char *input)
-{
-
-	return *input != '\0';
-
-}
 
 /* hide the main function during testing */
 #ifndef TESTING
@@ -27,4 +25,15 @@ int main(void)
 
 	return 0;
 }
+
+bool test_input(const char *input)
+{
+	return *input != '\0';
+}
 #endif
+
+
+
+#ifdef __cplusplus
+}
+#endif /* use C linkage */

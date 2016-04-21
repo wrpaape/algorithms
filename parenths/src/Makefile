@@ -98,7 +98,7 @@ $(OBJ_DIR)/parenths.o : $(SRC_DIR)/parenths.c $(SRC_DIR)/parenths.h $(SRC_DIR)/t
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-$(OBJ_DIR)/parenths_test.o : $(TESTS_DIR)/parenths_test.cc $(SRC_DIR)/parenths.h $(GTEST_HEADERS)
+$(OBJ_DIR)/parenths_test.o : $(TESTS_DIR)/parenths_test.cc $(SRC_DIR)/parenths.c $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC_DIR) -c $< -o $@
 
 $(TESTS_DIR)/parenths_test : $(OBJ_DIR)/parenths.o $(OBJ_DIR)/parenths_test.o $(OBJ_DIR)/gtest_main.a
