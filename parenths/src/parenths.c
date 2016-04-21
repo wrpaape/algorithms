@@ -7,26 +7,30 @@ extern "C" {
 
 #include "parenths.h"
 
-#define BUFF_SIZE (1ul << 5)
+/* arbitrary buffer limit */
+#define INPUT_SIZE (1ul << 5)
 
+/* sized according to worst case (all unmatched parenths) */
+#define OUTPUT_SIZE (INPUT_SIZE * (sizeof(ANSI_BLINK)	\
+				 + sizeof(ANSI_RED)	\
+				 + sizeof('(')		\
+				 + sizeof(ANSI_RESET)))
 
-
-
-struct ColorNode
 
 
 /* hide the main function during testing */
 #ifndef TESTING
 int main(void)
 {
-	char input[BUFF_SIZE];
+	char input[INPUT_SIZE];
+	char output[OUTPUT_SIZE];
 
 	fputs("check string for proper parentheses nesting\n"
 	      ANSI_BLINK "> " ANSI_BLINK_OFF, stdout);
 
-	fgets(&input[0], BUFF_SIZE, stdin);
+	fgets(&input[0], INPUT_SIZE, stdin);
 
-	puts("AWOOOGA");
+
 
 	return 0;
 }

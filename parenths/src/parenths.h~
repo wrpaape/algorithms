@@ -5,6 +5,7 @@
 
 struct ColorNode {
 	void (*put_prefix)(char **);
+	struct ColorNode *prev;
 	struct ColorNode *next;
 };
 
