@@ -46,28 +46,23 @@ do {									\
 } while (0)
 
 
-#define HANDLE_MALLOC(ptr, size)					\
+/* provide type and cast return for c++ */
+#ifdef __cplusplus
+#define HANDLE_MALLOC(PTR, PTR_TYPE, SIZE)				\
 do {									\
-	ptr = malloc(size);						\
-	if (ptr == NULL)						\
-		EXIT_ON_FAILURE("failed to allocate %lu bytes", size);	\
+	PTR = (PTR_TYPE) malloc(SIZE);					\
+	if (PTR == NULL)						\
+		EXIT_ON_FAILURE("failed to allocate %lu bytes", SIZE);	\
 } while (0)
-
-#define HANDLE_CALLOC(ptr, count, size)					\
+#else
+/* leave uncasted by default */
+#define HANDLE_MALLOC(PTR, SIZE)					\
 do {									\
-	ptr = calloc(count, size);					\
-	if (ptr == NULL)						\
-		EXIT_ON_FAILURE("failed to allocate %lu blocks of %lu"	\
-				"bytes", count, size);			\
+	PTR = malloc(SIZE);						\
+	if (PTR == NULL)						\
+		EXIT_ON_FAILURE("failed to allocate %lu bytes", SIZE);	\
 } while (0)
-
-#define HANDLE_REALLOC(ptr, size)					\
-do {									\
-	ptr = realloc(ptr, size);					\
-	if (ptr == NULL)						\
-		EXIT_ON_FAILURE("failed to reallocate memory at '" #ptr	\
-				"' to %lu bytes", size);		\
-} while (0)
+#endif
 
 /* macros for defining functions that write ANSI escape sequences to a char
  * pointer before advancing it the length of the write */

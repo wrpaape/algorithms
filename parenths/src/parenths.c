@@ -15,6 +15,7 @@ extern "C" {
 				  + sizeof(ANSI_RED)	\
 				  + sizeof('(')		\
 				  + sizeof(ANSI_RESET)))
+#define LENGTH_COLOR_CYCLE 5ul
 
 
 
@@ -57,13 +58,18 @@ void process(struct BalanceScore *score,
 	     char *__restrict__ pretty,
 	     char *__restrict__ buffer)
 {
+
 }
 
 inline struct ColorNode *init_color_cycle(void)
 {
 	struct ColorNode *cycle;
 
+#ifdef __cplusplus
+	HANDLE_MALLOC(cycle, struct ColorNode *, sizeof(struct ColorNode) * 5ul);
+#else
 	HANDLE_MALLOC(cycle, sizeof(struct ColorNode) * 5ul);
+#endif
 
 	/* hook doubly-linked list pointers to form an infinite cycle */
 #define SET_NODE(I, FN_PTR)				\
