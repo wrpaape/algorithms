@@ -15,8 +15,8 @@ extern "C" {
 				  + sizeof(ANSI_RED)	\
 				  + sizeof('(')		\
 				  + sizeof(ANSI_RESET)))
-#define LENGTH_COLOR_CYCLE 5ul
 
+#define LENGTH_COLOR_CYCLE 5ul
 
 
 /* hide the main function during testing */
@@ -58,7 +58,6 @@ void process(struct BalanceScore *score,
 	     char *__restrict__ pretty,
 	     char *__restrict__ buffer)
 {
-
 }
 
 inline struct ColorNode *init_color_cycle(void)
@@ -66,17 +65,20 @@ inline struct ColorNode *init_color_cycle(void)
 	struct ColorNode *cycle;
 
 #ifdef __cplusplus
-	HANDLE_MALLOC(cycle, struct ColorNode *, sizeof(struct ColorNode) * 5ul);
+	HANDLE_MALLOC(cycle,
+		      struct ColorNode *,
+		      sizeof(struct ColorNode) * LENGTH_COLOR_CYCLE);
 #else
-	HANDLE_MALLOC(cycle, sizeof(struct ColorNode) * 5ul);
+	HANDLE_MALLOC(cycle,
+		      sizeof(struct ColorNode) * LENGTH_COLOR_CYCLE);
 #endif
 
 	/* hook doubly-linked list pointers to form an infinite cycle */
-#define SET_NODE(I, FN_PTR)				\
-do {							\
-	cycle[I].put_prefix = FN_PTR;			\
-	cycle[I].prev = &cycle[(I + 4ul) % 5ul];	\
-	cycle[I].next = &cycle[(I + 6ul) % 5ul];	\
+#define SET_NODE(I, FN_PTR)					\
+do {								\
+	cycle[I].put_prefix = FN_PTR;				\
+	cycle[I].prev = &cycle[(I + 4ul) % LENGTH_COLOR_CYCLE];	\
+	cycle[I].next = &cycle[(I + 6ul) % LENGTH_COLOR_CYCLE];	\
 } while (0)
 	SET_NODE(0ul, &put_BLUE_prefix);
 	SET_NODE(1ul, &put_CYAN_prefix);
