@@ -8,8 +8,6 @@
 #include <string.h>	/* strerror */
 #include "token.h"	/* ANSI escape sequence put macros */
 
-#define LENGTH_COLOR_CYCLE 5ul
-
 struct ColorNode {
 	void (*put_prefix)(char **);
 	struct ColorNode *prev;
