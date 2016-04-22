@@ -128,14 +128,13 @@ do {								\
 }
 
 inline void put_token(char **d_ptr,
-		      void (*put_prefix)(char **),
-		      const char token)
+		      struct Token *token)
 {
-	(*put_prefix)(d_ptr);
+	token->put_prefix(d_ptr);
 
 	char *ptr = *d_ptr;
 
-	PUT_CHAR(ptr, token);
+	PUT_CHAR(ptr, token->parenths);
 
 	PUT_ANSI_RESET(ptr);
 

@@ -41,8 +41,7 @@ static inline struct IntervalNode *init_interval_node(void);
 static inline struct ColorNode *init_color_cycle(void);
 
 static inline void put_token(char **d_ptr,
-			     void (*put_prefix)(char **),
-			     const char token);
+			     struct Token *token);
 
 
 #define EXIT_ON_FAILURE(format, ...)					\
