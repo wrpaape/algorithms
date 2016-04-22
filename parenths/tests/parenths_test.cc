@@ -7,13 +7,19 @@
 
 
 
-class ParenthsTest : public testing::Test
+class ParenthsTest: public ::testing::Test
 {
-	void SetUp() {
-		srand((int) time(NULL));
-	}
+	public:
+		void SetUp()
+		{
+			puts("AWOOGA");
+			srand((int) time(NULL));
+		}
 
-	void TearDown() {}
+		void TearDown()
+		{
+			puts("BEEEEEP");
+		}
 };
 
 /* Tests 'put_token' function */
@@ -35,10 +41,14 @@ TEST(ParenthsTest, PutColorToken) {
 /* Tests proper initialization of doubly-linked color cycle */
 TEST(ParenthsTest, InitColorCycle) {
 
-	/* enough space for one cycle's worth of ANSI escape prefixes plus tokens
-	 * (5ul + 1ul) and a NULL terminator (1ul) */
+	/* space for one cycle's worth of 10 character substrings of the form:
+	 *
+	 * [ANSI escape prefix] + [token] + [ANSI escape reset]
+	 *	   (5ul)	   (1ul)	  (4ul)
+	 *
+	 * plus a NULL terminator (1ul) */
 	static const size_t buffer_size = sizeof(char)
-					* (LENGTH_COLOR_CYCLE * 6ul + 1ul);
+					* ((LENGTH_COLOR_CYCLE * 10ul) + 1ul);
 
 	char buff1[buffer_size];
 	char buff2[buffer_size];
@@ -89,13 +99,13 @@ TEST(ParenthsTest, InitColorCycle) {
 
 	ptr = buff1;
 	for (i = 0ul; i < LENGTH_COLOR_CYCLE; ++i, node = node->prev)
-		put_token(&ptr, node->put_prefix, '(');
+		put_token(&ptr, node->put_prefix, ')');
 
 	*ptr = '\0';
 	ptr  = buff2;
 
 	for (i = 0ul; i < LENGTH_COLOR_CYCLE; ++i, node = node->prev)
-		put_token(&ptr, node->put_prefix, '(');
+		put_token(&ptr, node->put_prefix, ')');
 
 	printf("buff1: %s\nbuff2: %s\n", buff1, buff2);
 
