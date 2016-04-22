@@ -8,6 +8,16 @@
 #include <string.h>	/* strerror */
 #include "token.h"	/* ANSI escape sequence put macros */
 
+struct Token {
+	char parenths;
+	void (*put_prefix)(char **);
+};
+
+struct TokenNode {
+	struct Token *token;
+	struct TokenNode *link;
+};
+
 struct ColorNode {
 	void (*put_prefix)(char **);
 	struct ColorNode *prev;
@@ -26,11 +36,14 @@ void process(struct BalanceScore *score,
 
 static inline void print_score(struct BalanceScore *score);
 
-inline struct ColorNode *init_color_cycle(void);
+static inline struct TokenNode *init_token_node(void);
+static inline struct IntervalNode *init_interval_node(void);
+static inline struct ColorNode *init_color_cycle(void);
 
 static inline void put_token(char **d_ptr,
 			     void (*put_prefix)(char **),
 			     const char token);
+
 
 #define EXIT_ON_FAILURE(format, ...)					\
 do {									\
@@ -46,17 +59,15 @@ do {									\
 } while (0)
 
 
-/* provide type and cast return for c++ */
-#ifdef __cplusplus
+#ifdef __cplusplus /* provide type and cast return for c++ */
 #define HANDLE_MALLOC(PTR, PTR_TYPE, SIZE)				\
 do {									\
 	PTR = (PTR_TYPE) malloc(SIZE);					\
 	if (PTR == NULL)						\
 		EXIT_ON_FAILURE("failed to allocate %lu bytes", SIZE);	\
 } while (0)
-#else
-/* leave uncasted by default */
-#define HANDLE_MALLOC(PTR, SIZE)					\
+#else /* leave uncasted by default */
+#define HANDLE_MALLOC(PTR, PTR_TYPE, SIZE)				\
 do {									\
 	PTR = malloc(SIZE);						\
 	if (PTR == NULL)						\

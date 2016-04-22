@@ -64,29 +64,13 @@ void process(struct BalanceScore *score,
 
 
 	struct ColorNode *const cycle = init_color_cycle();
-	struct ColorNode *node = cycle;
+	struct ColorNode *color = cycle;
+
+	struct TokenNode *stack;
+	struct TokenNode *queue;
 
 
 	while (*buffer != '\0') {
-
-		if (*buffer == '(') {
-			put_token(&pretty, node->put_prefix, '(');
-			node = node->next;
-			++odd_opened;
-			continue;
-		}
-
-		if (*bufferr == ')') {
-
-			if (odd_opend > 0ul) {
-				node = node->prev;
-				put_token(&pretty, node->put_prefix, '(');
-				--odd_opened;
-			} else {
-				put_token(&pretty, &put_BLINK_RED_prefix)
-
-			}
-		}
 	}
 
 
@@ -100,18 +84,31 @@ void process(struct BalanceScore *score,
 	score->odd_closed = odd_closed;
 }
 
+inline struct TokenNode *init_token(void)
+{
+	struct TokenNode *node;
+	HANDLE_MALLOC(node,
+		      struct TokenNode *,
+		      sizeof(struct TokenNode));
+	return node;
+}
+
+inline struct TokenNode *init_token_node(void)
+{
+	struct TokenNode *node;
+	HANDLE_MALLOC(node,
+		      struct TokenNode *,
+		      sizeof(struct TokenNode));
+	return node;
+}
+
 inline struct ColorNode *init_color_cycle(void)
 {
 	struct ColorNode *cycle;
 
-#ifdef __cplusplus
 	HANDLE_MALLOC(cycle,
 		      struct ColorNode *,
 		      sizeof(struct ColorNode) * LENGTH_COLOR_CYCLE);
-#else
-	HANDLE_MALLOC(cycle,
-		      sizeof(struct ColorNode) * LENGTH_COLOR_CYCLE);
-#endif
 
 	/* hook doubly-linked list pointers to form an infinite cycle */
 #define SET_NODE(I, FN_PTR)					\
@@ -139,6 +136,7 @@ inline void put_token(char **d_ptr,
 	char *ptr = *d_ptr;
 
 	PUT_CHAR(ptr, token);
+
 	PUT_ANSI_RESET(ptr);
 
 	*d_ptr = ptr;
