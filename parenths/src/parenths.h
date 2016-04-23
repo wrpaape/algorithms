@@ -9,7 +9,7 @@
 #include "token.h"	/* ANSI escape sequence put macros */
 
 struct Token {
-	char parenths;
+	char *parenths;
 	void (*put_prefix)(char **);
 };
 
@@ -36,7 +36,16 @@ void process(struct BalanceScore *score,
 
 static inline void print_score(struct BalanceScore *score);
 
-inline struct TokenNode *init_token(const char parenths);
+static inline struct Token *init_token(const char *ptr);
+
+static inline struct TokenNode **enqueue_token(struct TokenNode **qtail,
+					       struct Token *token);
+
+static inline void push_token(struct TokenNode **stack,
+			      struct Token *token);
+
+static inline struct Token *pop_token(struct TokenNode **stack);
+
 static inline struct TokenNode *init_token_node(void);
 static inline struct IntervalNode *init_interval_node(void);
 static inline struct ColorNode *init_color_cycle(void);

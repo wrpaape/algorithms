@@ -66,12 +66,66 @@ void process(struct BalanceScore *score,
 	struct ColorNode *const cycle = init_color_cycle();
 	struct ColorNode *color = cycle;
 
-	struct TokenNode *stack;
+	struct TokenNode *stack = NULL;
+
 	struct TokenNode *queue;
+	struct TokenNode **qtail = &queue;
+
+	struct Token *opened;
+	struct Token *closed;
+
+	char *ptr;
 
 
-	while (*buffer != '\0') {
+	for (ptr = buffer; *ptr != '\0'; ++ptr) {
+
+		if (*ptr == '(') {
+			opened = init_token(ptr);
+
+			opened->put_prefix = color->put_prefix;
+
+			qtail = enqueue_token(qtail, opened);
+
+			push_token(&stack, opened);
+
+			color = color->next;
+
+			continue;
+		}
+
+		if (*ptr == ')') {
+			closed = init_token(ptr);
+
+			qtail = enqueue_token(qtail, closed);
+
+			if (stack == NULL) {
+				++odd_closed;
+
+				closed->put_prefix = &put_BLINK_RED;
+
+				continue;
+			}
+
+			++even_pairs;
+
+			opened = pop_token(&stack);
+
+			closed->put_prefix = opened->put_prefix;
+
+			color = color->prev;
+		}
 	}
+
+	while (stack != NULL) {
+		++odd_opened;
+
+		opened = pop_token(&stack);
+
+		opened->put_prefix = &put_BLINK_RED;
+	}
+
+
+	while ()
 
 
 
@@ -83,17 +137,32 @@ void process(struct BalanceScore *score,
 	score->odd_opened = odd_opened;
 	score->odd_closed = odd_closed;
 }
+
+inline struct TokenNode **enqueue_token(struct TokenNode **qtail,
+					struct Token *token)
+{
+	*qtail = init_token_node();
+
+	(*qtail)->token = token;
+
+	return &(*qtail)->link;
+}
+
 inline void push_token(struct TokenNode **stack,
 		       struct Token *token)
 {
-	token->link = *stack;
-	*stack = token;
+	struct TokenNode *node = init_token_node();
+
+	node->token = token;
+	node->link  = *stack;
+
+	*stack = node;
 }
 
 inline struct Token *pop_token(struct TokenNode **stack)
 {
 	struct TokenNode *node = *stack;
-	struct Token token = node->token;
+	struct Token *token = node->token;
 
 	*stack = node->link;
 	free(node);
@@ -101,14 +170,14 @@ inline struct Token *pop_token(struct TokenNode **stack)
 	return token;
 }
 
-inline struct TokenNode *init_token(const char parenths)
+inline struct Token *init_token(const char *ptr)
 {
 	struct Token *token;
 	HANDLE_MALLOC(token,
 		      struct Token *,
 		      sizeof(struct Token));
 
-	token->parenths = parenths;
+	token->parenths = ptr;
 
 	return token;
 }
@@ -153,7 +222,7 @@ inline void put_token(char **d_ptr,
 
 	char *ptr = *d_ptr;
 
-	PUT_CHAR(ptr, token->parenths);
+	PUT_CHAR(ptr, *(token->parenths));
 
 	PUT_ANSI_RESET(ptr);
 
