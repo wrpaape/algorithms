@@ -69,12 +69,15 @@ void process(struct BalanceScore *score,
 	struct TokenNode *stack = NULL;
 
 	struct TokenNode *queue;
+	struct TokenNode *node;
 	struct TokenNode **qtail = &queue;
 
 	struct Token *opened;
 	struct Token *closed;
+	struct Token *token;
 
 	char *ptr;
+	char *parenths;
 
 
 	for (ptr = buffer; *ptr != '\0'; ++ptr) {
@@ -101,7 +104,7 @@ void process(struct BalanceScore *score,
 			if (stack == NULL) {
 				++odd_closed;
 
-				closed->put_prefix = &put_BLINK_RED;
+				closed->put_prefix = &put_BLINK_RED_prefix;
 
 				continue;
 			}
@@ -116,20 +119,48 @@ void process(struct BalanceScore *score,
 		}
 	}
 
+	free(cycle);
+
 	while (stack != NULL) {
 		++odd_opened;
 
 		opened = pop_token(&stack);
 
-		opened->put_prefix = &put_BLINK_RED;
+		opened->put_prefix = &put_BLINK_RED_prefix;
+	}
+
+	*qtail = NULL;
+
+
+	while (queue != NULL) {
+
+		token = queue->token;
+
+		parenths = token->parenths;
+
+		while (buffer < parenths) {
+			*pretty = *buffer;
+			++pretty;
+			++buffer;
+		}
+
+		put_token(&pretty, token);
+
+		free(token);
+
+		node  = queue;
+		queue = queue->link;
+
+		free(node);
 	}
 
 
-	while ()
+	while (*buffer != '\0') {
+		*pretty = *buffer;
+		++pretty;
+		++buffer;
+	}
 
-
-
-	free(cycle);
 
 	*pretty = '\0';
 
