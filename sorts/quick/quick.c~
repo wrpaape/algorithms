@@ -90,56 +90,71 @@ static inline void swap(int *data,
 
 size_t split_data(int *data,
                size_t i,
-               size_t k)
+               size_t j)
 {
-	const size_t length = k - i + 1ul;
-	const size_t i_pivot = i;
-	const int pivot = data[i];
 
-	size_t j = k - 1ul;
+	size_t i_next = i + 1ul;
+
+	if (i_next == j) {
+
+		if (compare(data[j], data[i]))
+			swap(data, i, j);
+
+		return i_next;
+	}
+
+	size_t j_next = j - 1ul;
+
+	const size_t i_pivot = i;
+
+	const size_t length = j_next - i_pivot;
+
+	const int pivot = data[i_pivot];
+
 
 	char buffer[1000];
 	put_data(buffer,
 		 &data[i_pivot],
 		 length);
-
 	printf("*******************************\ninit:\n%s\n", buffer);
 
 	while (1) {
-		++i;
 
 		while (1) {
-			if (i == j)
+			if (i_next == j_next)
 				goto PLACE_PIVOT;
 
-			++i;
+			i = i_next;
 
 			if (compare(pivot, data[i]))
 				break;
+
+			++i_next;
 		}
 
 		printf("-----\npivot: %d, data[i]: %d, i: %zu\n", pivot, data[i], i);
 
 		while (1) {
-			if (i == j)
-				goto PLACE_PIVOT;
-
-			if (compare(data[k], pivot))
+			if (compare(pivot, data[j]))
 				break;
 
-			k = j;
+			if (i_next == j_next)
+				goto PLACE_PIVOT;
 
-			--j;
+			j = j_next;
+
+			--j_next;
+
 		}
-		printf("pivot: %d, data[k]: %d, k: %zu\n", pivot, data[k], k);
+		printf("pivot: %d, data[j]: %d, j: %zu\n", pivot, data[j], j);
 
-		swap(data, i, k);
+		swap(data, i, j);
 	}
 
 PLACE_PIVOT:
 
-	if (compare(data[j], pivot)) {
-		--j;
+	if (compare(data[i_next], pivot)) {
+		++i_next;
 	}
 
 	swap(data, i_pivot, j);
@@ -150,11 +165,11 @@ PLACE_PIVOT:
 		 &data[i_pivot],
 		 length);
 
-	printf("final:\n%s\ni: %zu\nj: %zu\nk: %zu\nl: %zu\np: %d\n\n", buffer, i, j, i_pivot, length, pivot);
+	/* printf("final:\n%s\ni: %zu\nj: %zu\nk: %zui_pivot: %zu\nl: %zu\np: %d\n\n", buffer, i, j, k, i_pivot, length, pivot); */
 
-	fflush(stdout);
+	/* fflush(stdout); */
 
-	usleep(100000);
+	/* usleep(100000); */
 
 	return j;
 }
