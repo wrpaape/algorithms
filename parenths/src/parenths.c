@@ -8,7 +8,7 @@ extern "C" {
 #include "parenths.h"
 
 /* arbitrary buffer limit */
-#define BUFFER_SIZE (sizeof(char) << 5)
+#define BUFFER_SIZE (sizeof(char) << 10)
 
 /* sized according to worst case (all unmatched parenths) */
 #define PRETTY_SIZE (BUFFER_SIZE * (sizeof(ANSI_BLINK)	\
@@ -51,13 +51,16 @@ inline void print_score(struct BalanceScore *score)
 	       ANSI_RED	  "  unmatched '(':  %zu\n"
 			  "  unmatched ')':  %zu\n"
 	       ANSI_GREEN "  balanced pairs: %zu\n",
-	       score->even_pairs, score->odd_opened, score->odd_closed);
+	       score->odd_opened, score->odd_closed, score->even_pairs);
 }
 
 void process(struct BalanceScore *score,
 	     char *pretty,
 	     char *buffer)
 {
+
+	puts(buffer);
+
 	size_t even_pairs = 0ul;
 	size_t odd_opened = 0ul;
 	size_t odd_closed = 0ul;
@@ -66,10 +69,10 @@ void process(struct BalanceScore *score,
 	struct ColorNode *const cycle = init_color_cycle();
 	struct ColorNode *color = cycle;
 
-	struct TokenNode *stack = NULL;
 
-	struct TokenNode *queue;
 	struct TokenNode *node;
+	struct TokenNode *queue;
+	struct TokenNode *stack = NULL;
 	struct TokenNode **qtail = &queue;
 
 	struct Token *opened;
@@ -145,6 +148,7 @@ void process(struct BalanceScore *score,
 		}
 
 		put_token(&pretty, token);
+		++buffer;
 
 		free(token);
 
