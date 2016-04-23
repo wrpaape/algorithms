@@ -1,7 +1,7 @@
 #ifndef ANALYZE_TREE_COMPARE_H_
 #define ANALYZE_TREE_COMPARE_H_
 struct BTreeNode {
-	int value;
+	int32_t value;
 	struct BTreeNode *l_child;
 	struct BTreeNode *r_child;
 };
@@ -42,6 +42,7 @@ struct BTree *init_tree4(void);
 struct BTree *init_tree5(void);
 struct BTree *init_tree6(void);
 struct BTree *init_tree7(void);
+struct BTreeNode *init_tree(size_t h);
 
 static inline struct BTree *build_tree(const char *name,
 				       const char *display,
