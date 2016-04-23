@@ -60,7 +60,7 @@ do {				\
 #define PUT_ANSI_BLINK(PTR) _SML_ANSI(PTR, 53)
 
 /* 5 bytes */
-#define ANSI_NORMAL "\e[22m"
+#define ANSI_NORMAl "\e[22m"
 #define ANSI_BLINK_OFF "\e[25m"
 #define ANSI_NO_UNDERLINE "\e[24m"
 

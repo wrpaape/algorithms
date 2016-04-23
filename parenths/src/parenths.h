@@ -34,7 +34,8 @@ void process(struct BalanceScore *score,
 	     char *pretty,
 	     char *buffer);
 
-static inline void print_score(struct BalanceScore *score);
+static inline void print_results(char *pretty,
+				 struct BalanceScore *score);
 
 static inline struct Token *init_token(char *const ptr);
 
@@ -86,28 +87,30 @@ do {									\
 
 /* macros for defining functions that write ANSI escape sequences to a char
  * pointer before advancing it the length of the write */
-#define DEF_PUT_PREFIX1(TYPE)						\
+#define DEF_PUT_PREFIX(TYPE)						\
 static inline void put_ ## TYPE ## _prefix(char **d_ptr)		\
 {									\
 	char *ptr = *d_ptr;						\
 	PUT_ANSI_ ## TYPE(ptr);						\
 	*d_ptr = ptr;							\
 }
-#define DEF_PUT_PREFIX2(TYPE1, TYPE2)					\
-static inline void put_ ## TYPE1 ## _ ## TYPE2 ## _prefix(char **d_ptr)	\
-{									\
-	char *ptr = *d_ptr;						\
-	PUT_ANSI_ ## TYPE1(ptr);					\
-	PUT_ANSI_ ## TYPE2(ptr);					\
-	*d_ptr = ptr;							\
-}
-DEF_PUT_PREFIX1(BLUE)
-DEF_PUT_PREFIX1(CYAN)
-DEF_PUT_PREFIX1(MAGENTA)
-DEF_PUT_PREFIX1(YELLOW)
-DEF_PUT_PREFIX1(WHITE)
+DEF_PUT_PREFIX(BLUE)
+DEF_PUT_PREFIX(CYAN)
+DEF_PUT_PREFIX(MAGENTA)
+DEF_PUT_PREFIX(YELLOW)
+DEF_PUT_PREFIX(BLACK)
 DEF_PUT_PREFIX2(BLINK, RED)
-#undef DEF_PUT_PREFIX1
-#undef DEF_PUT_PREFIX2
+#undef DEF_PUT_PREFIX
+
+static inline void put_ERROR(char **d_ptr)
+{
+	char *ptr = *d_ptr;
+
+	PUT_ANSI_BLINK(ptr);
+	PUT_ANSI_RED(ptr);
+	PUT_ANSI_BLINK_OFF(ptr);
+
+	*d_ptr = ptr;
+}
 
 #endif /* ifndef PARENTHS_H_ */

@@ -36,31 +36,31 @@ int main(void)
 
 	process(&score, &pretty[0ul], &buffer[0ul]);
 
-	puts(pretty);
-
-	print_score(&score);
+	print_results(&pretty[0ul], &score);
 
 	return 0;
 }
 #endif
 
-inline void print_score(struct BalanceScore *score)
+inline void print_results(char *pretty,
+			  struct BalanceScore *score)
 {
-	printf("\n\n" ANSI_BRIGHT ANSI_WHITE_BG ANSI_BLUE
-	       ANSI_UNDERLINE "RESULTS" ANSI_NO_UNDERLINE "\n"
-	       ANSI_RED	  "  unmatched '(':  %zu\n"
-			  "  unmatched ')':  %zu\n"
-	       ANSI_GREEN "  balanced pairs: %zu\n",
-	       score->odd_opened, score->odd_closed, score->even_pairs);
+	printf(ANSI_CLEAR ANSI_BRIGHT ANSI_WHITE_BG
+	       "%s\n\n" ANSI_BLUE ANSI_UNDERLINE
+	       "RESULTS" ANSI_NO_UNDERLINE "\n" ANSI_RED
+	       "  unmatched '(':  %zu\n"
+	       "  unmatched ')':  %zu\n" ANSI_GREEN
+	       "  balanced pairs: %zu\n" ANSI_RESET,
+	       pretty,
+	       score->odd_opened,
+	       score->odd_closed,
+	       score->even_pairs);
 }
 
 void process(struct BalanceScore *score,
 	     char *pretty,
 	     char *buffer)
 {
-
-	puts(buffer);
-
 	size_t even_pairs = 0ul;
 	size_t odd_opened = 0ul;
 	size_t odd_closed = 0ul;
@@ -244,7 +244,7 @@ do {								\
 	SET_NODE(1ul, &put_CYAN_prefix);
 	SET_NODE(2ul, &put_MAGENTA_prefix);
 	SET_NODE(3ul, &put_YELLOW_prefix);
-	SET_NODE(4ul, &put_WHITE_prefix);
+	SET_NODE(4ul, &put_BLACK_prefix);
 #undef SET_NODE
 
 	return cycle;
@@ -259,7 +259,7 @@ inline void put_token(char **d_ptr,
 
 	PUT_CHAR(ptr, *(token->parenths));
 
-	PUT_ANSI_RESET(ptr);
+	PUT_ANSI_NORMAL(ptr);
 
 	*d_ptr = ptr;
 }
