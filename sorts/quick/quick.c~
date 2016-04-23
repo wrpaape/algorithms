@@ -11,6 +11,28 @@ do {				\
 } while (0)
 
 
+static inline int compare(int x,
+			  int y)
+{
+	return x < y;
+}
+
+static inline void swap(int *data,
+			const int i,
+			const int j)
+{
+	const int tmp = data[i];
+	data[i] = data[j];
+	data[j] = tmp;
+}
+
+
+static inline void quick_sort(int *data,
+			      const size_t length)
+{
+	do_sort(data, 1ul, lenghth);
+}
+
 static inline size_t num_digits(const int n)
 {
 
@@ -47,13 +69,13 @@ static inline void put_number(char **d_ptr,
 	*d_ptr = ptr;
 
 	while (1) {
+		--ptr;
 		*ptr = (n % 10) + '0';
 
 		if (ptr == base)
 			return;
 
 		n /= 10;
-		--ptr;
 	}
 }
 
@@ -65,18 +87,18 @@ static inline void put_data(char *ptr,
 	put_number(&ptr, data[0l]);
 
 	for (size_t i = 1ul; i < length; ++i) {
-		PUT_CHAR(ptr, ' '); PUT_CHAR(ptr, ','); PUT_CHAR(ptr, ' ');
+		PUT_CHAR(ptr, ','); PUT_CHAR(ptr, ' ');
 		put_number(&ptr, data[i]);
 	}
 
-	PUT_CHAR(ptr, '}');
-
-
+	PUT_CHAR(ptr, '}'); PUT_CHAR(ptr, '\0');
 }
+
 
 int main(void)
 {
-	char buffer[LENGTH_DATA * 13ul];
+	char raw[LENGTH_DATA * 12ul];
+	char sorted[LENGTH_DATA * 12ul];
 	int data[LENGTH_DATA];
 	time_t dummy;
 
@@ -85,20 +107,10 @@ int main(void)
 	for (size_t i = 0ul; i < LENGTH_DATA; ++i)
 		data[i] = rand();
 
-	put_data(&buffer[0l], data, LENGTH_DATA);
+	put_data(&raw[0l], data, LENGTH_DATA);
 
-	printf("%zu\n%zu\n%zu\n%zu\n%zu\n%zu\n%zu\n%zu\n%zu\n%zu\n",
-	       1,
-	       10,
-	       100,
-	       1000,
-	       10000,
-	       100000,
-	       1000000,
-	       10000000,
-	       100000000,
-	       1000000000);
-	/* puts(buffer); */
+
+	quick
 
 	return 0;
 }
