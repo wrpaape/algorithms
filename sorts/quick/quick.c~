@@ -134,7 +134,6 @@ size_t split_data(int *data,
 			j = j_next;
 
 			--j_next;
-
 		}
 
 		swap(data, i, j);
