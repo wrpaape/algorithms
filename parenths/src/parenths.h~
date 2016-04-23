@@ -36,7 +36,7 @@ void process(struct BalanceScore *score,
 
 static inline void print_score(struct BalanceScore *score);
 
-static inline struct Token *init_token(char *const ptr);
+static inline struct Token *init_token(const char *ptr);
 
 static inline struct TokenNode **enqueue_token(struct TokenNode **qtail,
 					       struct Token *token);

@@ -201,7 +201,7 @@ inline struct Token *pop_token(struct TokenNode **stack)
 	return token;
 }
 
-inline struct Token *init_token(char *const ptr)
+inline struct Token *init_token(const char *ptr)
 {
 	struct Token *token;
 	HANDLE_MALLOC(token,
