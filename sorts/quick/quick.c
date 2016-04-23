@@ -107,16 +107,7 @@ size_t split_data(int *data,
 
 	const size_t i_pivot = i;
 
-	const size_t length = j_next - i_pivot;
-
 	const int pivot = data[i_pivot];
-
-
-	char buffer[1000];
-	put_data(buffer,
-		 &data[i_pivot],
-		 length);
-	printf("*******************************\ninit:\n%s\n", buffer);
 
 	while (1) {
 
@@ -126,52 +117,40 @@ size_t split_data(int *data,
 
 			i = i_next;
 
+			++i_next;
+
 			if (compare(pivot, data[i]))
 				break;
-
-			++i_next;
 		}
 
-		printf("-----\npivot: %d, data[i]: %d, i: %zu\n", pivot, data[i], i);
-
 		while (1) {
-			if (compare(pivot, data[j]))
+			if (compare(data[j], pivot))
 				break;
 
 			if (i_next == j_next)
 				goto PLACE_PIVOT;
+
 
 			j = j_next;
 
 			--j_next;
 
 		}
-		printf("pivot: %d, data[j]: %d, j: %zu\n", pivot, data[j], j);
 
 		swap(data, i, j);
 	}
 
 PLACE_PIVOT:
 
-	if (compare(data[i_next], pivot)) {
-		++i_next;
+	if (compare(pivot, data[i_next])) {
+
+		swap(data, i_pivot, i);
+		return j;
+
+	} else {
+		swap(data, i_pivot, i_next);
+		return i_next;
 	}
-
-	swap(data, i_pivot, j);
-
-
-
-	put_data(buffer,
-		 &data[i_pivot],
-		 length);
-
-	/* printf("final:\n%s\ni: %zu\nj: %zu\nk: %zui_pivot: %zu\nl: %zu\np: %d\n\n", buffer, i, j, k, i_pivot, length, pivot); */
-
-	/* fflush(stdout); */
-
-	/* usleep(100000); */
-
-	return j;
 }
 
 void do_sort(int *data,
