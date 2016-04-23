@@ -14,7 +14,8 @@ extern "C" {
 #define PRETTY_SIZE (BUFFER_SIZE * (sizeof(ANSI_BLINK)	\
 				  + sizeof(ANSI_RED)	\
 				  + sizeof('(')		\
-				  + sizeof(ANSI_RESET)))
+				  + sizeof(ANSI_RESET)	\
+				  + sizeof(ANSI_BRIGHT)))
 
 #define LENGTH_COLOR_CYCLE 5ul
 
@@ -45,9 +46,9 @@ int main(void)
 inline void print_results(char *pretty,
 			  struct BalanceScore *score)
 {
-	printf(ANSI_CLEAR ANSI_BRIGHT ANSI_WHITE_BG
-	       "%s\n\n" ANSI_BLUE ANSI_UNDERLINE
-	       "RESULTS" ANSI_NO_UNDERLINE "\n" ANSI_RED
+	printf(ANSI_CLEAR ANSI_BRIGHT
+	       "%s\n" ANSI_WHITE_BG ANSI_BLUE ANSI_UNDERLINE
+	       "RESULTS\n" ANSI_NO_UNDERLINE ANSI_RED
 	       "  unmatched '(':  %zu\n"
 	       "  unmatched ')':  %zu\n" ANSI_GREEN
 	       "  balanced pairs: %zu\n" ANSI_RESET,
@@ -244,7 +245,7 @@ do {								\
 	SET_NODE(1ul, &put_CYAN_prefix);
 	SET_NODE(2ul, &put_MAGENTA_prefix);
 	SET_NODE(3ul, &put_YELLOW_prefix);
-	SET_NODE(4ul, &put_BLACK_prefix);
+	SET_NODE(4ul, &put_WHITE_prefix);
 #undef SET_NODE
 
 	return cycle;
@@ -253,13 +254,15 @@ do {								\
 inline void put_token(char **d_ptr,
 		      struct Token *token)
 {
-	token->put_prefix(d_ptr);
-
 	char *ptr = *d_ptr;
+
+	token->put_prefix(&ptr);
 
 	PUT_CHAR(ptr, *(token->parenths));
 
-	PUT_ANSI_NORMAL(ptr);
+	PUT_ANSI_RESET(ptr);
+
+	PUT_ANSI_BRIGHT(ptr);
 
 	*d_ptr = ptr;
 }
