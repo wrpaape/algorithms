@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <time.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define LENGTH_DATA (10ul)
+#define LENGTH_DATA (5ul)
 
 #define PUT_CHAR(PTR, CHAR)	\
 do {				\
@@ -79,89 +80,82 @@ static inline bool compare(int x,
 }
 
 static inline void swap(int *data,
-			const size_t i,
-			const size_t j)
+			const ptrdiff_t i,
+			const ptrdiff_t j)
 {
+	printf("data[%zd]: %d\ndata[%zd]: %d\n", i, data[i], j, data[j]);
 	const int tmp = data[i];
 	data[i] = data[j];
 	data[j] = tmp;
 }
 
 
-size_t split_data(int *data,
-               size_t i,
-               size_t j)
+ptrdiff_t split_data(int *data,
+               ptrdiff_t i,
+               ptrdiff_t j)
 {
 
-	size_t i_next = i + 1ul;
-
-	if (i_next == j) {
-
-		if (compare(data[j], data[i]))
-			swap(data, i, j);
-
-		return i_next;
-	}
-
-	size_t j_next = j - 1ul;
-
-	const size_t i_pivot = i;
+	const ptrdiff_t i_pivot = i;
 
 	const int pivot = data[i_pivot];
 
 	while (1) {
+		++i;
 
 		while (1) {
-			if (i_next == j_next)
-				goto PLACE_PIVOT;
+			if (i == j) {
 
-			i = i_next;
+				if (compare(pivot, data[j])) {
+					--j;
+				}
 
-			++i_next;
+				printf("\nplacing pivot: %d\n", pivot);
+				swap(data, i_pivot, j);
+				return j;
+			}
 
 			if (compare(pivot, data[i]))
 				break;
+
+			++i;
 		}
+
 
 		while (1) {
 			if (compare(data[j], pivot))
 				break;
 
-			if (i_next == j_next)
-				goto PLACE_PIVOT;
+			if (i == j) {
+				puts("AWOOGA1");
+				printf("data[%zu]: %d\npivot: %d\n", i, data[i], pivot);
+				--j;
+				printf("\nplacing pivot: %d\n", pivot);
+				swap(data, i_pivot, j);
+				return j;
+			}
 
+			--j;
 
-			j = j_next;
-
-			--j_next;
 		}
 
+		puts("AWOOGA2");
+
 		swap(data, i, j);
-	}
-
-PLACE_PIVOT:
-
-	if (compare(pivot, data[i_next])) {
-
-		swap(data, i_pivot, i);
-		return j;
-
-	} else {
-		swap(data, i_pivot, i_next);
-		return i_next;
 	}
 }
 
 void do_sort(int *data,
-	     const size_t i_first,
-	     const size_t i_last)
+	     const ptrdiff_t i_first,
+	     const ptrdiff_t i_last)
 {
 	if (i_first < i_last) {
 
-		const size_t i_split = split_data(data, i_first, i_last);
+		const ptrdiff_t i_split = split_data(data, i_first, i_last);
 
-		do_sort(data, i_first,	     i_split - 1ul);
-		do_sort(data, i_split + 1ul, i_last);
+		printf("\n\nsplit_at: %zd\n", i_split);
+
+		do_sort(data, i_first,	     i_split - 1l);
+		do_sort(data, i_split + 1l, i_last);
 	}
 }
 
@@ -179,6 +173,7 @@ int main(void)
 	char raw[LENGTH_DATA * 12ul];
 	char sorted[LENGTH_DATA * 12ul];
 	int data[LENGTH_DATA];
+	/* int data[LENGTH_DATA] = {10, 38, 77, 16, 99}; */
 	time_t dummy;
 
 	srand((unsigned) time(&dummy));
