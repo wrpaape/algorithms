@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
-#define LENGTH_DATA (1ul << 8)
+#define LENGTH_DATA (10ul)
 
 #define PUT_CHAR(PTR, CHAR)	\
 do {				\
@@ -10,16 +12,15 @@ do {				\
 	++PTR;			\
 } while (0)
 
-
-static inline int compare(int x,
+static inline bool compare(int x,
 			  int y)
 {
 	return x < y;
 }
 
 static inline void swap(int *data,
-			const int i,
-			const int j)
+			const size_t i,
+			const size_t j)
 {
 	const int tmp = data[i];
 	data[i] = data[j];
@@ -27,10 +28,65 @@ static inline void swap(int *data,
 }
 
 
+int split_data(int *data,
+               size_t i,
+               size_t j)
+{
+	int split = data[i];
+
+	while (1) {
+		while (compare(split, data[j])) {
+			--j;
+			if (i == j)
+				return i + 1ul;
+		}
+
+		++i;
+		if (i == j)
+			return i - 1ul;
+
+		while (compare(data[i], split)) {
+			++i;
+			if (i == j)
+				return i - 1ul;
+		}
+
+
+		swap(data, i, j);
+
+
+		--j;
+		if (i == j)
+			return i + 1ul;
+	}
+}
+
+void do_sort(int *data,
+	     const size_t i_first,
+	     const size_t i_last)
+{
+	if (i_first < i_last) {
+
+		if (i_first + 1ul == i_last) {
+
+			if (compare(data[i_last], data[i_first]))
+				swap(data, i_last, i_first);
+
+			return;
+		}
+		const size_t i_split = split_data(data, i_first, i_last);
+
+		do_sort(data, i_first,	     i_split);
+		do_sort(data, i_split + 1ul, i_last);
+	}
+}
+
+
+
 static inline void quick_sort(int *data,
 			      const size_t length)
 {
-	do_sort(data, 1ul, lenghth);
+	do_sort(data, 0ul, length - 1ul);
 }
 
 static inline size_t num_digits(const int n)
@@ -99,18 +155,22 @@ int main(void)
 {
 	char raw[LENGTH_DATA * 12ul];
 	char sorted[LENGTH_DATA * 12ul];
-	int data[LENGTH_DATA];
+	int data[LENGTH_DATA] = {8, 2, 33, 55, 5, 1, 199, 3};
 	time_t dummy;
 
 	srand((unsigned) time(&dummy));
 
-	for (size_t i = 0ul; i < LENGTH_DATA; ++i)
-		data[i] = rand();
+	/* for (size_t i = 0ul; i < LENGTH_DATA; ++i) */
+	/* 	data[i] = rand(); */
 
 	put_data(&raw[0l], data, LENGTH_DATA);
 
+	quick_sort(data, LENGTH_DATA);
 
-	quick
+
+	put_data(&sorted[0l], data, LENGTH_DATA);
+
+	printf("raw:\n%s\nsorted:\n:%s\n", raw, sorted);
 
 	return 0;
 }
