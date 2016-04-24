@@ -4,69 +4,115 @@
 
 #define COUNT (1ul << 7)
 
-inline int compare(double x,
-		   double y)
+inline int compare_dbl_nodes(struct DblNode *node1,
+			     struct DblNode *node2)
 {
-	if (x < y) return -1;
-	if (x > y) return  1;
-	else	   return  0;
+	const double dbl1 = node1->value;
+	const double dbl2 = node2->value;
+
+	if (dbl1 < dbl2) return -1;
+	if (dbl1 > dbl2) return  1;
+	else		 return  0;
 }
-inline void swap_ij(double *array,
-		    const ptrdiff_t i,
-		    const ptrdiff_t j)
+
+inline void swap_dbl_nodes(struct DblNode *node1,
+			   struct DblNode *node2)
 {
-	const double tmp_swap = array[i];
-	array[i] = array[j];
-	array[j] = tmp_swap;
+	struct DblNode *tmp;
+
+	tmp = node1->prev;
+	node1->prev = node2->prev;
+	node2->prev = tmp;
+
+	tmp = node1->next;
+	node1->next = node2->next;
+	node2->next = tmp;
 }
 
 void run_pairs(void)
 {
-	double nuts[COUNT];
-	double bolts[COUNT];
+	struct DblNode nuts[COUNT];
+	struct DblNode bolts[COUNT];
 
 	init_nuts_and_bolts(&nuts[0l], &bolts[0l], COUNT);
 
 	puts("shuffled:");
-	print_nuts_and_bolts(&nuts[0l], &bolts[0l], COUNT);
+	print_nuts_and_bolts(&nuts[0l], &bolts[0l]);
 
 	match_nuts_and_bolts(&nuts[0l], &bolts[0l], COUNT);
 }
 
-static inline void match_nuts_and_bolts(double *nuts,
-					double *bolts,
+static inline void match_nuts_and_bolts(struct DblNode *nuts,
+					struct DblNode *bolts,
 					const size_t count)
 {
 }
 
-inline void init_nuts_and_bolts(double *nuts,
-				double *bolts,
-				const size_t count)
-{
-	for (size_t i = 0ul; i < count; ++i)
-		nuts[i] = rand_dbl_upto(500.0);
-
-	memcpy(bolts, nuts, sizeof(double) * count);
-
-	shuffle_array(bolts, count, sizeof(double));
-}
-
-inline void print_nuts_and_bolts(double *nuts,
-				 double *bolts,
-				 const size_t count)
+void init_nuts_and_bolts(struct DblNode *nuts,
+			 struct DblNode *bolts,
+			 const size_t count)
 {
 	const size_t i_last = count - 1ul;
+	double values[count];
 	size_t i;
+	struct DblNode *prev;
+
+	for (i = 0ul; i < count; ++i)
+		values[i] = rand_dbl_upto(500.0);
+
+	i = 0ul;
+	prev = NULL;
+
+	while (1) {
+		nuts[i].value = values[i];
+		nuts[i].prev  = prev;
+
+		if (i == i_last)
+			break;
+
+		prev = &nuts[i];
+		++i;
+		prev->next = &nuts[i];
+	}
+
+	nuts[i_last].next = NULL;
+
+
+	shuffle_array(values, count, sizeof(double));
+
+
+	i = 0ul;
+	prev = NULL;
+
+	while (1) {
+		bolts[i].value = values[i];
+		bolts[i].prev  = prev;
+
+		if (i == i_last)
+			break;
+
+		prev = &bolts[i];
+		++i;
+		prev->next = &bolts[i];
+	}
+
+	bolts[i_last].next = NULL;
+}
+
+inline void print_nuts_and_bolts(struct DblNode *nuts,
+				 struct DblNode *bolts)
+{
+	struct DblNode *node;
 
 	puts("nuts: {");
 
-	for (i = 0; i < i_last; ++i)
-		printf("%f, ", nuts[i]);
+	for (node = nuts; node->next != NULL; node = node->next)
+		printf("%f, ", node->value);
 
-	printf("%f\n}\n\nbolts: {\n", nuts[i_last]);
+	printf("%f\n}\n\nbolts: {\n", node->value);
 
-	for (i = 0; i < i_last; ++i)
-		printf("%f, ", bolts[i]);
+	for (node = bolts; node->next != NULL; node = node->next)
+		printf("%f, ", node->value);
 
-	printf("%f\n}\n", bolts[i_last]);
+	printf("%f\n}\n", node->value);
 }

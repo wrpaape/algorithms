@@ -3,22 +3,29 @@
 
 void run_pairs(void);
 
-static inline int compare(double x,
-			  double y);
+struct DblNode {
+	double value;
+	struct DblNode *prev;
+	struct DblNode *next;
+};
 
-static inline void swap_ij(double *data,
-			   const ptrdiff_t i,
-			   const ptrdiff_t j);
+static inline int compare_dbl_nodes(struct DblNode *node1,
+				    struct DblNode *node2);
 
-static inline void init_nuts_and_bolts(double *nuts,
-				       double *bolts,
-				       const size_t count);
+static inline void swap_dbl_nodes(struct DblNode *node1,
+				  struct DblNode *node2);
 
-static inline void print_nuts_and_bolts(double *nuts,
-					double *bolts,
-					const size_t count);
+/* static inline void init_nuts_and_bolts(struct DblNode *nuts, */
+/* 				       struct DblNode *bolts, */
+/* 				       const size_t count); */
+void init_nuts_and_bolts(struct DblNode *nuts,
+			 struct DblNode *bolts,
+			 const size_t count);
 
-static inline void match_nuts_and_bolts(double *nuts,
-					double *bolts,
+static inline void print_nuts_and_bolts(struct DblNode *nuts,
+					struct DblNode *bolts);
+
+static inline void match_nuts_and_bolts(struct DblNode *nuts,
+					struct DblNode *bolts,
 					const size_t count);
 #endif /* ifndef ANALYZE_PAIRS_H_ */
