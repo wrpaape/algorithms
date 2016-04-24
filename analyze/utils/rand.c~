@@ -10,5 +10,3 @@ extern inline double rand_in_dub_range(const double lbound,
 void shuffle_array(void *data,
 		   const size_t length,
 		   const size_t width)
-{
-}

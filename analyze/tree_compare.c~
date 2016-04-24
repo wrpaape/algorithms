@@ -44,7 +44,7 @@ void run_tree_compare(void)
 		       "time: %zu\n"
 		       "N/T:  %f\n",
 		       n, h, nlgn, time_elapsed,
-		       ((double) n) / ((double) time_elapsed));
+		       (500.0 * (double) n) / ((double) time_elapsed));
 
 	}
 
