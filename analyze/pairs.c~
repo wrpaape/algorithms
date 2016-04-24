@@ -4,11 +4,20 @@
 
 #define COUNT (1ul << 7)
 
-int compare(double x, double y)
+inline int compare(double x,
+		   double y)
 {
 	if (x < y) return -1;
 	if (x > y) return  1;
 	else	   return  0;
+}
+inline void swap_ij(double *array,
+		    const ptrdiff_t i,
+		    const ptrdiff_t j)
+{
+	const double tmp_swap = array[i];
+	array[i] = array[j];
+	array[j] = tmp_swap;
 }
 
 void run_pairs(void)
@@ -20,6 +29,14 @@ void run_pairs(void)
 
 	puts("shuffled:");
 	print_nuts_and_bolts(&nuts[0l], &bolts[0l], COUNT);
+
+	match_nuts_and_bolts(&nuts[0l], &bolts[0l], COUNT);
+}
+
+static inline void match_nuts_and_bolts(double *nuts,
+					double *bolts,
+					const size_t count)
+{
 }
 
 inline void init_nuts_and_bolts(double *nuts,
