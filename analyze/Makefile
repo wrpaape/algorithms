@@ -1,13 +1,16 @@
 CC	= gcc
 CFLAGS	= -g -I. -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
-bin/analyze: obj/analyze.o obj/tree_compare.o obj/rand.o obj/pcg_basic.o
+bin/analyze: obj/analyze.o obj/tree_compare.o obj/pairs.o obj/rand.o obj/pcg_basic.o
 		$(CC) $(CFLAGS) -o $@ $^
 
 obj/analyze.o: analyze.c analyze.h tree_compare.h utils/utils.h utils/rand.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
 obj/tree_compare.o: tree_compare.c tree_compare.h utils/utils.h utils/rand.h
+		$(CC) $(CFLAGS) -c -o $@ $<
+
+obj/pairs.o: pairs.c pairs.h utils/utils.h utils/rand.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
 obj/rand.o: utils/rand.c utils/rand.h utils/utils.h utils/rand.h

@@ -40,8 +40,8 @@ void shuffle_array(void *array,
 
 	for (i_ini = 0u, o_ini = 0l; i_ini < i_lim; ++i_ini, o_ini += width) {
 
-		i_swp = rand_uint_upto(length - i_ini);
-		o_swp = i_swp * width;
+		i_swp = rand_uint_upto(i_lim - i_ini);
+		o_swp = (i_ini + i_swp) * width;
 
 		swap_els(&bytes[o_ini], &bytes[o_swp], &buffer[0l], width);
 	}
