@@ -42,10 +42,103 @@ void run_pairs(void)
 	match_nuts_and_bolts(&nuts[0l], &bolts[0l], COUNT);
 }
 
-static inline void match_nuts_and_bolts(struct DblNode *nuts,
-					struct DblNode *bolts,
-					const size_t count)
+inline struct DblNode **enqueue_dbl_node(struct DblNode **qend,
+					 struct DblNode *node)
 {
+	node->prev = *qend;
+	*qend = node;
+	return &node->next;
+}
+
+
+
+
+void do_match(struct DblNode *nut_head,
+	      struct DblNode *nut_end,
+	      struct DblNode *blt_head,
+	      struct DblNode *blt_end)
+{
+	struct DblNode *sml_nut_head = NULL;
+	struct DblNode *lrg_nut_head = NULL;
+	struct DblNode *sml_blt_head = NULL;
+	struct DblNode *lrg_blt_head = NULL;
+
+	struct DblNode **sml_nut_end = &sml_nut_head;
+	struct DblNode **lrg_nut_end = &lrg_nut_head;
+	struct DblNode **sml_blt_end = &sml_blt_head;
+	struct DblNode **lrg_blt_end = &lrg_blt_head;
+
+
+	struct DblNode *blt_pivot;
+
+	struct DblNode *nut_pivot = nut_head;
+	nut_head = nut_head->next;
+
+	/* find 'blt_pivot', splitting blts into "smaller" and "larger" lists
+	 * while traversing */
+
+	while (1) {
+		switch (compare_dbl_nodes(nut_pivot, blt_head)) {
+		case -1:
+			sml_blt_end = enqueue_dbl_node(sml_blt_end, blt_head);
+			break;
+		case  1:
+			lrg_blt_end = enqueue_dbl_node(lrg_blt_end, blt_head);
+			break;
+		default:
+			blt_pivot = blt_head;
+			goto SPLIT_REMAINING_BOLTS;
+		}
+		blt_head = blt_head->next;
+	}
+
+SPLIT_REMAINING_BOLTS:
+	for (blt_head  = blt_head->next;
+	     blt_head != blt_end;
+	     blt_head  = blt_head->next) {
+
+		if (compare_dbl_nodes(nut_pivot, blt_head) < 0)
+			sml_blt_end = enqueue_dbl_node(sml_blt_end, blt_head);
+		else
+			lrg_blt_end = enqueue_dbl_node(lrg_blt_end, blt_head);
+	}
+
+
+	while (1) {
+		switch (compare_dbl_nodes(blt_pivot, nut_head)) {
+		case -1:
+			sml_nut_end = enqueue_dbl_node(sml_nut_end, nut_head);
+			break;
+		case  1:
+			lrg_nut_end = enqueue_dbl_node(lrg_nut_end, nut_head);
+			break;
+		default:
+			nut_pivot = nut_head;
+			goto SPLIT_REMAINING_NUTS;
+		}
+		nut_head = nut_head->next;
+	}
+
+SPLIT_REMAINING_NUTS:
+	for (nut_head  = nut_head->next;
+	     nut_head != blt_end;
+	     nut_head  = nut_head->next) {
+
+		if (compare_dbl_nodes(blt_pivot, nut_head) < 0)
+			sml_nut_end = enqueue_dbl_node(sml_nut_end, nut_head);
+		else
+			lrg_nut_end = enqueue_dbl_node(lrg_nut_end, nut_head);
+	}
+
+}
+
+static inline void match_nuts_and_bolts(struct DblNode *nuts,
+					struct DblNode *bolts)
+{
+	do_match(&nuts[0l],
+		 NULL,
+		 &bolts[0l],
+		 NULL);
 }
 
 void init_nuts_and_bolts(struct DblNode *nuts,
@@ -62,7 +155,6 @@ void init_nuts_and_bolts(struct DblNode *nuts,
 
 	i = 0ul;
 	prev = NULL;
-
 	while (1) {
 		nuts[i].value = values[i];
 		nuts[i].prev  = prev;
@@ -74,16 +166,12 @@ void init_nuts_and_bolts(struct DblNode *nuts,
 		++i;
 		prev->next = &nuts[i];
 	}
-
 	nuts[i_last].next = NULL;
-
 
 	shuffle_array(values, count, sizeof(double));
 
-
 	i = 0ul;
 	prev = NULL;
-
 	while (1) {
 		bolts[i].value = values[i];
 		bolts[i].prev  = prev;
@@ -95,12 +183,11 @@ void init_nuts_and_bolts(struct DblNode *nuts,
 		++i;
 		prev->next = &bolts[i];
 	}
-
 	bolts[i_last].next = NULL;
 }
 
 inline void print_nuts_and_bolts(struct DblNode *nuts,
-				 struct DblNode *bolts);
+				 struct DblNode *bolts)
 {
 	struct DblNode *node;
 
