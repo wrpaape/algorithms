@@ -1,13 +1,15 @@
 #include "utils/utils.h"
 #include "utils/rand.h"
 #include "tree_compare.h"
+#include "pairs.h"
 #include "analyze.h"
 
-#define TOTAL_COUNT_PROCEDURES 1lu
-#define DEF_PROC_I 0lu
+#define TOTAL_COUNT_PROCEDURES 2lu
+#define DEF_PROC_I 1lu
 
 static void (*PROC_MAP[])(void) = {
-	&run_tree_compare
+	&run_tree_compare,
+	&run_pairs
 };
 
 int main(int argc, char *argv[])

@@ -11,6 +11,8 @@ void run_tree_compare(void)
 	clock_t time_elapsed;
 
 	size_t i, j, h, n, nlgn;
+	struct BTreeNode *root1;
+	struct BTreeNode *root2;
 
 	for (i = 0ul, h = 2ul; i < 8ul; ++i, h += 2ul) {
 
@@ -21,16 +23,21 @@ void run_tree_compare(void)
 		time_start = clock();
 
 		do {
-			similar_trees(roots[i][--j],
-				      roots[i][--j]);
+			--j;
+			root1 = roots[i][j];
+			--j;
+			root2 = roots[i][j];
+
+			similar_trees(root1, root2);
 		} while (j > 0ul);
 
 		time_finish = clock();
 
 		do {
 			free_nodes(roots[i][j]);
+			++j;
 
-		} while (++j < 1000ul);
+		} while (j < 1000ul);
 
 
 		time_elapsed = time_finish - time_start;
@@ -47,32 +54,35 @@ void run_tree_compare(void)
 		       (500.0 * (double) n) / ((double) time_elapsed));
 
 	}
+	struct BTree *tree1 = init_tree1();
+	struct BTree *tree2 = init_tree2();
+	struct BTree *tree3 = init_tree3();
+	struct BTree *tree4 = init_tree4();
+	struct BTree *tree5 = init_tree5();
+	struct BTree *tree6 = init_tree6();
+	struct BTree *tree7 = init_tree7();
 
+	compare_trees(tree1, tree2);
+	compare_trees(tree1, tree3);
+	compare_trees(tree1, tree4);
+	compare_trees(tree1, tree5);
+	compare_trees(tree1, tree6);
+	compare_trees(tree1, tree7);
+	inspect_compare_trees(tree1, tree2);
+	inspect_compare_trees(tree1, tree3);
+	inspect_compare_trees(tree1, tree4);
+	inspect_compare_trees(tree1, tree5);
+	inspect_compare_trees(tree1, tree6);
+	inspect_compare_trees(tree1, tree7);
 
+	free_tree(tree1);
+	free_tree(tree2);
+	free_tree(tree3);
+	free_tree(tree4);
+	free_tree(tree5);
+	free_tree(tree6);
+	free_tree(tree7);
 }
-	/* struct BTree *tree1 = init_tree1(); */
-	/* struct BTree *tree2 = init_tree2(); */
-	/* struct BTree *tree3 = init_tree3(); */
-	/* struct BTree *tree4 = init_tree4(); */
-	/* struct BTree *tree5 = init_tree5(); */
-	/* struct BTree *tree6 = init_tree6(); */
-	/* struct BTree *tree7 = init_tree7(); */
-
-	/* inspect_compare_trees(tree1, tree2); */
-	/* inspect_compare_trees(tree1, tree3); */
-	/* inspect_compare_trees(tree1, tree4); */
-	/* inspect_compare_trees(tree1, tree5); */
-	/* inspect_compare_trees(tree1, tree6); */
-	/* inspect_compare_trees(tree1, tree7); */
-
-	/* free_tree(tree1); */
-	/* free_tree(tree2); */
-	/* free_tree(tree3); */
-	/* free_tree(tree4); */
-	/* free_tree(tree5); */
-	/* free_tree(tree6); */
-	/* free_tree(tree7); */
-/* } */
 
 struct BTreeNode *init_tree(size_t h)
 {

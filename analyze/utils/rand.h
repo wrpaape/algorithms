@@ -50,12 +50,26 @@ inline int32_t rand_in_int_range(const int32_t lbound,
 	return ((int32_t) (rand % range_length)) + lbound;
 }
 
-inline double rand_in_dub_range(const double lbound,
+inline double rand_dbl_upto(const double rbound)
+{
+	return (((double) pcg32_random_r(&_RNG)) / ((double) RNG_MAX)) * rbound;
+}
+
+inline double rand_in_dbl_range(const double lbound,
 				const double rbound)
 {
 	return (((double) pcg32_random_r(&_RNG)) / ((double) RNG_MAX))
 	       * (rbound - lbound)
 	       + lbound;
-
 }
+
+static inline void swap_els(void *restrict el1,
+			    void *restrict el2,
+			    void *restrict buf,
+			    const size_t width);
+
+void shuffle_array(void *array,
+		   const size_t length,
+		   const size_t width);
+
 #endif /* ifndef ANALYZE_UTILS_RAND_H_ */
