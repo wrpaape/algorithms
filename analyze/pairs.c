@@ -32,14 +32,18 @@ inline void swap_dbl_nodes(struct DblNode *node1,
 void run_pairs(void)
 {
 	struct DblNode nuts[COUNT];
-	struct DblNode bolts[COUNT];
+	struct DblNode blts[COUNT];
 
-	init_nuts_and_bolts(&nuts[0l], &bolts[0l], COUNT);
+	struct DblNode *nut_head;
+	struct DblNode *blt_head;
+
+	init_nuts_and_bolts(&nuts[0l], &blts[0l], COUNT);
 
 	puts("shuffled:");
-	print_nuts_and_bolts(&nuts[0l], &bolts[0l]);
+	print_nuts_and_bolts(&nuts[0l], &blts[0l]);
 
-	match_nuts_and_bolts(&nuts[0l], &bolts[0l], COUNT);
+	match_nuts_and_bolts(&nut_head, &blt_head,
+			     &nuts[0l], &blts[0l], COUNT);
 }
 
 inline struct DblNode **enqueue_dbl_node(struct DblNode **qend,
@@ -54,9 +58,9 @@ inline struct DblNode **enqueue_dbl_node(struct DblNode **qend,
 
 
 void do_match(struct DblNode *nut_head,
-	      struct DblNode *nut_end,
+	      struct DblNode *nut_last,
 	      struct DblNode *blt_head,
-	      struct DblNode *blt_end)
+	      struct DblNode *blt_last)
 {
 	struct DblNode *sml_nut_head = NULL;
 	struct DblNode *lrg_nut_head = NULL;
@@ -72,7 +76,6 @@ void do_match(struct DblNode *nut_head,
 	struct DblNode *blt_pivot;
 
 	struct DblNode *nut_pivot = nut_head;
-	nut_head = nut_head->next;
 
 	/* find 'blt_pivot', splitting blts into "smaller" and "larger" lists
 	 * while traversing */
@@ -94,7 +97,7 @@ void do_match(struct DblNode *nut_head,
 
 SPLIT_REMAINING_BOLTS:
 	for (blt_head  = blt_head->next;
-	     blt_head != blt_end;
+	     blt_head != blt_last;
 	     blt_head  = blt_head->next) {
 
 		if (compare_dbl_nodes(nut_pivot, blt_head) < 0)
@@ -104,24 +107,9 @@ SPLIT_REMAINING_BOLTS:
 	}
 
 
-	while (1) {
-		switch (compare_dbl_nodes(blt_pivot, nut_head)) {
-		case -1:
-			sml_nut_end = enqueue_dbl_node(sml_nut_end, nut_head);
-			break;
-		case  1:
-			lrg_nut_end = enqueue_dbl_node(lrg_nut_end, nut_head);
-			break;
-		default:
-			nut_pivot = nut_head;
-			goto SPLIT_REMAINING_NUTS;
-		}
-		nut_head = nut_head->next;
-	}
-
-SPLIT_REMAINING_NUTS:
+/* SPLIT_REMAINING_NUTS: */
 	for (nut_head  = nut_head->next;
-	     nut_head != blt_end;
+	     nut_head != nut_last;
 	     nut_head  = nut_head->next) {
 
 		if (compare_dbl_nodes(blt_pivot, nut_head) < 0)
@@ -132,17 +120,20 @@ SPLIT_REMAINING_NUTS:
 
 }
 
-static inline void match_nuts_and_bolts(struct DblNode *nuts,
-					struct DblNode *bolts)
+inline void match_nuts_and_bolts(struct DblNode *nuts,
+				 struct DblNode *blts,
+				 const size_t count)
 {
+	const size_t i_last = count - 1ul;
+
 	do_match(&nuts[0l],
-		 NULL,
-		 &bolts[0l],
-		 NULL);
+		 &nuts[i_last],
+		 &blts[0l],
+		 &blts[i_last]);
 }
 
 void init_nuts_and_bolts(struct DblNode *nuts,
-			 struct DblNode *bolts,
+			 struct DblNode *blts,
 			 const size_t count)
 {
 	const size_t i_last = count - 1ul;
@@ -173,33 +164,41 @@ void init_nuts_and_bolts(struct DblNode *nuts,
 	i = 0ul;
 	prev = NULL;
 	while (1) {
-		bolts[i].value = values[i];
-		bolts[i].prev  = prev;
+		blts[i].value = values[i];
+		blts[i].prev  = prev;
 
 		if (i == i_last)
 			break;
 
-		prev = &bolts[i];
+		prev = &blts[i];
 		++i;
-		prev->next = &bolts[i];
+		prev->next = &blts[i];
 	}
-	bolts[i_last].next = NULL;
+	blts[i_last].next = NULL;
 }
 
-inline void print_nuts_and_bolts(struct DblNode *nuts,
-				 struct DblNode *bolts)
+void print_nuts_and_bolts(struct DblNode *nuts,
+			  struct DblNode *blts)
 {
-	struct DblNode *node;
-
 	puts("nuts: {");
 
-	for (node = nuts; node->next != NULL; node = node->next)
-		printf("%f, ", node->value);
+	while (1) {
+		printf("%f, ", nuts->value);
+		if (nuts->next == NULL)
+			break;
+		nuts = nuts->next;
+	}
 
-	printf("%f\n}\n\nbolts: {\n", node->value);
+	printf("%f\n}\n\nbolts: {\n", nuts->value);
 
-	for (node = bolts; node->next != NULL; node = node->next)
-		printf("%f, ", node->value);
+	while (1) {
+		printf("%f, ", blts->value);
 
-	printf("%f\n}\n", node->value);
+		if (blts->next == NULL)
+			break;
+
+		blts = blts->next;
+	}
+
+	printf("%f\n}\n", blts->value);
 }

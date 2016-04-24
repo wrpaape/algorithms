@@ -15,21 +15,24 @@ static inline int compare_dbl_nodes(struct DblNode *node1,
 static inline void swap_dbl_nodes(struct DblNode *node1,
 				  struct DblNode *node2);
 
-static inline struct TokenNode **enqueue_dbl_node(struct DblNode **qend,
-						  struct DblNode *node)
+static inline struct DblNode **enqueue_dbl_node(struct DblNode **qend,
+						struct DblNode *node)
 
 void do_match(struct DblNode *nut_head,
-	      struct DblNode *nut_end,
+	      struct DblNode *nut_last,
 	      struct DblNode *blt_head,
-	      struct DblNode *blt_end);
+	      struct DblNode *blt_last);
 
 void init_nuts_and_bolts(struct DblNode *nuts,
 			 struct DblNode *bolts,
 			 const size_t count);
 
-static inline void print_nuts_and_bolts(struct DblNode *nuts,
-					struct DblNode *bolts);
+void print_nuts_and_bolts(struct DblNode *nuts,
+			  struct DblNode *blts);
 
-static inline void match_nuts_and_bolts(struct DblNode *nuts,
-					struct DblNode *bolts);
+static inline void match_nuts_and_bolts(struct DblNode **restrict nut_head,
+					struct DblNode **restrict blt_head,
+					struct DblNode *restrict nuts,
+					struct DblNode *restrict bolts,
+					const size_t count);
 #endif /* ifndef ANALYZE_PAIRS_H_ */
