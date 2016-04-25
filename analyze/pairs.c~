@@ -102,6 +102,8 @@ inline void swap_dbl_nodes(struct DblNode *node1,
 
 inline void remove_dbl_node(struct DblNode *node)
 {
+	assert(node->prev != NULL);
+	assert(node->next != NULL);
 	/* don't have to NULL check bc sentinels */
 	node->prev->next = node->next;
 	node->next->prev = node->prev;
@@ -114,22 +116,20 @@ inline void splice_dbl_node(struct DblNode *node,
 	node->prev = prev;
 	node->next = next;
 
+	assert(prev != NULL);
+	assert(next != NULL);
 	/* don't have to NULL check bc sentinels */
 	prev->next = node;
 	next->prev = node;
 }
 
-void do_match(struct DblNode **matched_nuts,
-	      struct DblNode **matched_blts,
-	      struct DblNode *prev_nut,
+void do_match(struct DblNode *prev_nut,
 	      struct DblNode *next_nut,
 	      struct DblNode *prev_blt,
 	      struct DblNode *next_blt)
 {
 	if (prev_nut == next_nut) {
 		PRINT_LABEL("\n	- TRIVIAL CASE - \n");
-		*matched_nuts = prev_nut;
-		*matched_blts = prev_blt;
 		return;
 	}
 
@@ -137,8 +137,6 @@ void do_match(struct DblNode **matched_nuts,
 	assert(next_nut != NULL);
 	assert(next_blt != NULL);
 	assert(next_blt != NULL);
-
-
 
 
 	/* splice out working list with sentinels */
@@ -165,7 +163,6 @@ void do_match(struct DblNode **matched_nuts,
 	struct DblNode *tmp_swap;
 	struct DblNode *pivot_blt;
 	int comp;
-
 
 	/* find 'pivot_blt' that matches 'pivot_nut' */
 	PRINT_LABEL("find 'pivot_blt' that matches 'pivot_nut'");
@@ -275,6 +272,8 @@ FOUND_PIVOT_BLT_FROM_NEXT:
 
 
 PARTITION_NUTS:
+
+	INSPECT_DBL_NODE(pivot_nut);
 	PRINT_LABEL("PARTITION_NUTS");
 
 	while (1) {
@@ -330,56 +329,68 @@ PARTITION_NUTS:
 	}
 
 DO_RECURSE:
-
-	INSPECT_DBL_NODE(pivot_nut);
 	INSPECT_DBL_NODE(pivot_blt);
 
-	/* remove sentinels, locating next pairs of head and tail nodes */
-	PRINT_LABEL("remove sentinels, locating next pairs of head and tail nodes");
-	next_nut       = last_nut.prev;
-	next_nut->next = last_nut.next;
-	if (last_nut.next != NULL)
-		last_nut.next->prev = next_nut;
-
-	prev_nut       = head_nut.next;
-	prev_nut->prev = head_nut.prev;
-	if (head_nut.prev != NULL)
-		head_nut.prev->next = prev_nut;
-
-	next_blt       = last_blt.prev;
-	next_blt->next = last_blt.next;
-	if (last_blt.next != NULL)
-		last_blt.next->prev = next_blt;
-
-	prev_blt       = head_blt.next;
-	prev_blt->prev = head_blt.prev;
-	if (head_blt.prev != NULL)
-		head_blt.prev->next = prev_blt;
 
 	/* match nodes to the right of pivot */
 	PRINT_LABEL("DO RIGHT");
-	do_match(&pivot_blt->next, &pivot_nut->next,
-		 pivot_nut->next,  next_nut,
-		 pivot_blt->next,  next_blt);
+	if (pivot_nut->next != &last_nut)
+		do_match(pivot_nut->next,  last_nut.prev,
+			 pivot_blt->next,  last_blt.prev);
 
 	/* match nodes to the left of pivot */
 	PRINT_LABEL("DO LEFT");
-	do_match(matched_nuts, matched_blts,
-		 prev_nut,     pivot_nut->prev,
-		 prev_blt,     pivot_blt->prev);
+	if (pivot_nut->prev != &head_nut)
+		do_match(head_nut.next, pivot_nut->prev,
+			 head_blt.next, pivot_blt->prev);
+
+	/* remove sentinels, locating next pairs of head and tail nodes */
+	PRINT_LABEL("remove sentinels, locating next pairs of head and tail nodes");
+	head_nut.next->prev = head_nut.prev;
+	if (head_nut.prev != NULL)
+		head_nut.prev->next = head_nut.next;
+
+	last_nut.prev->next = last_nut.next;
+	if (last_nut.next != NULL)
+		last_nut.next->prev = last_nut.prev;
+
+	head_blt.next->prev = head_blt.prev;
+	if (head_blt.prev != NULL)
+		head_blt.prev->next = head_blt.next;
+
+	last_blt.prev->next = last_blt.next;
+	if (last_blt.next != NULL)
+		last_blt.next->prev = last_blt.prev;
 }
 
 inline void match_nuts_and_bolts(struct DblNode **restrict matched_nuts,
 				 struct DblNode **restrict matched_blts,
-				 struct DblNode *restrict nuts,
-				 struct DblNode *restrict blts,
+				 struct DblNode *prev_nut,
+				 struct DblNode *prev_blt,
 				 const size_t count)
 {
 	const size_t i_last = count - 1ul;
+	struct DblNode *next_nut = &prev_nut[i_last];
+	struct DblNode *next_blt = &prev_blt[i_last];
 
-	do_match(matched_nuts, matched_blts,
-		 &nuts[0l],    &nuts[i_last],
-		 &blts[0l],    &blts[i_last]);
+
+	struct DblNode head_nut = { .value = -999.999, .prev = NULL, .next = prev_blt };
+	struct DblNode head_blt = { .value = -999.999, .prev = NULL, .next = prev_blt };
+	struct DblNode last_nut = { .value =  999.999, .prev = next_blt, .next = NULL };
+	struct DblNode last_blt = { .value =  999.999, .prev = next_blt, .next = NULL };
+
+	do_match(prev_nut,
+		 next_nut,
+		 prev_blt,
+		 next_blt);
+
+	head_nut.next->prev = NULL;
+	head_blt.next->prev = NULL;
+	last_nut.prev->next = NULL;
+	last_blt.prev->next = NULL;
+
+	*matched_nuts = head_nut.next;
+	*matched_blts = head_blt.next;
 }
 
 void init_nuts_and_bolts(struct DblNode *nuts,

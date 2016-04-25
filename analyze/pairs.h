@@ -22,12 +22,10 @@ static inline void splice_dbl_node(struct DblNode *node,
 				   struct DblNode *prev,
 				   struct DblNode *next);
 
-void do_match(struct DblNode **matched_nuts,
-	      struct DblNode **matched_blts,
-	      struct DblNode *head_nut,
-	      struct DblNode *last_nut,
-	      struct DblNode *head_blt,
-	      struct DblNode *last_blt);
+void do_match(struct DblNode *prev_nut,
+	      struct DblNode *next_nut,
+	      struct DblNode *prev_blt,
+	      struct DblNode *next_blt);
 
 void init_nuts_and_bolts(struct DblNode *nuts,
 			 struct DblNode *bolts,
@@ -41,7 +39,7 @@ void print_nuts_and_bolts(struct DblNode *restrict nuts,
 
 static inline void match_nuts_and_bolts(struct DblNode **restrict matched_nuts,
 					struct DblNode **restrict matched_blts,
-					struct DblNode *restrict nuts,
-					struct DblNode *restrict blts,
+					struct DblNode *prev_nut,
+					struct DblNode *prev_blt,
 					const size_t count);
 #endif /* ifndef ANALYZE_PAIRS_H_ */
