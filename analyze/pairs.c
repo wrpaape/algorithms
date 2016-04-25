@@ -4,31 +4,6 @@
 
 #define COUNT (1ul << 7)
 
-inline int compare_dbl_nodes(struct DblNode *node1,
-			     struct DblNode *node2)
-{
-	const double dbl1 = node1->value;
-	const double dbl2 = node2->value;
-
-	if (dbl1 < dbl2) return -1;
-	if (dbl1 > dbl2) return  1;
-	else		 return  0;
-}
-
-inline void swap_dbl_nodes(struct DblNode *node1,
-			   struct DblNode *node2)
-{
-	struct DblNode *tmp;
-
-	tmp = node1->prev;
-	node1->prev = node2->prev;
-	node2->prev = tmp;
-
-	tmp = node1->next;
-	node1->next = node2->next;
-	node2->next = tmp;
-}
-
 void run_pairs(void)
 {
 	struct DblNode nuts[COUNT];
@@ -46,12 +21,49 @@ void run_pairs(void)
 	print_nuts_and_bolts(&nuts[0l], &blts[0l]);
 }
 
-inline struct DblNode **enqueue_dbl_node(struct DblNode **qend,
-					 struct DblNode *node)
+inline int compare_dbl_nodes(struct DblNode *node1,
+			     struct DblNode *node2)
 {
-	node->prev = *qend;
-	*qend = node;
-	return &node->next;
+	const double dbl1 = node1->value;
+	const double dbl2 = node2->value;
+
+	if (dbl1 < dbl2) return -1;
+	if (dbl1 > dbl2) return  1;
+	else		 return  0;
+}
+
+inline void swap_dbl_nodes(struct DblNode *node1,
+			   struct DblNode *node2)
+{
+	struct DblNode *tmp_swap;
+
+	tmp_swap = node1->prev;
+	node1->prev = node2->prev;
+	node2->prev = tmp_swap;
+
+	tmp_swap = node1->next;
+	node1->next = node2->next;
+	node2->next = tmp_swap;
+}
+
+inline void remove_dbl_node(struct DblNode *node)
+{
+	struct DblNode *prev = node->prev;
+	struct DblNode *next = node->next;
+
+	if (prev == NULL) {
+		if (next != NULL)
+			next->prev = NULL;
+		return;
+	}
+
+	if (next == NULL) {
+		prev->next = NULL;
+		return;
+	}
+
+	prev->next = next;
+	next->prev = prev;
 }
 
 void do_match(struct DblNode *head_nut,
@@ -62,69 +74,98 @@ void do_match(struct DblNode *head_nut,
 	if (head_nut == last_nut)
 		return;
 
-	struct DblNode *blt_pivot;
+	struct DblNode *tmp_swap;
+	struct DblNode *pivot_blt;
 
 	struct DblNode *pivot_nut = head_nut;
 
-	int comparison;
+	int comp;
 
 
 	/* find 'pivot_blt' that matches 'pivot_nut' */
 	while (1) {
-
 		while (1) {
-			switch (compare_dbl_nodes(pivot_nut,
-						  head_blt)) {
-			case  1:
-				goto FIND_BOLT_SWAP_PARTNER_PIVOT_UNKNOWN;
+			comp = compare_dbl_nodes(pivot_nut, head_blt);
 
-			case  0:
-				blt_pivot = head_blt;
-				goto SWAP_REMAINING_BOLTS;
-
-			default:
-				head_blt = head_blt->next;
-			}
-		}
-
-FIND_BOLT_SWAP_PARTNER_PIVOT_UNKNOWN:
-
-		while (1) {
-			switch (compare_dbl_nodes(pivot_nut,
-						  head_blt)) {
-			case -1:
-				goto FIND_BOLT_SWAP_PARTNER_PIVOT_UNKNOWN;
-
-			case  0:
-				blt_pivot = head_blt;
-				goto SWAP_REMAINING_BOLTS;
-
-			default:
-				head_blt = head_blt->next;
-			}
-		}
-
-
-
-	}
-
-SWAP_REMAINING_BOLTS:
-	while (1) {
-
-		while (1) {
-			switch (compare_dbl_nodes(pivot_nut,
-						  head_blt)) {
-			case 1:
+			if (comp == 1)
 				break;
 
-			case 0:
-				blt_pivot = head_blt;
-				goto SWAP_REMAINING_BOLTS;
-			default:
+			if (comp == 0) {
+				pivot_blt = head_blt;
+				goto FOUND_PIVOT_BLT_FROM_HEAD;
 			}
+
+			head_blt = head_blt->next;
 		}
 
+		while (1) {
+			comp = compare_dbl_nodes(pivot_nut, last_blt);
+
+			if (comp == -1)
+				break;
+
+			if (comp == 0) {
+				pivot_blt = last_blt;
+				goto FOUND_PIVOT_BLT_FROM_LAST;
+			}
+
+			last_blt = last_blt->prev;
+		}
+
+		/* swap misplaced nodes to proper sides of pivot */
+		swap_dbl_nodes(head_blt, last_blt);
+
+		/* advance end pointers toward center of list */
+		tmp_swap = head_blt->prev;
+		head_blt = last_blt->next;
+		last_blt = tmp_swap;
 	}
+
+
+	while (1) {
+
+FOUND_PIVOT_BLT_FROM_HEAD:
+
+		while (1) {
+			head_blt = head_blt->next;
+
+			if (head_blt == last_blt)
+				remove_dbl_node(pivot_blt);
+				goto PARTITION_NUTS;
+
+			if (compare_dbl_nodes(pivot_nut, head_blt) == 1)
+				break;
+		}
+
+FOUND_PIVOT_BLT_FROM_LAST:
+
+		while (1) {
+			last_blt = last_blt->prev;
+
+			if (last_blt == head_blt) {
+
+				remove_dbl_node(pivot_blt);
+
+				goto PARTITION_NUTS;
+			}
+
+			if (compare_dbl_nodes(pivot_nut, last_blt) == -1)
+				break;
+		}
+
+		/* swap misplaced nodes to proper sides of pivot */
+		swap_dbl_nodes(head_blt, last_blt);
+
+		/* advance end pointers toward center of list */
+		tmp_swap = head_blt->prev;
+		head_blt = last_blt->next;
+		last_blt = tmp_swap;
+	}
+
+
+PARTITION_NUTS:
+
+	pivot_blt
 
 
 }

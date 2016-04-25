@@ -16,8 +16,11 @@ static inline int compare_dbl_nodes(struct DblNode *node1,
 static inline void swap_dbl_nodes(struct DblNode *node1,
 				  struct DblNode *node2);
 
-static inline struct DblNode **enqueue_dbl_node(struct DblNode **qend,
-						struct DblNode *node)
+static inline void remove_dbl_node(struct DblNode *node);
+
+static inline void splice_dbl_node(struct DblNode *node,
+				   struct DblNode *prev,
+				   struct DblNode *next);
 
 void do_match(struct DblNode *head_nut,
 	      struct DblNode *last_nut,
