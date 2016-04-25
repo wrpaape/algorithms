@@ -22,7 +22,9 @@ static inline void splice_dbl_node(struct DblNode *node,
 				   struct DblNode *prev,
 				   struct DblNode *next);
 
-void do_match(struct DblNode *head_nut,
+void do_match(struct DblNode **matched_nuts,
+	      struct DblNode **matched_blts,
+	      struct DblNode *head_nut,
 	      struct DblNode *last_nut,
 	      struct DblNode *head_blt,
 	      struct DblNode *last_blt);

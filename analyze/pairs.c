@@ -9,13 +9,17 @@ void run_pairs(void)
 	struct DblNode nuts[COUNT];
 	struct DblNode blts[COUNT];
 
+	struct DblNode *matched_nuts;
+	struct DblNode *matched_blts;
+
 
 	init_nuts_and_bolts(&nuts[0l], &blts[0l], COUNT);
 
 	puts("shuffled:");
 	print_nuts_and_bolts(&nuts[0l], &blts[0l]);
 
-	match_nuts_and_bolts(&nuts[0l], &blts[0l], COUNT);
+	match_nuts_and_bolts(&matched_nuts, &matched_blts,
+			     &nuts[0l],	    &blts[0l],	   COUNT);
 
 	puts("matched:");
 	print_nuts_and_bolts(&nuts[0l], &blts[0l]);
@@ -66,19 +70,42 @@ inline void remove_dbl_node(struct DblNode *node)
 	next->prev = prev;
 }
 
-void do_match(struct DblNode *head_nut,
+inline void splice_dbl_node(struct DblNode *node,
+			    struct DblNode *prev,
+			    struct DblNode *next)
+{
+	node->prev = prev;
+	node->next = next;
+
+	if (prev != NULL)
+		prev->next = node;
+
+	if (next != NULL)
+		next->prev = node;
+}
+
+void do_match(struct DblNode **matched_nuts,
+	      struct DblNode **matched_blts,
+	      struct DblNode *head_nut,
 	      struct DblNode *last_nut,
 	      struct DblNode *head_blt,
-	      struct DblNode *last_blt)
+	      struct DblNode *last_blt);
 {
-	if (head_nut == last_nut)
+	if (head_nut == last_nut) {
+		*matched_nuts = head_nut;
+		*matched_blts = head_blt;
 		return;
+	}
 
-	struct DblNode *tmp_swap;
-	struct DblNode *pivot_blt;
+	struct DblNode **head_nut_ptr = &head_nut;
+	struct DblNode **last_nut_ptr = &head_nut;
+	struct DblNode **head_blt_ptr = &head_blt;
+	struct DblNode **last_blt_ptr = &last_blt;
 
 	struct DblNode *pivot_nut = head_nut;
 
+	struct DblNode *tmp_swap;
+	struct DblNode *pivot_blt;
 	int comp;
 
 
@@ -92,6 +119,7 @@ void do_match(struct DblNode *head_nut,
 
 			if (comp == 0) {
 				pivot_blt = head_blt;
+				head_blt  = head_blt->next;
 				goto FOUND_PIVOT_BLT_FROM_HEAD;
 			}
 
@@ -106,6 +134,7 @@ void do_match(struct DblNode *head_nut,
 
 			if (comp == 0) {
 				pivot_blt = last_blt;
+				last_blt  = last_blt->prev;
 				goto FOUND_PIVOT_BLT_FROM_LAST;
 			}
 
@@ -127,30 +156,39 @@ void do_match(struct DblNode *head_nut,
 FOUND_PIVOT_BLT_FROM_HEAD:
 
 		while (1) {
-			head_blt = head_blt->next;
-
-			if (head_blt == last_blt)
+			if (head_blt == last_blt) {
 				remove_dbl_node(pivot_blt);
+
+				splice_dbl_node(pivot_blt,
+						head_blt,
+						head_blt->next);
+
 				goto PARTITION_NUTS;
+			}
 
 			if (compare_dbl_nodes(pivot_nut, head_blt) == 1)
 				break;
+
+			head_blt = head_blt->next;
 		}
 
 FOUND_PIVOT_BLT_FROM_LAST:
 
 		while (1) {
-			last_blt = last_blt->prev;
-
 			if (last_blt == head_blt) {
-
 				remove_dbl_node(pivot_blt);
+
+				splice_dbl_node(pivot_blt,
+						head_blt->prev,
+						head_blt);
 
 				goto PARTITION_NUTS;
 			}
 
 			if (compare_dbl_nodes(pivot_nut, last_blt) == -1)
 				break;
+
+			last_blt = last_blt->prev;
 		}
 
 		/* swap misplaced nodes to proper sides of pivot */
@@ -165,21 +203,75 @@ FOUND_PIVOT_BLT_FROM_LAST:
 
 PARTITION_NUTS:
 
-	pivot_blt
+	while (1) {
+		while (1) {
+			if (head_nut == last_nut) {
+				remove_dbl_node(pivot_nut);
 
+				splice_dbl_node(pivot_nut,
+						head_nut,
+						head_nut->next);
 
+				goto DO_RECURSE;
+			}
+
+			if (compare_dbl_nodes(pivot_blt, head_nut) == 1)
+				break;
+
+			head_nut = head_nut->next;
+		}
+
+		while (1) {
+			if (last_nut == head_nut) {
+				remove_dbl_node(pivot_nut);
+
+				splice_dbl_node(pivot_nut,
+						head_nut->prev,
+						head_nut);
+
+				goto DO_RECURSE;
+			}
+
+			if (compare_dbl_nodes(pivot_blt, last_nut) == -1)
+				break;
+
+			last_nut = last_nut->prev;
+		}
+
+		/* swap misplaced nodes to proper sides of pivot */
+		swap_dbl_nodes(head_nut, last_nut);
+
+		/* advance end pointers toward center of list */
+		tmp_swap = head_nut->prev;
+		head_nut = last_nut->next;
+		last_nut = tmp_swap;
+	}
+
+DO_RECURSE:
+
+	do_match(matched_nuts,	  matched_blts,
+		 pivot_nut->next, *last_nut_ptr,
+		 pivot_blt->next, *last_blt_ptr);
+
+	pivot_nut->next = *matched_nuts;
+	pivot_blt->next = *matched_blts;
+
+	do_match(matched_nuts,	matched_blts,
+		 *head_nut_ptr, pivot_nut->prev,
+		 *head_blt_ptr, pivot_blt->prev);
 }
 
-inline void match_nuts_and_bolts(struct DblNode *restrict nuts,
+inline void match_nuts_and_bolts(struct DblNode **restrict matched_nuts,
+				 struct DblNode **restrict matched_blts,
+				 struct DblNode *restrict nuts,
 				 struct DblNode *restrict blts,
 				 const size_t count);
 {
 	const size_t i_last = count - 1ul;
 
-	do_match(&nuts[0l],
-		 &nuts[i_last],
-		 &blts[0l],
-		 &blts[i_last]);
+	do_match(matched_nuts, matched_blts,
+		 &nuts[0l],    &nuts[i_last],
+		 &blts[0l],    &blts[i_last]);
 }
 
 void init_nuts_and_bolts(struct DblNode *nuts,
