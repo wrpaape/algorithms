@@ -136,6 +136,10 @@ void do_match(struct DblNode **matched_nuts,
 
 	/* splice out working list with sentinels */
 	PRINT_LABEL("splice out working list with sentinels");
+	assert(prev_nut != NULL);
+	assert(next_nut != NULL);
+	assert(next_blt != NULL);
+	assert(next_blt != NULL);
 	struct DblNode head_nut = { .value =  999.999, .prev = prev_nut->prev, .next = prev_nut };
 	struct DblNode last_nut = { .value = -999.999, .prev = next_nut, .next = next_nut->next };
 	struct DblNode head_blt = { .value =  999.999, .prev = prev_blt->prev, .next = prev_blt };
@@ -166,9 +170,11 @@ void do_match(struct DblNode **matched_nuts,
 			if (comp == 0) {
 				pivot_blt = prev_blt;
 				prev_blt  = prev_blt->next;
-				PRINT_LABEL("FOUND_PIVOT_BLT_FROM_PREV");
+				PRINT_LABEL("		FOUND_PIVOT_BLT_FROM_PREV");
 				goto FOUND_PIVOT_BLT_FROM_PREV;
 			}
+
+			assert(prev_blt != NULL);
 
 			prev_blt = prev_blt->next;
 		}
@@ -182,9 +188,10 @@ void do_match(struct DblNode **matched_nuts,
 			if (comp == 0) {
 				pivot_blt = next_blt;
 				next_blt  = next_blt->prev;
-				PRINT_LABEL("FOUND_PIVOT_BLT_FROM_NEXT");
+				PRINT_LABEL("		FOUND_PIVOT_BLT_FROM_NEXT");
 				goto FOUND_PIVOT_BLT_FROM_NEXT;
 			}
+			assert(next_blt != NULL);
 
 			next_blt = next_blt->prev;
 		}
@@ -207,12 +214,20 @@ FOUND_PIVOT_BLT_FROM_PREV:
 			if (prev_blt == next_blt) {
 				remove_dbl_node(pivot_blt);
 
-				splice_dbl_node(pivot_blt,
-						prev_blt,
-						prev_blt->next);
+				if (compare_dbl_nodes(pivot_nut, prev_blt) == 1) {
+					splice_dbl_node(pivot_blt,
+							prev_blt->prev,
+							prev_blt);
+				} else {
+					splice_dbl_node(pivot_blt,
+							prev_blt,
+							prev_blt->next);
+				}
 
 				goto PARTITION_NUTS;
 			}
+
+			assert(prev_blt != NULL);
 
 			if (compare_dbl_nodes(pivot_nut, prev_blt) == 1)
 				break;
@@ -232,6 +247,7 @@ FOUND_PIVOT_BLT_FROM_NEXT:
 
 				goto PARTITION_NUTS;
 			}
+			assert(next_blt != NULL);
 
 			if (compare_dbl_nodes(pivot_nut, next_blt) == -1)
 				break;
@@ -255,11 +271,18 @@ PARTITION_NUTS:
 	while (1) {
 		while (1) {
 			if (prev_nut == next_nut) {
+				PRINT_LABEL("		NUTS PARTITIONED");
 				remove_dbl_node(pivot_nut);
 
-				splice_dbl_node(pivot_nut,
-						prev_nut,
-						prev_nut->next);
+				if (compare_dbl_nodes(pivot_blt, prev_nut) == 1) {
+					splice_dbl_node(pivot_nut,
+							prev_nut->prev,
+							prev_nut);
+				} else {
+					splice_dbl_node(pivot_nut,
+							prev_nut,
+							prev_nut->next);
+				}
 
 				goto DO_RECURSE;
 			}
@@ -272,6 +295,7 @@ PARTITION_NUTS:
 
 		while (1) {
 			if (next_nut == prev_nut) {
+				PRINT_LABEL("		NUTS PARTITIONED");
 				remove_dbl_node(pivot_nut);
 
 				splice_dbl_node(pivot_nut,
