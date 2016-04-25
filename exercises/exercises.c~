@@ -17,6 +17,7 @@ struct BitVector *init_rand_bit_vector(const size_t size,
 				       const int max)
 {
 	const int span = max - min;
+
 	if (size > span)
 		return NULL;
 }
