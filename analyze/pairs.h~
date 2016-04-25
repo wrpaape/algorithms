@@ -1,6 +1,7 @@
 #ifndef ANALYZE_PAIRS_H_
 #define ANALYZE_PAIRS_H_
 
+
 void run_pairs(void);
 
 struct DblNode {
@@ -18,10 +19,10 @@ static inline void swap_dbl_nodes(struct DblNode *node1,
 static inline struct DblNode **enqueue_dbl_node(struct DblNode **qend,
 						struct DblNode *node)
 
-void do_match(struct DblNode *nut_head,
-	      struct DblNode *nut_last,
-	      struct DblNode *blt_head,
-	      struct DblNode *blt_last);
+void do_match(struct DblNode *head_nut,
+	      struct DblNode *last_nut,
+	      struct DblNode *head_blt,
+	      struct DblNode *last_blt);
 
 void init_nuts_and_bolts(struct DblNode *nuts,
 			 struct DblNode *bolts,
@@ -30,9 +31,7 @@ void init_nuts_and_bolts(struct DblNode *nuts,
 void print_nuts_and_bolts(struct DblNode *nuts,
 			  struct DblNode *blts);
 
-static inline void match_nuts_and_bolts(struct DblNode **restrict nut_head,
-					struct DblNode **restrict blt_head,
-					struct DblNode *restrict nuts,
-					struct DblNode *restrict bolts,
+static inline void match_nuts_and_bolts(struct DblNode *restrict nuts,
+					struct DblNode *restrict blts,
 					const size_t count);
 #endif /* ifndef ANALYZE_PAIRS_H_ */
