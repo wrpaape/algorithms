@@ -6,6 +6,7 @@
 #include <string.h>	/* strerror */
 #include <unistd.h>	/* sleep */
 #include <limits.h>
+#include <assert.h>
 #include <stdbool.h>
 
 #define EXIT_ON_FAILURE(format, ...)					\
