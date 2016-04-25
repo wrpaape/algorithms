@@ -4,6 +4,7 @@
 #include <stdio.h>	/* fprintf */
 #include <errno.h>	/* errno */
 #include <string.h>	/* strerror */
+#include <unistd.h>	/* sleep */
 #include <limits.h>
 #include <stdbool.h>
 

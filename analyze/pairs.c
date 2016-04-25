@@ -4,6 +4,32 @@
 
 #define COUNT (1ul << 7)
 
+#define LABEL_LOOP(LABEL)	\
+do {				\
+	puts(LABEL);		\
+	fflush(stdout);		\
+} while (0)
+
+#define PAUSE usleep(100000)
+
+#define TRC(ADDRESS) ((unsigned char) ADDRESS)
+#define PRINT_DBL_NODE(N)						\
+do {									\
+	printf("\n****************************************"		\
+	       "****************************************\n"		\
+	       "%-25s | %-25s | %-25s\n"				\
+	       "address: %-16d | %-25d | %-25d\n"			\
+	       "prev:    %-16d | %-25d | %-25d\n"			\
+	       "next:    %-16d | %-25d | %-25d\n"			\
+	       "value:   %-16f | %-25f | %-25f\n\n",			\
+	       #N,	     #N "->prev",	 #N "->next",		\
+	       TRC(N),       TRC(N->prev),	 TRC(N->next),		\
+	       TRC(N->prev), TRC(N->prev->prev), TRC(N->next->prev),	\
+	       TRC(N->next), TRC(N->prev->next), TRC(N->next->next),	\
+	       N->value,     N->prev->value,	 N->next->value);	\
+	fflush(stdout);							\
+} while (0)
+
 void run_pairs(void)
 {
 	struct DblNode nuts[COUNT];
@@ -39,15 +65,35 @@ inline int compare_dbl_nodes(struct DblNode *node1,
 inline void swap_dbl_nodes(struct DblNode *node1,
 			   struct DblNode *node2)
 {
-	struct DblNode *tmp_swap;
+	struct DblNode *swap1;
+	struct DblNode *swap2;
 
-	tmp_swap = node1->prev;
-	node1->prev = node2->prev;
-	node2->prev = tmp_swap;
 
-	tmp_swap = node1->next;
-	node1->next = node2->next;
-	node2->next = tmp_swap;
+	puts("\nPRE SWAP:");
+	PRINT_DBL_NODE(node1);
+	PRINT_DBL_NODE(node2);
+	/* don't have to NULL check bc sentinels */
+	swap1 = node2->prev;
+	swap2 = node1->prev;
+
+	node1->prev = swap1;
+	swap1->next = node1;
+	node2->prev = swap2;
+	swap2->next = node2;
+
+	swap1 = node2->next;
+	swap2 = node1->next;
+
+	node1->next = swap1;
+	swap1->prev = node1;
+	node2->next = swap2;
+	swap2->prev = node2;
+
+	puts("\nPOST SWAP:");
+	PRINT_DBL_NODE(node1);
+	PRINT_DBL_NODE(node2);
+	puts("***********************");
+	PAUSE;
 }
 
 inline void remove_dbl_node(struct DblNode *node)
@@ -84,10 +130,10 @@ void do_match(struct DblNode **matched_nuts,
 
 
 	/* splice out working list with sentinels */
-	struct DblNode head_nut = { .prev = prev_nut->prev, .next = prev_nut };
-	struct DblNode last_nut = { .prev = next_nut, .next = next_nut->next };
-	struct DblNode head_blt = { .prev = prev_blt->prev, .next = prev_blt };
-	struct DblNode last_blt = { .prev = next_blt, .next = next_blt->next };
+	struct DblNode head_nut = { .value =  999.999, .prev = prev_nut->prev, .next = prev_nut };
+	struct DblNode last_nut = { .value = -999.999, .prev = next_nut, .next = next_nut->next };
+	struct DblNode head_blt = { .value =  999.999, .prev = prev_blt->prev, .next = prev_blt };
+	struct DblNode last_blt = { .value = -999.999, .prev = next_blt, .next = next_blt->next };
 
 	prev_nut->prev = &head_nut;
 	next_nut->next = &last_nut;
@@ -194,10 +240,10 @@ FOUND_PIVOT_BLT_FROM_NEXT:
 
 
 PARTITION_NUTS:
-
-	while (1) {
 	puts("PARTITION_NUTS");
 	fflush(stdout);
+
+	while (1) {
 		while (1) {
 			if (prev_nut == next_nut) {
 				remove_dbl_node(pivot_nut);
