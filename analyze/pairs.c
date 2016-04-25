@@ -74,7 +74,7 @@ void do_match(struct DblNode **matched_nuts,
 	      struct DblNode *prev_nut,
 	      struct DblNode *next_nut,
 	      struct DblNode *prev_blt,
-	      struct DblNode *next_blt);
+	      struct DblNode *next_blt)
 {
 	if (prev_nut == next_nut) {
 		*matched_nuts = prev_nut;
@@ -89,6 +89,11 @@ void do_match(struct DblNode **matched_nuts,
 	struct DblNode head_blt = { .prev = prev_blt->prev, .next = prev_blt };
 	struct DblNode last_blt = { .prev = next_blt, .next = next_blt->next };
 
+	prev_nut->prev = &head_nut;
+	next_nut->next = &last_nut;
+	prev_blt->prev = &head_blt;
+	next_blt->next = &last_blt;
+
 	struct DblNode *pivot_nut = prev_nut;
 
 	struct DblNode *tmp_swap;
@@ -99,7 +104,7 @@ void do_match(struct DblNode **matched_nuts,
 	/* find 'pivot_blt' that matches 'pivot_nut' */
 	while (1) {
 		while (1) {
-			comp = compare_dbl_nodes(pivot_nut, *head_blt_ptr);
+			comp = compare_dbl_nodes(pivot_nut, prev_blt);
 
 			if (comp == 1)
 				break;
@@ -191,6 +196,8 @@ FOUND_PIVOT_BLT_FROM_NEXT:
 PARTITION_NUTS:
 
 	while (1) {
+	puts("PARTITION_NUTS");
+	fflush(stdout);
 		while (1) {
 			if (prev_nut == next_nut) {
 				remove_dbl_node(pivot_nut);
@@ -213,8 +220,8 @@ PARTITION_NUTS:
 				remove_dbl_node(pivot_nut);
 
 				splice_dbl_node(pivot_nut,
-						prev_nut->prev,
-						prev_nut);
+						next_nut->prev,
+						next_nut);
 
 				goto DO_RECURSE;
 			}
@@ -235,6 +242,8 @@ PARTITION_NUTS:
 	}
 
 DO_RECURSE:
+	puts("DO_RECURSE");
+	fflush(stdout);
 
 	/* remove sentinels */
 	next_nut = last_nut.prev; next_nut->next = last_nut.next;
@@ -257,7 +266,7 @@ inline void match_nuts_and_bolts(struct DblNode **restrict matched_nuts,
 				 struct DblNode **restrict matched_blts,
 				 struct DblNode *restrict nuts,
 				 struct DblNode *restrict blts,
-				 const size_t count);
+				 const size_t count)
 {
 	const size_t i_last = count - 1ul;
 

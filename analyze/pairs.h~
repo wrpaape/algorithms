@@ -36,7 +36,9 @@ void init_nuts_and_bolts(struct DblNode *nuts,
 void print_nuts_and_bolts(struct DblNode *nuts,
 			  struct DblNode *blts);
 
-static inline void match_nuts_and_bolts(struct DblNode *restrict nuts,
+static inline void match_nuts_and_bolts(struct DblNode **restrict matched_nuts,
+					struct DblNode **restrict matched_blts,
+					struct DblNode *restrict nuts,
 					struct DblNode *restrict blts,
 					const size_t count);
 #endif /* ifndef ANALYZE_PAIRS_H_ */
