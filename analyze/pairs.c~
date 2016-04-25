@@ -2,20 +2,20 @@
 #include "utils/rand.h"
 #include "pairs.h"
 
-#define COUNT (1ul << 7)
+#define COUNT (1ul << 4)
 
-#define PAUSE usleep(100000)
+#define PAUSE() usleep(100000)
 
 #define PRINT_LABEL(LABEL)	\
 do {				\
 	puts(LABEL);		\
 	fflush(stdout);		\
-	PAUSE;			\
+	PAUSE();			\
 } while (0)
 
 
 #define TRC(ADDRESS) ((unsigned char) ADDRESS)
-#define PRINT_DBL_NODE(N)						\
+#define INSPECT_DBL_NODE(N)						\
 do {									\
 	printf("\n****************************************"		\
 	       "****************************************\n"		\
@@ -73,8 +73,8 @@ inline void swap_dbl_nodes(struct DblNode *node1,
 	/* puts("=========================================" */
 	/*      "========================================\n" */
 	/*      "PRE SWAP:"); */
-	/* PRINT_DBL_NODE(node1); */
-	/* PRINT_DBL_NODE(node2); */
+	/* INSPECT_DBL_NODE(node1); */
+	/* INSPECT_DBL_NODE(node2); */
 	/* don't have to NULL check bc sentinels */
 	swap1 = node2->prev;
 	swap2 = node1->prev;
@@ -93,11 +93,11 @@ inline void swap_dbl_nodes(struct DblNode *node1,
 	swap2->prev = node2;
 
 	/* puts("\nPOST SWAP:"); */
-	/* PRINT_DBL_NODE(node1); */
-	/* PRINT_DBL_NODE(node2); */
+	/* INSPECT_DBL_NODE(node1); */
+	/* INSPECT_DBL_NODE(node2); */
 	/* puts("========================================" */
 	/*      "========================================="); */
-	/* PAUSE; */
+	/* PAUSE(); */
 }
 
 inline void remove_dbl_node(struct DblNode *node)
@@ -133,23 +133,32 @@ void do_match(struct DblNode **matched_nuts,
 		return;
 	}
 
-
-	/* splice out working list with sentinels */
-	PRINT_LABEL("splice out working list with sentinels");
 	assert(prev_nut != NULL);
 	assert(next_nut != NULL);
 	assert(next_blt != NULL);
 	assert(next_blt != NULL);
-	struct DblNode head_nut = { .value =  999.999, .prev = prev_nut->prev, .next = prev_nut };
-	struct DblNode last_nut = { .value = -999.999, .prev = next_nut, .next = next_nut->next };
-	struct DblNode head_blt = { .value =  999.999, .prev = prev_blt->prev, .next = prev_blt };
-	struct DblNode last_blt = { .value = -999.999, .prev = next_blt, .next = next_blt->next };
+
+
+
+
+	/* splice out working list with sentinels */
+	PRINT_LABEL("splice out working list with sentinels");
+	struct DblNode head_nut = { .value = -999.999, .prev = prev_nut->prev, .next = prev_nut };
+	struct DblNode last_nut = { .value =  999.999, .prev = next_nut, .next = next_nut->next };
+	struct DblNode head_blt = { .value = -999.999, .prev = prev_blt->prev, .next = prev_blt };
+	struct DblNode last_blt = { .value =  999.999, .prev = next_blt, .next = next_blt->next };
 
 
 	prev_nut->prev = &head_nut;
 	next_nut->next = &last_nut;
 	prev_blt->prev = &head_blt;
 	next_blt->next = &last_blt;
+
+	puts("nuts:");
+	print_dbl_nodes(prev_nut, &last_nut);
+	puts("bolts:");
+	print_dbl_nodes(prev_blt, &last_blt);
+	PAUSE();
 
 	struct DblNode *pivot_nut = prev_nut;
 
@@ -322,6 +331,9 @@ PARTITION_NUTS:
 
 DO_RECURSE:
 
+	INSPECT_DBL_NODE(pivot_nut);
+	INSPECT_DBL_NODE(pivot_blt);
+
 	/* remove sentinels, locating next pairs of head and tail nodes */
 	PRINT_LABEL("remove sentinels, locating next pairs of head and tail nodes");
 	next_nut       = last_nut.prev;
@@ -415,8 +427,23 @@ void init_nuts_and_bolts(struct DblNode *nuts,
 	blts[i_last].next = NULL;
 }
 
-void print_nuts_and_bolts(struct DblNode *nuts,
-			  struct DblNode *blts)
+void print_dbl_nodes(struct DblNode *head_node,
+		     struct DblNode *last_node)
+{
+	printf("{\n%f", head_node->value);
+	while (1) {
+		head_node = head_node->next;
+
+		if (head_node == last_node)
+			break;
+
+		printf(", %f", head_node->value);
+	}
+	puts("\n}");
+}
+
+void print_nuts_and_bolts(struct DblNode *restrict nuts,
+			  struct DblNode *restrict blts)
 {
 	puts("nuts: {");
 

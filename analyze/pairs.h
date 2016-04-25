@@ -33,8 +33,11 @@ void init_nuts_and_bolts(struct DblNode *nuts,
 			 struct DblNode *bolts,
 			 const size_t count);
 
-void print_nuts_and_bolts(struct DblNode *nuts,
-			  struct DblNode *blts);
+void print_dbl_nodes(struct DblNode *head_node,
+		     struct DblNode *last_node);
+
+void print_nuts_and_bolts(struct DblNode *restrict nuts,
+			  struct DblNode *restrict blts);
 
 static inline void match_nuts_and_bolts(struct DblNode **restrict matched_nuts,
 					struct DblNode **restrict matched_blts,
