@@ -5,8 +5,7 @@
  void node_to_string(char *buffer,
 		     const void *node)
 {
-	int num = (int) node;
-	sscanf(buffer, "%d", &num);
+	sprintf(buffer, "%d", (int) node);
 }
 
 
@@ -28,7 +27,8 @@ int main(void)
 
 	bheap_insert(heap, (void *) 6);
 	bheap_insert(heap, (void *) 2);
-	bheap_insert(heap, (void *) 5);
+	bheap_insert(heap, (void *) 3);
+	bheap_insert(heap, (void *) 1);
 
 	print_bheap(heap, &node_to_string);
 
