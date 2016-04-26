@@ -18,34 +18,23 @@ int compare(const void *x,
 
 int main(void)
 {
-	/* init_rng(); */
+	init_rng();
 	/* run_grinch(); */
 	/* run_set_union(); */
 
-	struct BHeap *heap = init_bheap(&compare);
+	int array[10];
+	ptrdiff_t i;
 
+	for (i = 0; i < 10; ++i)
+		array[i] = (int) rand_uint_upto(500u);
 
-	bheap_insert(heap, (void *) 6);
-	bheap_insert(heap, (void *) 2);
-	bheap_insert(heap, (void *) 3);
-	bheap_insert(heap, (void *) 1);
-	bheap_insert(heap, (void *) 2);
-	bheap_insert(heap, (void *) 2);
-	bheap_insert(heap, (void *) 3);
-	bheap_insert(heap, (void *) 1);
-	bheap_insert(heap, (void *) 3);
-	bheap_insert(heap, (void *) 1);
-	bheap_insert(heap, (void *) 2);
-	bheap_insert(heap, (void *) 3);
-	bheap_insert(heap, (void *) 1);
+	for (i = 0; i < 10; ++i)
+		printf("%d\n", array[i]);
 
-	printf("%d\n", (int) bheap_extract(heap));
-	printf("%d\n", (int) bheap_extract(heap));
-	printf("%d\n", (int) bheap_extract(heap));
-	printf("%d\n", (int) bheap_extract(heap));
-	printf("%d\n", (int) bheap_extract(heap));
+	bheap_sort((void **) &array[0ul], 10ul, &compare);
 
-	print_bheap(heap, &node_to_string);
+	for (i = 0; i < 10; ++i)
+		printf("  %d\n", array[i]);
 
 	return 0;
 }
