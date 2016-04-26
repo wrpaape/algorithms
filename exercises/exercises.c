@@ -30,6 +30,12 @@ int main(void)
 	bheap_insert(heap, (void *) 3);
 	bheap_insert(heap, (void *) 1);
 
+	printf("%d\n", (int) bheap_extract(heap));
+	printf("%d\n", (int) bheap_extract(heap));
+	printf("%d\n", (int) bheap_extract(heap));
+	printf("%d\n", (int) bheap_extract(heap));
+	printf("%d\n", (int) bheap_extract(heap));
+
 	print_bheap(heap, &node_to_string);
 
 	return 0;
