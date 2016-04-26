@@ -31,7 +31,7 @@ int main(void)
 	for (i = 0; i < 10; ++i)
 		printf("%d\n", array[i]);
 
-	bheap_sort((void **) &array[0ul], 10ul, &compare);
+	bheap_sort((void *) &array[0l], 10ul, sizeof(int), &compare);
 
 	for (i = 0; i < 10; ++i)
 		printf("  %d\n", array[i]);
