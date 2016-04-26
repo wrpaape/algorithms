@@ -29,6 +29,15 @@ int main(void)
 	bheap_insert(heap, (void *) 2);
 	bheap_insert(heap, (void *) 3);
 	bheap_insert(heap, (void *) 1);
+	bheap_insert(heap, (void *) 2);
+	bheap_insert(heap, (void *) 2);
+	bheap_insert(heap, (void *) 3);
+	bheap_insert(heap, (void *) 1);
+	bheap_insert(heap, (void *) 3);
+	bheap_insert(heap, (void *) 1);
+	bheap_insert(heap, (void *) 2);
+	bheap_insert(heap, (void *) 3);
+	bheap_insert(heap, (void *) 1);
 
 	printf("%d\n", (int) bheap_extract(heap));
 	printf("%d\n", (int) bheap_extract(heap));
