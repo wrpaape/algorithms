@@ -2,12 +2,36 @@
 
 #define GRINCH_N (1ul << 4)
 
+ void node_to_string(char *buffer,
+		     const void *node)
+{
+	int num = (int) node;
+	sscanf(buffer, "%d", &num);
+}
+
+
+
+int compare(const void *x,
+	    const void *y)
+{
+	return ((int) x) < ((int) y);
+}
 
 int main(void)
 {
-	init_rng();
+	/* init_rng(); */
 	/* run_grinch(); */
-	run_set_union();
+	/* run_set_union(); */
+
+	struct BHeap *heap = init_bheap(&compare);
+
+
+	bheap_insert(heap, (void *) 6);
+	bheap_insert(heap, (void *) 2);
+	bheap_insert(heap, (void *) 5);
+
+	print_bheap(heap, &node_to_string);
+
 	return 0;
 }
 
@@ -19,12 +43,22 @@ struct BitVector *init_rand_bit_vector(const size_t size,
 	const int span = max - min;
 	if (size > span)
 		return NULL;
+
+	/* const size_t alloc = next_pow_two(span); */
+
+	int *bits;
+	struct BitVector *set;
+	HANDLE_MALLOC(set, sizeof(struct BitVector));
+	HANDLE_CALLOC(bits, size, (size_t) span);
+
+
+	return set;
 }
 
 void run_set_union(void)
 {
-	struct BitVector set1 = init_rand_bit_vector(50, -150, 150);
-	struct BitVector set2 = init_rand_bit_vector(10, -150, 150);
+	struct BitVector *set1 = init_rand_bit_vector(50, -150, 150);
+	struct BitVector *set2 = init_rand_bit_vector(10, -150, 150);
 
 }
 

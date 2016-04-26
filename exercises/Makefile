@@ -1,5 +1,6 @@
 CC	= gcc
-LIBS	= $(LIBRARY_PATH)/librand.a
+LIB_NAMES = rand bheap
+LIBS	= $(addprefix $(LIBRARY_PATH)/, $(addprefix lib, $(addsuffix .a, $(LIB_NAMES))))
 CFLAGS	= -g -I. -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
 exercises: exercises.o
