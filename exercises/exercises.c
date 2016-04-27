@@ -1,42 +1,66 @@
 #include "exercises.h"
 
 #define GRINCH_N (1ul << 4)
-
- void node_to_string(char *buffer,
-		     const void *node)
-{
-	sprintf(buffer, "%d", (int) node);
-}
-
-
-
-int compare(const void *x,
-	    const void *y)
-{
-	return ((int) x) < ((int) y);
-}
+#define HEAP_ALLOC (1ul << 5)
 
 int main(void)
 {
 	init_rng();
-	run_grinch();
-	/* run_set_union(); */
-
-	/* int array[10]; */
-	/* ptrdiff_t i; */
-
-	/* for (i = 0; i < 10; ++i) */
-	/* 	array[i] = (int) rand_uint_upto(500u); */
-
-	/* for (i = 0; i < 10; ++i) */
-	/* 	printf("%d\n", array[i]); */
-
-	/* /1* bheap_sort((void *) &array[0l], 10ul, sizeof(int), &compare); *1/ */
-
-	/* for (i = 0; i < 10; ++i) */
-	/* 	printf("  %d\n", array[i]); */
+	run_heap();
 
 	return 0;
+}
+
+void do_insert_next(int *const nodes,
+		    const int next,
+		    const ptrdiff_t i_next)
+{
+	printf("next: %d, i_next: %zd\n", next, i_next);
+	if (i_next == 1l) {
+		nodes[1l] = next;
+		return;
+	}
+
+	const ptrdiff_t i_prnt = i_next / 2l;
+	const int prnt = nodes[i_prnt];
+
+	if (next < prnt) {
+		nodes[i_next] = prnt;
+		do_insert_next(nodes, i_next, i_prnt);
+	} else {
+		nodes[i_next] = next;
+	}
+}
+
+inline void heap_insert(struct IntHeap *heap,
+			const int next)
+{
+	++(heap->count);
+	do_insert_next(heap->nodes, next, heap->count);
+}
+
+
+void run_heap(void)
+{
+	ptrdiff_t i;
+	struct IntHeap *heap = init_heap(HEAP_ALLOC);
+
+	for (i = 0l; i < HEAP_ALLOC; ++i)
+		heap_insert(heap, (int) rand_uint_upto(100u));
+
+	PRINT_ARRAY((heap->nodes + 1l), heap->count, "%d");
+}
+
+
+inline struct IntHeap *init_heap(const size_t alloc)
+{
+	struct IntHeap *heap;
+	int *nodes;
+	HANDLE_MALLOC(heap,  sizeof(struct IntHeap));
+	HANDLE_MALLOC(nodes, sizeof(int) * alloc);
+	heap->nodes = &nodes[-1l];
+	heap->count = 0ul;
+	return heap;
 }
 
 
@@ -47,8 +71,6 @@ struct BitVector *init_rand_bit_vector(const size_t size,
 	const int span = max - min;
 	if (size > span)
 		return NULL;
-
-	const size_t alloc = next_pow_two(span);
 
 	int *bits;
 	struct BitVector *set;
@@ -65,15 +87,6 @@ void run_set_union(void)
 	struct BitVector *set2 = init_rand_bit_vector(10, -150, 150);
 
 }
-
-/* inline void swap_ij(int *data, */
-/* 		    const ptrdiff_t i, */
-/* 		    const ptrdiff_t j) */
-/* { */
-/* 	const int tmp = data[i]; */
-/* 	data[i] = data[j]; */
-/* 	data[j] = tmp; */
-/* } */
 
 ptrdiff_t split_data(int *data,
 		     ptrdiff_t from,

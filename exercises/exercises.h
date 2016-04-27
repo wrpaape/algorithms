@@ -1,6 +1,5 @@
 #include <utils/utils.h>
 #include <utils/rand.h>
-#include <bheap/bheap.h>
 
 struct BitVector {
 	int *bits;
@@ -8,8 +7,24 @@ struct BitVector {
 	size_t alloc;
 };
 
+struct IntHeap {
+	int *nodes;
+	size_t count;
+};
+
 void run_grinch(void);
 void run_set_union(void);
+void run_heap(void);
+
+
+static inline struct IntHeap *init_heap(const size_t alloc);
+
+static inline void heap_insert(struct IntHeap *heap,
+			       const int next);
+
+void do_insert_next(int *const nodes,
+		    const int next,
+		    const ptrdiff_t i_next);
 
 struct BitVector *init_rand_bit_vector(const size_t size,
 				       const int min,
@@ -19,16 +34,6 @@ static inline void do_sort(int *data,
 			   const ptrdiff_t from,
 			   const ptrdiff_t upto);
 
-static inline void swap_ij(int *data,
-			   const ptrdiff_t i,
-			   const ptrdiff_t j);
-
 ptrdiff_t split_data(int *data,
 		     ptrdiff_t from,
 		     ptrdiff_t upto);
-
-int compare(const void *x,
-	    const void *y);
-
- void node_to_string(char *buffer,
-		     const void *node);
