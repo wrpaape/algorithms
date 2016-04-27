@@ -6,7 +6,7 @@
 int main(void)
 {
 	init_rng();
-	run_heap();
+	run_set_union();
 
 	return 0;
 }
@@ -130,30 +130,104 @@ inline struct IntHeap *init_heap(const size_t alloc)
 	return heap;
 }
 
+bool bit_vector_member(struct BitVector *set,
+		       const int x)
+{
+	if ((x < set->min) || (x > set->max))
+		return false;
+
+	const size_t off_x = x - set->min;
+	const size_t i_bkt = off_x >> set->lg_span;
+	const size_t i_bit = off_x &  set->span_m1;
+
+	const uint64_t bit_x = 1ull << i_bit;
+
+	return set->bits[i_bkt] & bit_x;
+}
+
+bool bit_vector_put(struct BitVector *set,
+		    const int x)
+{
+	if ((x < set->min) || (x > set->max))
+		EXIT_ON_FAILURE("%d is OB", x);
+
+	const size_t off_x = x - set->min;
+	const size_t i_bkt = off_x >> set->lg_span;
+	const size_t i_bit = off_x &  set->span_m1;
+
+	const uint64_t bit_x = 1ull << i_bit;
+
+	uint64_t *bkt_x = &set->bits[i_bkt];
+
+
+	if ((*bkt_x) & bit_x)
+		return false;
+
+	(*bkt_x) |= bit_x;
+
+	++(set->size);
+
+	return true;
+}
+
+inline void free_bit_vector(struct BitVector *set)
+{
+	free(set->bits);
+	free(set);
+}
+
+
+inline void print_bit_vector(struct BitVector *set)
+{
+	int x = set->min;
+
+	const int max = set->max;
+
+	do {
+		if (bit_vector_member(set, x))
+			printf("%d\n", x);
+		++x;
+	} while (x < max);
+}
 
 struct BitVector *init_rand_bit_vector(const size_t size,
 				       const int min,
 				       const int max)
 {
-	const int span = max - min;
-	if (size > span)
+	const int range = max - min;
+	if (size > range)
 		return NULL;
 
-	int *bits;
+	const size_t span = next_pow_two((size_t) range);
+
+	uint64_t *bits;
 	struct BitVector *set;
 	HANDLE_MALLOC(set, sizeof(struct BitVector));
-	HANDLE_CALLOC(bits, size, (size_t) span);
+	HANDLE_CALLOC(bits, (span / BIT_SIZE(uint64_t) + 1ul), sizeof(uint64_t));
+
+	set->min = min;
+	set->max = min + span;
+	set->lg_span = log_base_two(span);
+	set->bits = bits;
+	set->span_m1 = span - 1;
 
 
+	for (size_t i = 0; i < size; ++i)
+		while (!bit_vector_put(set,
+				       rand_in_int_range(min,
+							 max)));
 	return set;
 }
 
 void run_set_union(void)
 {
-	struct BitVector *set1 = init_rand_bit_vector(50, -150, 150);
-	struct BitVector *set2 = init_rand_bit_vector(10, -150, 150);
+	struct BitVector *set1 = init_rand_bit_vector(3, -5, 5);
 
+	print_bit_vector(set1);
+
+	free_bit_vector(set1);
 }
+
 
 ptrdiff_t split_data(int *data,
 		     ptrdiff_t from,

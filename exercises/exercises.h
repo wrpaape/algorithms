@@ -2,9 +2,12 @@
 #include <utils/rand.h>
 
 struct BitVector {
-	int *bits;
+	int min;
+	int max;
+	size_t span_m1;
+	size_t lg_span;
 	size_t size;
-	size_t alloc;
+	uint64_t *bits;
 };
 
 struct IntHeap {
@@ -32,6 +35,13 @@ void do_shift_next(int *const nodes,
 		    const int next,
 		    const ptrdiff_t i_next,
 		    const ptrdiff_t i_base);
+
+bool bit_vector_put(struct BitVector *set,
+		    const int x);
+
+static inline void print_bit_vector(struct BitVector *set);
+
+static inline void free_bit_vector(struct BitVector *set);
 
 struct BitVector *init_rand_bit_vector(const size_t size,
 				       const int min,
