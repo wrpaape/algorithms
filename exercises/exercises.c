@@ -32,6 +32,70 @@ void do_insert_next(int *const nodes,
 	}
 }
 
+void do_shift_next(int *const nodes,
+		    const int next,
+		    const ptrdiff_t i_next,
+		    const ptrdiff_t i_base)
+{
+	const ptrdiff_t i_lchild = i_next * 2l;
+
+	if (i_lchild > i_base)
+		goto PLACE_NEXT;
+
+	const int lchild = nodes[i_lchild];
+
+
+	if (lchild < next) {
+
+		if (i_lchild == i_base) {
+			nodes[i_next]   = lchild;
+			nodes[i_lchild] = next;
+			return;
+		}
+
+		const ptrdiff_t i_rchild = i_lchild + 1l;
+
+		const int rchild = nodes[i_rchild];
+
+		if (lchild < rchild) {
+			nodes[i_next] = lchild;
+			do_shift_next(nodes, next, i_lchild, i_base);
+		} else {
+			nodes[i_next] = rchild;
+			do_shift_next(nodes, next, i_rchild, i_base);
+		}
+		return;
+	}
+
+	if (i_lchild == i_base)
+		goto PLACE_NEXT;
+
+	const ptrdiff_t i_rchild = i_lchild + 1l;
+	const int rchild = nodes[i_rchild];
+
+	if (rchild < next) {
+		nodes[i_next] = rchild;
+		do_shift_next(nodes, next, i_rchild, i_base);
+	}
+
+PLACE_NEXT:
+	nodes[i_next] = next;
+}
+
+inline int heap_extract(struct IntHeap *heap)
+{
+	int *const nodes = heap->nodes;
+	const int root = nodes[1l];
+
+	const int base = nodes[heap->count];
+
+	--(heap->count);
+
+	do_shift_next(nodes, base, 1l, heap->count);
+
+	return root;
+}
+
 inline void heap_insert(struct IntHeap *heap,
 			const int next)
 {
@@ -49,6 +113,9 @@ void run_heap(void)
 		heap_insert(heap, (int) rand_uint_upto(100u));
 
 	PRINT_ARRAY((heap->nodes + 1l), heap->count, "%d");
+
+	for (i = 0l; i < HEAP_ALLOC; ++i)
+		printf("%d\n", heap_extract(heap));
 }
 
 

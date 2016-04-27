@@ -22,9 +22,16 @@ static inline struct IntHeap *init_heap(const size_t alloc);
 static inline void heap_insert(struct IntHeap *heap,
 			       const int next);
 
+static inline int heap_extract(struct IntHeap *heap);
+
 void do_insert_next(int *const nodes,
 		    const int next,
 		    const ptrdiff_t i_next);
+
+void do_shift_next(int *const nodes,
+		    const int next,
+		    const ptrdiff_t i_next,
+		    const ptrdiff_t i_base);
 
 struct BitVector *init_rand_bit_vector(const size_t size,
 				       const int min,
