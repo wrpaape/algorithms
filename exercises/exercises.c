@@ -19,22 +19,22 @@ int compare(const void *x,
 int main(void)
 {
 	init_rng();
-	/* run_grinch(); */
+	run_grinch();
 	/* run_set_union(); */
 
-	int array[10];
-	ptrdiff_t i;
+	/* int array[10]; */
+	/* ptrdiff_t i; */
 
-	for (i = 0; i < 10; ++i)
-		array[i] = (int) rand_uint_upto(500u);
+	/* for (i = 0; i < 10; ++i) */
+	/* 	array[i] = (int) rand_uint_upto(500u); */
 
-	for (i = 0; i < 10; ++i)
-		printf("%d\n", array[i]);
+	/* for (i = 0; i < 10; ++i) */
+	/* 	printf("%d\n", array[i]); */
 
-	bheap_sort((void *) &array[0l], 10ul, sizeof(int), &compare);
+	/* /1* bheap_sort((void *) &array[0l], 10ul, sizeof(int), &compare); *1/ */
 
-	for (i = 0; i < 10; ++i)
-		printf("  %d\n", array[i]);
+	/* for (i = 0; i < 10; ++i) */
+	/* 	printf("  %d\n", array[i]); */
 
 	return 0;
 }
@@ -48,7 +48,7 @@ struct BitVector *init_rand_bit_vector(const size_t size,
 	if (size > span)
 		return NULL;
 
-	/* const size_t alloc = next_pow_two(span); */
+	const size_t alloc = next_pow_two(span);
 
 	int *bits;
 	struct BitVector *set;
@@ -66,14 +66,14 @@ void run_set_union(void)
 
 }
 
-inline void swap_ij(int *data,
-		    const ptrdiff_t i,
-		    const ptrdiff_t j)
-{
-	const int tmp = data[i];
-	data[i] = data[j];
-	data[j] = tmp;
-}
+/* inline void swap_ij(int *data, */
+/* 		    const ptrdiff_t i, */
+/* 		    const ptrdiff_t j) */
+/* { */
+/* 	const int tmp = data[i]; */
+/* 	data[i] = data[j]; */
+/* 	data[j] = tmp; */
+/* } */
 
 ptrdiff_t split_data(int *data,
 		     ptrdiff_t from,
@@ -109,11 +109,11 @@ ptrdiff_t split_data(int *data,
 			}
 		}
 
-		swap_ij(data, from, upto);
+		EL_SWAP(data, from, upto);
 	}
 
 PLACE_PIVOT:
-	swap_ij(data, i_pivot, from);
+	EL_SWAP(data, i_pivot, from);
 	return from;
 }
 
