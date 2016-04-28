@@ -6,9 +6,49 @@
 int main(void)
 {
 	init_rng();
-	run_set_union();
+	run_hash_test();
 
 	return 0;
+}
+
+hash_t hash_bytes(byte_t *bytes,
+		  const size_t length,
+		  const hash_t m_prime)
+{
+
+	/* size_t rem_words = length / sizeof(hash_t); */
+	size_t rem_bytes = length % sizeof(hash_t);
+
+	ptrdiff_t i = length - rem_bytes;
+
+	hash_t *word = (hash_t *) bytes;
+
+	hash_t hash = (word[i] << (sizeof(hash_t) - rem_bytes)) & m_prime;
+
+	i -= rem_bytes;
+
+	if (i < 0l)
+		return hash;
+
+	const hash_t base_mod_size = HASH_MAX & m_prime;
+
+	do {
+		hash += (base_mod_size * (word[i] & m_prime)) & m_prime;
+		i -= sizeof(hash_t);
+
+	} while (i >= 0l);
+
+	return hash;
+}
+
+void run_hash_test(void)
+{
+	const size_t size = (1ul << 13ul);
+	const hash_t m_prime = size - 1ull;
+
+	printf("abc: %llu\n", hash_bytes("abc", 3ul, m_prime));
+	printf("cabcabcabcabcabcab:  %llu\n", hash_bytes("cabcabcabcabcabcab", 18ul, m_prime));
+	printf("cabcabcabcabcabcaab: %llu\n", hash_bytes("cabcabcabcabcabcab", 18ul, m_prime));
 }
 
 void do_insert_next(int *const nodes,
@@ -201,8 +241,6 @@ struct BitVector *init_bit_vector(const int min,
 				  const int max)
 {
 	const int range = max - min;
-	if (size > range)
-		return NULL;
 
 	const size_t span = next_pow_two((size_t) range);
 
@@ -220,22 +258,22 @@ struct BitVector *init_bit_vector(const int min,
 	set->size = 0ul;
 	set->bits = bits;
 
-	while (set->size < size)
-		bit_vector_put(set, rand_in_int_range(min, max));
+	/* while (set->size < size) */
+	/* 	bit_vector_put(set, rand_in_int_range(min, max)); */
 
 	return set;
 }
 
 void run_set_union(void)
 {
-	struct BitVector *set1 = init_rand_bit_vector(10, -180, 180);
+	/* struct BitVector *set1 = init_rand_bit_vector(10, -180, 180); */
 
-	printf("%zu\n", set1->size);
-	printf("%d\n", set1->min);
-	printf("%d\n", set1->max);
-	print_bit_vector(set1);
+	/* printf("%zu\n", set1->size); */
+	/* printf("%d\n", set1->min); */
+	/* printf("%d\n", set1->max); */
+	/* print_bit_vector(set1); */
 
-	free_bit_vector(set1);
+	/* free_bit_vector(set1); */
 }
 
 

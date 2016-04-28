@@ -1,6 +1,12 @@
 #include <utils/utils.h>
 #include <utils/rand.h>
 
+#define BYTE_MAX UCHAR_MAX
+#define HASH_MAX ULLONG_MAX
+
+typedef unsigned long long int hash_t;
+typedef unsigned char byte_t;
+
 struct BitVector {
 	int min;
 	int max;
@@ -18,7 +24,12 @@ struct IntHeap {
 void run_grinch(void);
 void run_set_union(void);
 void run_heap(void);
+void run_hash_test(void);
 
+
+hash_t hash_bytes(byte_t *bytes,
+		  const size_t length,
+		  const hash_t m_prime);
 
 static inline struct IntHeap *init_heap(const size_t alloc);
 
