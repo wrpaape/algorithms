@@ -23,53 +23,72 @@ struct SuffixNode *create_suffix_tree(char *restrict string)
 	if (*string == '\0')
 		return NULL;
 
-	struct SuffixNode *const root = init_suffix_node(*string);
+	struct SuffixNode *const root = init_suffix_node(string);
 
 	struct SuffixNode *active_node = root;
-	struct SuffixEdge *active_edge;
 
-	char *upto;
+	char **upto = &(active_node->upto);
 
-	do {
-		active_edge = init_suffix_edge(active_node->key)
-		HANDLE_MALLOC(active_edge, sizeof(struct SuffixEdge));
+	struct SuffixEdge *active_edge = init_suffix_edge(upto);
 
-	} while (string != '\0');
-
-
+	char key = *string;
 
 	size_t active_length = 0ul;
-	size_t rem_suffixes  = 0ul;
+	size_t rem_suffixes  = 1ul;
+
+	active_node->edges[key] = active_edge;
 
 
+	while (1) {
+		++string;
 
-	return root;
+		if (*string == '\0')
+			return root;
+
+		*upto = string;
+		key   = *string;
+
+		if (active_node->edges[key] != NULL) {
+
+			active_edge = active_node->edges[key];
+			++active_length;
+			++remainder;
+		}
+
+
+		active_node->edges[*string] = active_edge;
+
+		++(active_node->count);
+
+		++string;
+
+	}
 }
 
-inline struct SuffixNode *init_suffix_node(const char key)
+inline struct SuffixNode *init_suffix_node(char *const restrict upto)
 {
 	struct SuffixNode *node;
 
 	HANDLE_MALLOC(node, sizeof(struct SuffixNode));
 
-	memset(&node->edges[1l], 0, sizeof(struct SuffixEdge) * (CHAR_MAX - 1ul));
-
-	node->key   = key;
+	node->upto  = upto;
 	node->count = 0ul;
+
+	memset(&node->edges[1l],
+	       0,
+	       sizeof(struct SuffixEdge *) * (CHAR_MAX - 1ul));
 
 	return node;
 }
 
-inline struct SuffixEdge *init_suffix_edge(char *const from,
-					   char *const upto)
+inline struct SuffixEdge *init_suffix_edge(char **const restrict upto)
 {
 	struct SuffixEdge *edge;
 
 	HANDLE_MALLOC(edge, sizeof(struct SuffixEdge));
 
-
-	edge->from  = key;
-	edge->count = 0ul;
+	edge->from = *upto;
+	edge->upto = upto;
 
 	return edge;
 }
