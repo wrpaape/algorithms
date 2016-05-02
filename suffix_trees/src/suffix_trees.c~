@@ -18,22 +18,60 @@ int main(void)
 	return 0;
 }
 
-struct SuffixNode *create_suffix_tree(char *const restrict string)
+struct SuffixNode *create_suffix_tree(char *restrict string)
 {
-	struct SuffixNode *root;
-	INIT_SUFFIX_NODE(root);
+	if (*string == '\0')
+		return NULL;
 
-	struct SuffixNode *node = root;
+	struct SuffixNode *const root = init_suffix_node(*string);
 
-	while (*string != '\0') {
+	struct SuffixNode *active_node = root;
+	struct SuffixEdge *active_edge;
 
-		++string;
-	}
+	char *upto;
+
+	do {
+		active_edge = init_suffix_edge(active_node)
+		HANDLE_MALLOC(active_edge, sizeof(struct SuffixEdge));
+
+	} while (string != '\0');
+
+
+
+	size_t active_length = 0ul;
+	size_t rem_suffixes  = 0ul;
 
 
 
 	return root;
+}
 
+inline struct SuffixNode *init_suffix_node(const char key)
+{
+	struct SuffixNode *node;
+
+	HANDLE_MALLOC(node, sizeof(struct SuffixNode));
+
+	memset(&node->edges[1l], 0, sizeof(struct SuffixEdge) * (CHAR_MAX - 1ul));
+
+	node->key   = key;
+	node->count = 0ul;
+
+	return node;
+}
+
+inline struct SuffixEdge *init_suffix_edge(char *const from,
+					   char *const upto)
+{
+	struct SuffixEdge *edge;
+
+	HANDLE_MALLOC(edge, sizeof(struct SuffixEdge));
+
+
+	edge->from  = key;
+	edge->count = 0ul;
+
+	return edge;
 }
 
 /*
