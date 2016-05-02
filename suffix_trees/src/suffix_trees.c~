@@ -12,56 +12,34 @@ int main(void)
 
 	for (count = 0ul; matches[count] != NULL; ++count);
 
-
 	printf("count: %zu\n", count);
 
 	return 0;
 }
 
+void append_suffix(struct SuffixBuildState *state,
+		   char *const string)
+{
+	struct SuffixNode *active_node = root;
+}
+
 struct SuffixNode *create_suffix_tree(char *restrict string)
 {
-	if (*string == '\0')
-		return NULL;
-
 	struct SuffixNode *const root = init_suffix_node(string);
 
-	struct SuffixNode *active_node = root;
+	struct SuffixBuildState state = {
+		.act_node = root,
+		.act_length = 0ul,
+		.rem_suffixes = 0ul
+	};
 
-	char **upto = &(active_node->upto);
-
-	struct SuffixEdge *active_edge = init_suffix_edge(upto);
-
-	char key = *string;
-
-	size_t active_length = 0ul;
-	size_t rem_suffixes  = 1ul;
-
-	active_node->edges[key] = active_edge;
-
-
-	while (1) {
-		++string;
+	while (1)  {
+		append_suffix(&state, string);
 
 		if (*string == '\0')
 			return root;
 
-		*upto = string;
-		key   = *string;
-
-		if (active_node->edges[key] != NULL) {
-
-			active_edge = active_node->edges[key];
-			++active_length;
-			++remainder;
-		}
-
-
-		active_node->edges[*string] = active_edge;
-
-		++(active_node->count);
-
 		++string;
-
 	}
 }
 
@@ -89,6 +67,7 @@ inline struct SuffixEdge *init_suffix_edge(char **const restrict upto)
 
 	edge->from = *upto;
 	edge->upto = upto;
+	edge->children = NULL;
 
 	return edge;
 }
