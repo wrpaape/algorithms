@@ -1,29 +1,29 @@
 #include "suffix_trees.h"
 
 
-extern inline void free_match(struct Match *match);
-
-
 int main(void)
 {
-	puts("OOGA BOOGA");
+	char **matches = pattern_find_all("bananas in pajamas ooga booga", "ooga");
+
+	size_t count;
+
+	for (count = 0ul; matches[count] != NULL; ++count);
+
+
+	printf("count: %zu\n", count);
 
 	return 0;
 }
 
 /*
- * returns a 'Match' struct of the form:
- *
- * struct Match {
- *	ptrdiff_t *indices;	a pointer to an array of indices of all occurences of 'pattern' in 'string'
- *	size_t count;		count of all matches (length of 'indices')
- *};
+ * Returns a NULL terminated array of char pointers pointing to the start of
+ * all occurences of 'pattern' in 'string'
  */
-struct Match *find_pattern(char *const restrict string,
-			   char *const restrict pattern)
+char **pattern_find_all(char *const restrict string,
+			char *const restrict pattern)
 {
+	char **matches;
 
-	ptrdiff_t *indices = NULL;
 
-	return indices;
+	return matches;
 }
