@@ -3,8 +3,7 @@
 struct SuffixNode {
 	char *from;
 	char *upto;
-	struct SuffixNode *lateral;
-	struct SuffixNode *next;
+	struct SuffixNode **children;
 };
 
 

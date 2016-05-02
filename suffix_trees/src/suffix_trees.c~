@@ -9,9 +9,27 @@ int main(void)
 
 	for (count = 0ul; matches[count] != NULL; ++count);
 
+
 	printf("count: %zu\n", count);
 
 	return 0;
+}
+
+struct SuffixNode **create_suffix_tree(char *const restrict string)
+{
+	/* init alphabet */
+	size_t char_counts[CHAR_MAX] = { [0 ... (CHAR_MAX - 1)] = 0ul };
+	size_t uniq_chars = 0ul;
+
+	for (char *char_ptr = string; *char_ptr != '\0'; ++char_ptr)
+		++char_counts[*char_ptr];
+
+	for (char key = CHAR_MAX; key >= '\0'; --key) {
+		if (char_counts[key] > 0ul)
+			++uniq_chars;
+	}
+
+
 }
 
 /*
