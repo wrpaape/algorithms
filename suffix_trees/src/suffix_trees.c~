@@ -1,9 +1,12 @@
 #include "suffix_trees.h"
 
+#define INIT_SUFFIX_NODE(N) HANDLE_CALLOC(N, 1ul, sizeof(struct SuffixNode))
+
 
 int main(void)
 {
-	char **matches = pattern_find_all("bananas in pajamas ooga booga", "ooga");
+	char **matches = pattern_find_all("bananas in pajamas ooga booga",
+					  "ooga");
 
 	size_t count;
 
@@ -15,20 +18,21 @@ int main(void)
 	return 0;
 }
 
-struct SuffixNode **create_suffix_tree(char *const restrict string)
+struct SuffixNode *create_suffix_tree(char *const restrict string)
 {
-	/* init alphabet */
-	size_t char_counts[CHAR_MAX] = { [0 ... (CHAR_MAX - 1)] = 0ul };
-	size_t uniq_chars = 0ul;
+	struct SuffixNode *root;
+	INIT_SUFFIX_NODE(root);
 
-	for (char *char_ptr = string; *char_ptr != '\0'; ++char_ptr)
-		++char_counts[*char_ptr];
+	struct SuffixNode *node = root;
 
-	for (char key = CHAR_MAX; key >= '\0'; --key) {
-		if (char_counts[key] > 0ul)
-			++uniq_chars;
+	while (*string != '\0') {
+
+		++string;
 	}
 
+
+
+	return root;
 
 }
 
