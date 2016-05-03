@@ -1,8 +1,8 @@
 #include <utils/utils.h>
 
 struct SfxNode {
-	char *from;
-	size_t count;
+	char *base;
+	size_t edge_count;
 	struct SfxNode *rem_sfx;
 	struct SfxNode *edges[CHAR_MAX];
 };
@@ -18,6 +18,4 @@ void append_next_sfx(struct SfxNode **active_node_ptr,
 		     char *sfx);
 
 
-static inline struct SfxNode *init_sfx_node(char *const upto);
-
-static inline struct SfxEdge *init_sfx_edge(char **const upto_ptr);
+static inline struct SfxNode *init_sfx_node(char *const base);

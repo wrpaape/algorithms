@@ -1,5 +1,7 @@
 #include "sfx_trees.h"
 
+#define EDGES_SIZE (sizeof(struct SfxNode *) * (CHAR_MAX - 1lu))
+
 int main(void)
 {
 	char **matches = pattern_find_all("bananas in pajamas ooga booga",
@@ -23,7 +25,7 @@ void append_next_sfx(struct SfxNode **active_node_ptr,
 	struct SfxNode **active_edge_ptr = &active_node->edges[*sfx];
 
 
-	++(active_node->count);
+	++(active_node->edge_count);
 	active_node->upto = sfx;
 
 	if (*active_edge_ptr == NULL) {
@@ -66,32 +68,20 @@ struct SfxNode *create_sfx_tree(char *string)
 	return root;
 }
 
-inline struct SfxNode *init_sfx_node(char *const upto)
+inline struct SfxNode *init_sfx_node(char *const base)
 {
 	struct SfxNode *node;
 
 	HANDLE_MALLOC(node, sizeof(struct SfxNode));
 
-	node->upto  = upto;
-	node->count = 0ul;
-	memset(&node->edges[1l], 0,
-	       sizeof(struct SfxEdge *) * (CHAR_MAX - 1ul));
+	node->base       = base;
+	node->edge_count = 0l;
+	node->rem_sfx    = NULL;
+	memset(&node->edges[0l], 0, EDGES_SIZE);
 
 	return node;
 }
 
-inline struct SfxEdge *init_sfx_edge(char **const upto_ptr)
-{
-	struct SfxEdge *edge;
-
-	HANDLE_MALLOC(edge, sizeof(struct SfxEdge));
-
-	edge->from = *upto_ptr;
-	edge->upto_ptr = upto_ptr;
-	edge->next = NULL;
-
-	return edge;
-}
 
 /*
  * Returns a NULL terminated array of char pointers pointing to the start of
