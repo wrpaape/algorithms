@@ -1,21 +1,10 @@
 #include <utils/utils.h>
 
 struct SfxNode {
-	char *upto;
-	size_t count;
-	struct SfxEdge *edges[CHAR_MAX];
-};
-
-struct SfxEdge {
 	char *from;
-	char **upto_ptr;
-	struct SfxNode *next;
-};
-
-struct ActiveSfxState {
-	struct SfxNode *node;
-	size_t length;
-	size_t remainder;
+	size_t count;
+	struct SfxNode *rem_sfx;
+	struct SfxNode *edges[CHAR_MAX];
 };
 
 
