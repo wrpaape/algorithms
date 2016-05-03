@@ -9,7 +9,7 @@ struct SfxNode {
 struct SfxEdge {
 	char *from;
 	char **upto_ptr;
-	struct SfxNode *children;
+	struct SfxNode *next;
 };
 
 struct ActiveSfxState {

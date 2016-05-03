@@ -20,20 +20,23 @@ void append_next_sfx(struct SfxNode **active_node_ptr,
 
 	struct SfxNode *active_node = *active_node_ptr;
 
-	struct SfxNode **active_edge_ptr = &(active_node->edges)[*sfx];
+	struct SfxNode **active_edge_ptr = &active_node->edges[*sfx];
 
-	char **upto_ptr = &(active_node->upto);
 
 	++(active_node->count);
-	*upto_ptr = sfx;
+	active_node->upto = sfx;
 
 	if (*active_edge_ptr == NULL) {
-		*active_edge_ptr = init_sfx_edge(upto_ptr);
+		*active_edge_ptr = init_sfx_edge(&active_node->upto);
+		return;
 	}
+
+	char *upto = active_node->upto;
 
 
 	while (1) {
-		active_edge_ptr = &(active_node->edges)[*sfx];
+
+		active_edge_ptr = &active_node->edges[*sfx];
 
 		if (*active_edge_ptr == NULL)
 			break;
@@ -42,8 +45,6 @@ void append_next_sfx(struct SfxNode **active_node_ptr,
 
 	}
 
-	active_node->upto = sfx;
-	*active_node_ptr  = active_node;
 }
 
 
@@ -87,7 +88,7 @@ inline struct SfxEdge *init_sfx_edge(char **const upto_ptr)
 
 	edge->from = *upto_ptr;
 	edge->upto_ptr = upto_ptr;
-	edge->children = NULL;
+	edge->next = NULL;
 
 	return edge;
 }
