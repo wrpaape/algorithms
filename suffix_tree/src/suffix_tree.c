@@ -32,10 +32,17 @@ struct SuffixTree *build_suffix_tree(char *string)
 	}
 
 
-	/* count of leaf nodes with a NULL edge_map */
+	/* count of leaf nodes of the form:
+	 * - NULL 'edge_map'
+	 * - 'from' points to start (inclusive) of remaining substring,
+	 *	- NULL indicates absence of remainder
+	 * - 'base' points to start of suffix */
 	const size_t ext_node_cnt = (size_t) (1l + letter - string);
 
-	/* count of internal nodes with a non-NULL edge_map */
+	/* count of internal nodes of the form:
+	 * - non-NULL 'edge_map'
+	 * - 'from' points to start (INclusive) of current substring
+	 * - 'base' points to end   (EXclusive) of current substring */
 	const size_t int_node_cnt = ext_node_cnt - alphabet_size;
 
 	/* count of all nodes in tree */
@@ -60,7 +67,7 @@ struct SuffixTree *build_suffix_tree(char *string)
 		      sizeof(struct SuffixTree));
 
 	tree->root_map     = root_map;
-	tree->node_buff    = node;
+	tree->nodes        = node;
 	tree->int_node_cnt = int_node_cnt;
 	tree->ext_node_cnt = ext_node_cnt;
 	tree->tot_node_cnt = tot_node_cnt;
@@ -70,7 +77,7 @@ struct SuffixTree *build_suffix_tree(char *string)
 
 	/* if no internal nodes, skip initialization */
 	if (int_node_cnt == 0ul)
-		goto INIT_LEAF_NODES;
+		goto INIT_AND_INSERT_LEAVES;
 
 	/* partion buffers:
 	/* - split node buffer into 'internal' and 'external' sections
@@ -90,15 +97,23 @@ struct SuffixTree *build_suffix_tree(char *string)
 		next_map += CHAR_SPAN;
 	}
 
-INIT_LEAF_NODES:
+INIT_AND_INSERT_LEAVES:
 	/* leaf nodes:
 	 * - set 'base' pointers to start of suffix
 	 * - set 'edge_map' to NULL */
-	for (i = 0l; i < ext_node_cnt; ++i) {
-		ext_nodes[i].base = &string[i];
-		ext_nodes[i].edge_map = NULL;
+	while (1) {
+		node->base     = string;
+		node->edge_map = NULL;
 
+		insert_suffix(root_map,
+			      &internal,
+			      node);
 
+		if (*string = '\0')
+			return tree;
+
+		--string;
+		++node;
 	}
 
 	return tree;

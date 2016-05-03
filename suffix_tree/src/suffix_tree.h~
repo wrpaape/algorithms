@@ -15,7 +15,6 @@ struct SuffixNode {
 	struct SuffixNode **edge_map;
 };
 
-void insert_suffix_leaf(struct SuffixNode **edge_map,
 
 
 struct SuffixTree *build_suffix_tree(char *string);

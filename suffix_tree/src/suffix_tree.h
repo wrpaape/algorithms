@@ -3,7 +3,7 @@
 
 struct SuffixTree {
 	struct SuffixNode **root_map;
-	struct SuffixNode *node_buff;
+	struct SuffixNode *nodes;
 	size_t int_node_cnt;
 	size_t ext_node_cnt;
 	size_t tot_node_cnt;
