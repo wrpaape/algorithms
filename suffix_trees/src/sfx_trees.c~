@@ -19,17 +19,21 @@ int main(void)
 void append_next_sfx(struct SfxNode **active_node_ptr,
 		     char *sfx)
 {
+	if (*sfx == '\0')
+		return;
 
 	struct SfxNode *active_node = *active_node_ptr;
+
+
+	active_node->edge_count = 1;
 
 	struct SfxNode **active_edge_ptr = &active_node->edges[*sfx];
 
 
 	++(active_node->edge_count);
-	active_node->upto = sfx;
 
 	if (*active_edge_ptr == NULL) {
-		*active_edge_ptr = init_sfx_edge(&active_node->upto);
+		*active_edge_ptr = init_sfx_node(sfx);
 		return;
 	}
 
@@ -75,7 +79,7 @@ inline struct SfxNode *init_sfx_node(char *const base)
 	HANDLE_MALLOC(node, sizeof(struct SfxNode));
 
 	node->base       = base;
-	node->edge_count = 0l;
+	node->edge_count = 0;
 	node->rem_sfx    = NULL;
 	memset(&node->edges[0l], 0, EDGES_SIZE);
 
