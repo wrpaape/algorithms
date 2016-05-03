@@ -12,18 +12,30 @@ int main(void)
 }
 
 
-struct SuffixTree *build_suffix_tree(char *string)
+struct SuffixSubstring *build_suffix_tree(char *string)
 {
-	struct SuffixTree *tree;
-
-	HANDLE_MALLOC(tree, sizeof(struct SuffixTree));
-
-	size_t alphabet_size = 0ul;
-	bool alphabet_set = {
-		[0l ... (CHAR_MAX - 1ul)] = false
+	/* preliminary scan for tree sizing */
+	char *letter;
+	size_t alphabet_size = 1ul; /* including '\0' */
+	bool alphabet_set[CHAR_MAX] = {
+		[1l ... (CHAR_MAX - 1ul)] = false
 	};
 
-	char *letter = string;
+	for (letter = string; *letter != '\0'; ++letter) {
 
-	return tree;
+		if (alphabet_set[*letter])
+			continue;
+
+		alphabet_set[*letter] = true;
+		++alphabet_size;
+	}
+
+
+	size_t leaf_count = (size_t) (1l + letter - string);
+
+	size_t internal_count = leaf_count - alphabet_size;
+
+
+
+	return NULL;
 }
