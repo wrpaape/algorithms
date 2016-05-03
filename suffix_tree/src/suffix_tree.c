@@ -1,7 +1,5 @@
 #include "suffix_tree.h"
 
-#define EDGES_SIZE (sizeof(struct SuffixNode *) * (CHAR_MAX - 1lu))
-
 int main(void)
 {
 	struct SuffixTree *suffix_tree = build_suffix_tree("rooty tooty point and shooty");
@@ -12,13 +10,13 @@ int main(void)
 }
 
 
-struct SuffixSubstring *build_suffix_tree(char *string)
+struct SuffixTree *build_suffix_tree(char *string)
 {
 	/* preliminary scan for tree sizing */
 	char *letter;
 	size_t alphabet_size = 1ul; /* including '\0' */
 	bool alphabet_set[CHAR_MAX] = {
-		[1l ... (CHAR_MAX - 1ul)] = false
+		[1l ... (CHAR_MAX - 1l)] = false
 	};
 
 	for (letter = string; *letter != '\0'; ++letter) {
@@ -31,10 +29,22 @@ struct SuffixSubstring *build_suffix_tree(char *string)
 	}
 
 
-	size_t leaf_count = (size_t) (1l + letter - string);
+	/* count of leaf nodes with a NULL edge_map */
+	const size_t ext_node_cnt = (size_t) (1l + letter - string);
 
-	size_t internal_count = leaf_count - alphabet_size;
+	/* count of internal nodes with a non-NULL edge_map */
+	const size_t int_node_cnt = ext_node_cnt - alphabet_size;
 
+	/* count of all nodes in tree */
+	const size_t tot_node_cnt = ext_node_cnt + int_node_cnt;
+
+	struct SuffixSubstring **map_buff;
+	struct SuffixSubstring *node_buff;
+
+	/* all nodes are preceeded by an edge_map */
+	HANDLE_CALLOC(map_buff,
+		      CHAR_MAX * tot_node_cnt,
+		      sizeof(struct SuffixSubstring *));
 
 
 	return NULL;

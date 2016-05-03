@@ -2,16 +2,18 @@
 
 
 struct SuffixTree {
-	struct SuffixSubstring **root;
-	size_t node_count;
-	size_t leaf_count;
+	struct SuffixSubstring **root_map;
+	struct SuffixSubstring *node_buff;
+	size_t int_node_count;
+	size_t ext_node_count;
+	size_t tot_node_count;
 };
 
 struct SuffixSubstring {
 	char *from;
 	char *base;
-	struct SuffixSubstring **next;
+	struct SuffixSubstring **edge_map;
 };
 
 
-struct SuffixSubstring *build_suffix_tree(char *string);
+struct SuffixTree *build_suffix_tree(char *string);
