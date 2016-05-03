@@ -12,6 +12,19 @@ int main(void)
 	return 0;
 }
 
+void insert_suffix(struct SuffixNode **edge_map,
+		   struct SuffixNode **internal,
+		   struct SuffixNode *const restrict leaf,
+		   char *suffix)
+{
+	/* init leaf node:
+	 * - set 'base' pointer to start of suffix
+	 * - set 'edge_map' to NULL */
+	leaf->base     = string;
+	leaf->edge_map = NULL;
+
+}
+
 
 struct SuffixTree *build_suffix_tree(char *string)
 {
@@ -33,19 +46,19 @@ struct SuffixTree *build_suffix_tree(char *string)
 
 
 	/* count of leaf nodes of the form:
-	 * - NULL 'edge_map'
+	 * - 'edge_map' is NULL
 	 * - 'from' points to start (inclusive) of remaining substring,
 	 *	- NULL indicates absence of remainder
 	 * - 'base' points to start of suffix */
 	const size_t ext_node_cnt = (size_t) (1l + letter - string);
 
 	/* count of internal nodes of the form:
-	 * - non-NULL 'edge_map'
+	 * - 'edge_map' is allocated
 	 * - 'from' points to start (INclusive) of current substring
 	 * - 'base' points to end   (EXclusive) of current substring */
 	const size_t int_node_cnt = ext_node_cnt - alphabet_size;
 
-	/* count of all nodes in tree */
+	/* count of all (total) nodes in tree */
 	const size_t tot_node_cnt = ext_node_cnt + int_node_cnt;
 
 	struct SuffixTree *tree;
@@ -77,7 +90,7 @@ struct SuffixTree *build_suffix_tree(char *string)
 
 	/* if no internal nodes, skip initialization */
 	if (int_node_cnt == 0ul)
-		goto INIT_AND_INSERT_LEAVES;
+		goto INSERT_SUFFIXES;
 
 	/* partion buffers:
 	/* - split node buffer into 'internal' and 'external' sections
@@ -97,17 +110,9 @@ struct SuffixTree *build_suffix_tree(char *string)
 		next_map += CHAR_SPAN;
 	}
 
-INIT_AND_INSERT_LEAVES:
-	/* leaf nodes:
-	 * - set 'base' pointers to start of suffix
-	 * - set 'edge_map' to NULL */
+INSERT_SUFFIXES:
 	while (1) {
-		node->base     = string;
-		node->edge_map = NULL;
-
-		insert_suffix(root_map,
-			      &internal,
-			      node);
+		insert_suffix(root_map, &internal, node, string);
 
 		if (*string = '\0')
 			return tree;

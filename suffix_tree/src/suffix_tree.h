@@ -18,3 +18,8 @@ struct SuffixNode {
 
 
 struct SuffixTree *build_suffix_tree(char *string);
+
+void insert_suffix(struct SuffixNode **edge_map,
+		   struct SuffixNode **internal,
+		   struct SuffixNode *const restrict leaf,
+		   char *suffix);
