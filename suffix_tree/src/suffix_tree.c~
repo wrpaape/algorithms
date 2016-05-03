@@ -19,7 +19,7 @@ struct SuffixTree *build_suffix_tree(char *string)
 	HANDLE_MALLOC(tree, sizeof(struct SuffixTree));
 
 	size_t alphabet_size = 0ul;
-	bool alphabet_set = {
+	bool alphabet_set  = {
 		[0l ... (CHAR_MAX - 1ul)] = false
 	};
 
