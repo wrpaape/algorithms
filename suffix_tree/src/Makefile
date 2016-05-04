@@ -53,7 +53,7 @@ SFTR_TEST_SRC  = $(addprefix $(TEST_DIR)/, $(addsuffix .cc, $(SFTR_TEST_NAME)))
 SFTR_TEST_OBJ  = $(addprefix $(OBJ_DIR)/,  $(addsuffix .o,  $(SFTR_TEST_NAME)))
 SFTR_TEST_BIN  = $(addprefix $(TEST_DIR)/, $(SFTR_TEST_NAME))
 SFTR_TEST_ODEP = $(SFTR_TEST_SRC) $(SFTR_ODEP) $(GTEST_HDRS)
-SFTR_TEST_BDEP = $(SFTR_TEST_OBJ) $(GTEST_MAIN_LIB)
+SFTR_TEST_BDEP = $(SFTR_OBJ) $(SFTR_TEST_OBJ) $(GTEST_MAIN_LIB)
 
 # root/obj/gtest-all.a
 GTEST_ALL_NAME = gtest-all
@@ -67,7 +67,7 @@ GTEST_MAIN_NAME = gtest_main
 GTEST_MAIN_OBJ  = $(addprefix $(OBJ_DIR)/,       $(addsuffix .o,  $(GTEST_MAIN_NAME)))
 GTEST_MAIN_LIB  = $(addprefix $(OBJ_DIR)/,       $(addsuffix .a,  $(GTEST_MAIN_NAME)))
 GTEST_MAIN_ODEP = $(GTEST_SRCS_)
-GTEST_MAIN_LDEP = $(GTEST_MAIN_OBJ)
+GTEST_MAIN_LDEP = $(GTEST_ALL_OBJ) $(GTEST_MAIN_OBJ)
 
 # convenience groupings
 ALL_BINS  = $(DEMO_BIN) $(SFTR_TEST_BIN)
