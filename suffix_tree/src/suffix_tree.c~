@@ -13,8 +13,8 @@ extern inline bool string_contains(const char *const string,
 extern inline bool suffix_tree_contains(const struct SuffixTree *const tree,
 					const char *const substring);
 
-extern inline bool rem_string_contains(const char *rem_string,
-				       const char *rem_substring);
+extern inline bool rem_match_contains(const char *rem_string,
+				      const char *rem_substring);
 
 bool do_suffix_node_contains(const struct SuffixNode *const node,
 			     const char *rem_substring)
@@ -34,13 +34,13 @@ bool do_suffix_node_contains(const struct SuffixNode *const node,
 	/* rem_match can never be NULL bc it does not reside in a '\0' bucket */
 	const char *rem_match = node->rem_match;
 
-	const struct SuffixNode **const restrict edge_map = node->edge_map;
+	struct SuffixNode **const restrict edge_map = node->edge_map;
 
 	/* a NULL 'edge_map' indicates that 'node' is a leaf with a non-NULL,
 	 * '\0'-terminated 'rem_match' of length >= 1 */
 	if (edge_map == NULL)
-		return rem_string_contains(rem_match,
-					   rem_substring);
+		return rem_match_contains(rem_match,
+					  rem_substring);
 
 
 	/* otherwise 'node' is internal, traverse substring */
@@ -55,10 +55,9 @@ bool do_suffix_node_contains(const struct SuffixNode *const node,
 		++rem_substring;
 	}
 
-	/* continue to child node */
+	/* continue to next child node */
 	return do_suffix_node_contains(CHAR_GET(edge_map, *rem_substring),
-				       *rem_substring);
-
+				       rem_substring);
 }
 
 void resolve_suffix_leaves(struct SuffixNode **const restrict bucket,

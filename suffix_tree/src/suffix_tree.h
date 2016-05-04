@@ -47,10 +47,6 @@ struct SuffixNode {
 
 struct SuffixTree *build_suffix_tree(const char *string);
 
-
-bool suffix_tree_contains(const struct SuffixTree *const tree,
-			  const char *restrict substring)
-
 void resolve_suffix_leaves(struct SuffixNode **const restrict bucket,
 			   struct SuffixNode **restrict internal,
 			   struct SuffixNode *const restrict new_leaf,
@@ -75,19 +71,26 @@ inline void free_suffix_tree(struct SuffixTree *tree)
 	free(tree);
 }
 
-inline bool rem_string_contains(const char *rem_string,
-				const char *rem_substring)
+inline bool rem_match_contains(const char *rem_match,
+			       const char *rem_substring)
 {
 	while (1) {
 		if (*rem_substring == '\0')
 			return true;
 
-		if (*rem_string != *rem_substring)
+		if (*rem_match != *rem_substring)
 			return false;
 
-		++rem_string;
+		++rem_match;
 		++rem_substring;
 	}
+}
+
+inline bool suffix_tree_contains(const struct SuffixTree *const tree,
+				 const char *const substring)
+{
+	return do_suffix_node_contains(CHAR_GET(tree->root_map, *substring),
+				       substring);
 }
 
 inline bool string_contains(const char *const restrict string,
@@ -102,12 +105,6 @@ inline bool string_contains(const char *const restrict string,
 	return result;
 }
 
-inline bool suffix_tree_contains(const struct SuffixTree *const tree,
-				 const char *const substring)
-{
-	return do_suffix_node_contains(CHAR_GET(tree->root_map, *substring),
-				       substring);
-}
 
 inline void size_suffix_tree(struct SuffixTreeNodeCount *count,
 			     const char *const string)
