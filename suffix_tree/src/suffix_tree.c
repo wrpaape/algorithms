@@ -21,9 +21,18 @@ int main(void)
 	       tree->ext_node_cnt,
 	       tree->tot_node_cnt);
 
+	free_suffix_tree(tree);
+
 	puts("DONE");
 
 	return 0;
+}
+
+inline void free_suffix_tree(struct SuffixTree *tree)
+{
+	free(tree->root_map);
+	free(tree->nodes);
+	free(tree);
 }
 
 void resolve_suffix_leaves(struct SuffixNode **const restrict bucket,

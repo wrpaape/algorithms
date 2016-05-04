@@ -15,6 +15,8 @@ struct SuffixNode {
 	struct SuffixNode **edge_map;
 };
 
+
+
 struct SuffixTree *build_suffix_tree(const char *string);
 
 static inline void free_suffix_tree(struct SuffixTree *tree);
