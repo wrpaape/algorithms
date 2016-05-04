@@ -90,6 +90,9 @@ all: $(ALL_TRGTS)
 $(DEMO_BIN): $(DEMO_BDEP)
 	$(CC) $(CFLAGS) $(LIB_FLAGS) -o $@ $^
 
+$(DEMO_OBJ): $(DEMO_ODEP)
+	$(CC) $(CFLAGS) $(LIB_FLAGS) -c -o $@ $<
+
 $(SFTR_OBJ): $(SFTR_ODEP)
 	$(CC) $(CFLAGS) $(LIB_FLAGS) -c -o $@ $<
 
