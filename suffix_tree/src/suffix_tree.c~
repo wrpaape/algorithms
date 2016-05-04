@@ -9,7 +9,17 @@
 int main(void)
 {
 	const char *string = "rooty tooty point and shooty";
-	struct SuffixTree *suffix_tree = build_suffix_tree(string);
+
+	struct SuffixTree *tree = build_suffix_tree(string);
+
+	printf("tree: {\n"
+	       "  int_node_cnt: %zu,\n"
+	       "  ext_node_cnt: %zu,\n"
+	       "  tot_node_cnt: %zu\n"
+	       "}\n",
+	       tree->int_node_cnt,
+	       tree->ext_node_cnt,
+	       tree->tot_node_cnt);
 
 	puts("DONE");
 
@@ -259,7 +269,12 @@ INSERT_SUFFIXES:
 		node->suffix     = string;
 		node->edge_map = NULL;
 
-		do_insert_suffix_leaf(root_map, &internal, node, string);
+		/* insert suffixes of '\0'-terminated 'string' from longest to
+		 * shortest */
+		do_insert_suffix_leaf(root_map,
+				      &internal,
+				      node,
+				      string);
 
 		if (*string == '\0')
 			return tree;
