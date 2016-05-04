@@ -1,3 +1,11 @@
+#ifndef SUFFIX_TREE_H_
+#define SUFFIX_TREE_H_
+
+#ifdef __cplusplus
+#define restrict __restrict__
+extern "C" {
+#endif
+
 #include <utils/utils.h>
 #include <stdbool.h>
 
@@ -83,3 +91,7 @@ void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 static inline void insert_new_leaf(struct SuffixNode **const restrict bucket,
 				   struct SuffixNode *const restrict leaf,
 				   const char *const rem_string);
+#ifdef __cplusplus
+}
+#endif
+#endif /* ifndef SUFFIX_TREE_H_ */
