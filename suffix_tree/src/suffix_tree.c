@@ -16,34 +16,36 @@ int main(void)
 	return 0;
 }
 
-void insert_suffix(struct SuffixNode **const restrict root_map,
-		   struct SuffixNode **restrict internal,
-		   struct SuffixNode *const restrict leaf,
-		   const char *suffix)
+void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
+			   struct SuffixNode **restrict internal,
+			   struct SuffixNode *const restrict leaf,
+			   const char *rem_string)
 {
-	/* init leaf node:
-	 * - set 'base' pointer to start of suffix
-	 * - set 'edge_map' to NULL */
-	leaf->base     = suffix;
-	leaf->edge_map = NULL;
 
-	struct SuffixNode **slot = &CHAR_GET(root_map, *suffix);
+	struct SuffixNode **const restrict slot = &CHAR_GET(edge_map,
+							    *rem_string);
+	/* TODO
+	 * 3 cases:
+	 * a) (trivial) leaf is inserted into empty slot
+	 * b) slot belongs to an internal node
+	 * c) slot belongs to another leaf node */
 
-	if (*slot == NULL)
-		goto PLACE_LEAF;
+	if (*slot == NULL) {
+		leaf->rem_match = (*rem_string == '\0')
+				? NULL
+				: rem_string + 1l;
+		*slot = leaf;
+		return;
+	}
 
-	struct SuffixNode *node;
-	struct SuffixNode **next_map;
-	const char *substring;
-	const char *until;
+	struct SuffixNode *const restrict node = *slot;
+
+	const char *rem_match = node->rem_match;
+	const char *suffix = node->suffix;
 
 	while (*slot != NULL) {
 
 	}
-
-PLACE_LEAF:
-	leaf->from = (*suffix == '\0') ? NULL : (suffix + 1l);
-	*slot = leaf;
 }
 
 
@@ -68,15 +70,19 @@ struct SuffixTree *build_suffix_tree(const char *string)
 
 	/* count of leaf (external) nodes of the form:
 	 * - 'edge_map' is NULL
-	 * - 'from' points to start (inclusive) of remaining substring,
-	 *	- NULL indicates absence of remainder
-	 * - 'base' points to start of suffix */
+	 * - 'rem_match' points to start (INclusive) of remaining matching
+	 *   substring
+	 *	- NULL indicates absence of remainder (complete match)
+	 * - 'suffix' points to ABSOLUTE suffix */
 	const size_t ext_node_cnt = (size_t) (1l + letter - string);
 
 	/* count of internal nodes of the form:
 	 * - 'edge_map' is allocated
-	 * - 'from' points to start (INclusive) of current substring
-	 * - 'base' points to end   (EXclusive) of current substring */
+	 * - 'rem_match' points to start (INclusive) of remaining matching
+	 *   substring
+	 * - 'suffix' points to RELATIVE suffix
+	 *	- in other words, end (EXclusive) of remaining matching
+	 *	substring */
 	const size_t int_node_cnt = ext_node_cnt - alphabet_size;
 
 	/* count of all (total) nodes in tree */
@@ -133,7 +139,13 @@ struct SuffixTree *build_suffix_tree(const char *string)
 
 INSERT_SUFFIXES:
 	while (1) {
-		insert_suffix(root_map, &internal, node, string);
+		/* init leaf node:
+		 * - set 'suffix' pointer to ABSOLUTE suffix
+		 * - set 'edge_map' to NULL */
+		node->suffix     = string;
+		node->edge_map = NULL;
+
+		do_insert_suffix_leaf(root_map, &internal, node, string);
 
 		if (*string == '\0')
 			return tree;

@@ -10,8 +10,8 @@ struct SuffixTree {
 };
 
 struct SuffixNode {
-	const char *from;
-	const char *base;
+	const char *rem_match;
+	const char *suffix;
 	struct SuffixNode **edge_map;
 };
 
@@ -19,7 +19,7 @@ struct SuffixNode {
 
 struct SuffixTree *build_suffix_tree(const char *string);
 
-void insert_suffix(struct SuffixNode **const restrict root_map,
-		   struct SuffixNode **restrict internal,
-		   struct SuffixNode *const restrict leaf,
-		   const char *suffix);
+void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
+			   struct SuffixNode **restrict internal,
+			   struct SuffixNode *const restrict leaf,
+			   const char *rem_string);
