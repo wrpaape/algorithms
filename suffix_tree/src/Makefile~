@@ -57,19 +57,15 @@ SFTR_TEST_BDEP = $(SFTR_TEST_OBJ) $(GTEST_MAIN_LIB)
 
 # root/obj/gtest-all.a
 GTEST_ALL_NAME = gtest-all
-# GTEST_ALL_SRC  = $(addprefix $(GTEST_DIR)/src/, $(addsuffix .cc, $(GTEST_ALL_NAME)))
 GTEST_ALL_OBJ  = $(addprefix $(OBJ_DIR)/,       $(addsuffix .o,  $(GTEST_ALL_NAME)))
 GTEST_ALL_LIB  = $(addprefix $(OBJ_DIR)/,       $(addsuffix .a,  $(GTEST_ALL_NAME)))
-# GTEST_ALL_ODEP = $(GTEST_ALL_SRC) $(GTEST_SRCS_)
 GTEST_ALL_ODEP = $(GTEST_SRCS_)
 GTEST_ALL_LDEP = $(GTEST_ALL_OBJ)
 
 # root/obj/gtest_main.a
 GTEST_MAIN_NAME = gtest_main
-# GTEST_MAIN_SRC  = $(addprefix $(GTEST_DIR)/src/, $(addsuffix .cc, $(GTEST_MAIN_NAME)))
 GTEST_MAIN_OBJ  = $(addprefix $(OBJ_DIR)/,       $(addsuffix .o,  $(GTEST_MAIN_NAME)))
 GTEST_MAIN_LIB  = $(addprefix $(OBJ_DIR)/,       $(addsuffix .a,  $(GTEST_MAIN_NAME)))
-# GTEST_MAIN_ODEP = $(GTEST_MAIN_SRC) $(GTEST_SRCS_)
 GTEST_MAIN_ODEP = $(GTEST_SRCS_)
 GTEST_MAIN_LDEP = $(GTEST_MAIN_OBJ)
 
