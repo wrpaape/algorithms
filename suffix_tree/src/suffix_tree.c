@@ -28,7 +28,12 @@ void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 	 * 3 cases:
 	 * a) (trivial) leaf is inserted into empty slot
 	 * b) slot belongs to an internal node
-	 * c) slot belongs to another leaf node */
+	 * c) slot belongs to another leaf node
+	 *
+	 * NOTE: should never run into complete match
+	 * i.e. node->rem_match = NULL during tree
+	 * construction */
+
 
 	if (*slot == NULL) {
 		leaf->rem_match = (*rem_string == '\0')
@@ -43,9 +48,6 @@ void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 	const char *rem_match = node->rem_match;
 	const char *suffix = node->suffix;
 
-	while (*slot != NULL) {
-
-	}
 }
 
 

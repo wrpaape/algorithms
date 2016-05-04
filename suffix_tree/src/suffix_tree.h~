@@ -20,6 +20,6 @@ struct SuffixNode {
 struct SuffixTree *build_suffix_tree(const char *string);
 
 void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
-		      struct SuffixNode **restrict internal,
-		      struct SuffixNode *const restrict leaf,
-		      const char *rem_string);
+			   struct SuffixNode **restrict internal,
+			   struct SuffixNode *const restrict leaf,
+			   const char *rem_string);
