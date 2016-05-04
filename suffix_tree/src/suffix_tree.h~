@@ -44,14 +44,69 @@ struct SuffixNode {
 	struct SuffixNode **edge_map;
 };
 
+
 struct SuffixTree *build_suffix_tree(const char *string);
 
+
+bool suffix_tree_contains(const struct SuffixTree *const tree,
+			  const char *restrict substring)
+
+void resolve_suffix_leaves(struct SuffixNode **const restrict bucket,
+			   struct SuffixNode **restrict internal,
+			   struct SuffixNode *const restrict new_leaf,
+			   const char *rem_string);
+
+void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
+			   struct SuffixNode **restrict internal,
+			   struct SuffixNode *const restrict leaf,
+			   const char *rem_string);
+
+bool do_suffix_node_contains(const struct SuffixNode *const node,
+			     const char *rem_string);
+
+static inline void insert_new_leaf(struct SuffixNode **const restrict bucket,
+				   struct SuffixNode *const restrict leaf,
+				   const char *const rem_string);
 
 inline void free_suffix_tree(struct SuffixTree *tree)
 {
 	free(tree->root_map);
 	free(tree->nodes);
 	free(tree);
+}
+
+inline bool rem_string_contains(const char *rem_string,
+				const char *rem_substring)
+{
+	while (1) {
+		if (*rem_substring == '\0')
+			return true;
+
+		if (*rem_string != *rem_substring)
+			return false;
+
+		++rem_string;
+		++rem_substring;
+	}
+}
+
+inline bool string_contains(const char *const restrict string,
+			    const char *const restrict substring)
+{
+	struct SuffixTree *tree = build_suffix_tree(string);
+
+	bool result = suffix_tree_contains(tree,
+					   substring);
+	free_suffix_tree(tree);
+
+	return result;
+}
+
+inline bool suffix_tree_contains(const struct SuffixTree *const tree,
+				 const char *const substring)
+{
+	return do_suffix_node_contains(CHAR_GET(tree->root_map, *substring),
+				       substring);
 }
 
 inline void size_suffix_tree(struct SuffixTreeNodeCount *count,
@@ -76,21 +131,6 @@ inline void size_suffix_tree(struct SuffixTreeNodeCount *count,
 	count->external = (size_t) (1l + letter - string);
 	count->internal = count->external - alphabet_size;
 }
-
-
-void resolve_suffix_leaves(struct SuffixNode **const restrict bucket,
-			   struct SuffixNode **restrict internal,
-			   struct SuffixNode *const restrict new_leaf,
-			   const char *rem_string);
-
-void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
-			   struct SuffixNode **restrict internal,
-			   struct SuffixNode *const restrict leaf,
-			   const char *rem_string);
-
-static inline void insert_new_leaf(struct SuffixNode **const restrict bucket,
-				   struct SuffixNode *const restrict leaf,
-				   const char *const rem_string);
 #ifdef __cplusplus
 }
 #endif

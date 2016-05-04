@@ -5,6 +5,62 @@ extern inline void free_suffix_tree(struct SuffixTree *tree);
 extern inline void size_suffix_tree(struct SuffixTreeNodeCount *count,
 				    const char *const string);
 
+
+extern inline bool string_contains(const char *const string,
+				   const char *const substring);
+
+
+extern inline bool suffix_tree_contains(const struct SuffixTree *const tree,
+					const char *const substring);
+
+extern inline bool rem_string_contains(const char *rem_string,
+				       const char *rem_substring);
+
+bool do_suffix_node_contains(const struct SuffixNode *const node,
+			     const char *rem_substring)
+{
+	/* no match */
+	if (node == NULL)
+		return false;
+
+	/* if 'rem_substring' was depleted with bucket access of previous
+	 * edge_map, substring is completely contained */
+	if (*rem_substring == '\0')
+		return true;
+
+	/* reduce remaining string by bucket character */
+	++rem_substring;
+
+	/* rem_match can never be NULL bc it does not reside in a '\0' bucket */
+	const char *rem_match = node->rem_match;
+
+	const struct SuffixNode **const restrict edge_map = node->edge_map;
+
+	/* a NULL 'edge_map' indicates that 'node' is a leaf with a non-NULL,
+	 * '\0'-terminated 'rem_match' of length >= 1 */
+	if (edge_map == NULL)
+		return rem_string_contains(rem_match,
+					   rem_substring);
+
+
+	/* otherwise 'node' is internal, traverse substring */
+	const char *const next_suffix = node->suffix;
+
+	while (rem_match < next_suffix) {
+
+		if (*rem_match != *rem_substring)
+			return false;
+
+		++rem_match;
+		++rem_substring;
+	}
+
+	/* continue to child node */
+	return do_suffix_node_contains(CHAR_GET(edge_map, *rem_substring),
+				       *rem_substring);
+
+}
+
 void resolve_suffix_leaves(struct SuffixNode **const restrict bucket,
 			   struct SuffixNode **restrict internal,
 			   struct SuffixNode *const restrict new_leaf,
@@ -164,9 +220,9 @@ struct SuffixTree *build_suffix_tree(const char *string)
 	const size_t total_node_count = count.internal + count.external;
 
 	struct SuffixTree *tree;
-	struct SuffixNode **root_map;
-	struct SuffixNode *internal;
 	struct SuffixNode *node;
+	struct SuffixNode *internal;
+	struct SuffixNode **root_map;
 
 	/* allocate memory for all nodes and edge_maps upfront */
 	HANDLE_MALLOC(node,
@@ -195,7 +251,7 @@ struct SuffixTree *build_suffix_tree(const char *string)
 		struct SuffixNode *external  = internal + count.internal;
 		struct SuffixNode **next_map = root_map + CHAR_SPAN;
 
-		/* internal nodes:
+		/* init internal nodes:
 		 * - set 'edge_map' to next available span of NULL node
 		 *   pointers */
 		while (1) {
@@ -213,7 +269,7 @@ struct SuffixTree *build_suffix_tree(const char *string)
 		/* init leaf node:
 		 * - set 'suffix' pointer to ABSOLUTE suffix
 		 * - set 'edge_map' to NULL */
-		node->suffix     = string;
+		node->suffix   = string;
 		node->edge_map = NULL;
 
 		/* insert suffixes of '\0'-terminated 'string' from longest to
@@ -229,6 +285,4 @@ struct SuffixTree *build_suffix_tree(const char *string)
 		--string;
 		++node;
 	}
-
-	return tree;
 }
