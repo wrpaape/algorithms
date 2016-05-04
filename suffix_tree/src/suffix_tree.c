@@ -139,9 +139,27 @@ void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 		++rem_match;
 	}
 
+	/* pop a blank node from the 'internal' buffer */
+	struct SuffixNode *const restrict splice = *internal;
+	++(*internal);
 
+	/* set 'splice' node substring */
+	splice->rem_match = int_node->rem_match;
+	splice->suffix    = rem_match;
 
+	/* shorten 'int_node''s substring */
+	int_node->rem_match = rem_match + 1l;
 
+	/* insert 'leaf' into new 'edge_map' */
+	insert_new_leaf(&CHAR_GET(splice->edge_map, *rem_string),
+			leaf,
+			rem_string);
+
+	/* insert 'int_node' into new 'edge_map' */
+	CHAR_GET(splice->edge_map, *rem_match) = int_node;
+
+	/* replace 'int_node''s old 'bucket' with internal 'splice' node */
+	*bucket = splice;
 }
 
 
