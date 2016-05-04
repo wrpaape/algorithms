@@ -16,37 +16,100 @@ int main(void)
 	return 0;
 }
 
+void resolve_suffix_leaves(struct SuffixNode **const restrict bucket,
+			   struct SuffixNode **restrict internal,
+			   struct SuffixNode *const restrict new_leaf,
+			   const char *rem_string)
+{
+	/* pop a blank node from the 'internal' buffer */
+	struct SuffixNode *const restrict splice = *internal;
+	++(*internal);
+
+	/* set start of match */
+	splice->rem_match = rem_string;
+
+	/* leaf of longer suffix (placed earlier), accordingly 'rem_match'
+	 * should never be NULL */
+	struct SuffixNode *const restrict old_leaf = *bucket;
+	const char *rem_match = old_leaf->rem_match;
+
+	while (*rem_string == *rem_match) {
+		++rem_string;
+		++rem_match;
+	}
+
+	splice->suffix = rem_string;
+
+	/* new suffix should terminate before old suffix ('rem_match' should
+	 * never point to '\0'), reduce remaining match of old leaf by bucket
+	 * character */
+	old_leaf->rem_match = rem_match + 1l;
+
+	/* insert old leaf into new 'edge_map' */
+	CHAR_GET(splice->edge_map, *rem_match) = old_leaf;
+
+	/* insert new leaf into new 'edge_map' */
+	insert_new_leaf(&CHAR_GET(splice->edge_map, *rem_string),
+			new_leaf,
+			rem_string);
+
+	/* replace 'old_leaf''s old 'bucket' with internal 'splice' node */
+	*bucket = splice;
+}
+
+inline void insert_new_leaf(struct SuffixNode **const restrict bucket,
+			    struct SuffixNode *const restrict leaf,
+			    const char *const rem_string)
+{
+	/* reduce remaining string of length >= 2 by bucket character */
+	leaf->rem_match = (*rem_string == '\0')
+			? NULL
+			: rem_string + 1l;
+
+	/* insert leaf into 'edge_map' */
+	*bucket = leaf;
+}
+
 void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 			   struct SuffixNode **restrict internal,
 			   struct SuffixNode *const restrict leaf,
 			   const char *rem_string)
 {
 
-	struct SuffixNode **const restrict slot = &CHAR_GET(edge_map,
-							    *rem_string);
+	struct SuffixNode **const restrict bucket = &CHAR_GET(edge_map,
+							      *rem_string);
 	/* TODO
 	 * 3 cases:
-	 * a) (trivial) leaf is inserted into empty slot
-	 * b) slot belongs to an internal node
-	 * c) slot belongs to another leaf node
+	 * a) (trivial) leaf is inserted into empty bucket
+	 * b) bucket belongs to an internal node
+	 * c) bucket belongs to another leaf node
 	 *
 	 * NOTE: should never run into complete match
 	 * i.e. node->rem_match = NULL during tree
-	 * construction */
+	 * construction as leaves are inserted in
+	 * order of descending absolute suffix length */
 
-
-	if (*slot == NULL) {
-		leaf->rem_match = (*rem_string == '\0')
-				? NULL
-				: rem_string + 1l;
-		*slot = leaf;
+	/* if open bucket, insert leaf and return */
+	if (*bucket == NULL) {
+		insert_new_leaf(bucket, leaf, rem_string);
 		return;
 	}
 
-	struct SuffixNode *const restrict node = *slot;
+	/* reduce remaining string by bucket character */
+	++rem_string;
 
-	const char *rem_match = node->rem_match;
-	const char *suffix = node->suffix;
+
+	if ((*bucket)->edge_map == NULL) {
+		resolve_suffix_leaves(bucket, internal, leaf, rem_string);
+		return;
+	}
+
+
+	while (rem_match < next_suffix) {
+
+	}
+
+
 
 }
 

@@ -19,7 +19,16 @@ struct SuffixNode {
 
 struct SuffixTree *build_suffix_tree(const char *string);
 
+void resolve_suffix_leaves(struct SuffixNode **const restrict bucket,
+			   struct SuffixNode **restrict internal,
+			   struct SuffixNode *const restrict new_leaf,
+			   const char *rem_string);
+
 void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 			   struct SuffixNode **restrict internal,
 			   struct SuffixNode *const restrict leaf,
 			   const char *rem_string);
+
+static inline void insert_new_leaf(struct SuffixNode **const restrict bucket,
+				   struct SuffixNode *const restrict leaf,
+				   const char *const rem_string);
