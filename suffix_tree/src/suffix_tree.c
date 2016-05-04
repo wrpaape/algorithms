@@ -85,13 +85,15 @@ void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 	 * c) bucket belongs to another leaf node
 	 *
 	 * NOTE: should never run into complete match
-	 * i.e. node->rem_match = NULL during tree
+	 * (node->rem_match != NULL) during tree
 	 * construction as leaves are inserted in
 	 * order of descending absolute suffix length */
 
-	/* if open bucket, insert leaf and return */
+	/* if open 'bucket', insert 'leaf' and return */
 	if (*bucket == NULL) {
-		insert_new_leaf(bucket, leaf, rem_string);
+		insert_new_leaf(bucket,
+				leaf,
+				rem_string);
 		return;
 	}
 
@@ -99,15 +101,44 @@ void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 	++rem_string;
 
 
+	/* if 'bucket' is occupied by a previously placed leaf node, splice
+	 * is needed to resolve the collision: halt recursion and update
+	 * tree accordingly */
 	if ((*bucket)->edge_map == NULL) {
-		resolve_suffix_leaves(bucket, internal, leaf, rem_string);
+		resolve_suffix_leaves(bucket,
+				      internal,
+				      leaf,
+				      rem_string);
 		return;
 	}
 
+	/* otherwise 'int_node' housed in 'bucket' is internal, traverse its
+	 * substring to determine if splice is needed */
+	struct SuffixNode *const restrict int_node = *bucket;
 
-	while (rem_match < next_suffix) {
+	const char *rem_match	      = int_node->rem_match;
+	const char *const next_suffix = int_node->suffix;
 
+	while (1) {
+		/* if 'leaf' completely matches substring, continue recursion at
+		 * next 'edge_map' */
+		if (rem_match == next_suffix) {
+			do_insert_suffix_leaf(int_node->edge_map,
+					      internal,
+					      leaf,
+					      rem_string);
+			return;
+		}
+
+		/* if 'leaf' doesn't completely match, break to resolve with a
+		 * splice */
+		if (*rem_string != *rem_match)
+			break;
+
+		++rem_string;
+		++rem_match;
 	}
+
 
 
 
