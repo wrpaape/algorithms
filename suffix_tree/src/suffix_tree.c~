@@ -119,8 +119,6 @@ void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 			   struct SuffixNode *const restrict leaf,
 			   const char *rem_string)
 {
-	printf("inserting %s\n", rem_string);
-
 	struct SuffixNode **const restrict bucket = &CHAR_GET(edge_map,
 							      *rem_string);
 	/* TODO
@@ -282,7 +280,7 @@ struct SuffixTree *build_suffix_tree(const char *string)
 		if (*string == '\0')
 			return tree;
 
-		--string;
+		++string;
 		++node;
 	}
 }
