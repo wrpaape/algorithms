@@ -19,8 +19,6 @@ extern inline bool rem_match_contains(const char *rem_string,
 bool do_suffix_node_contains(const struct SuffixNode *const node,
 			     const char *rem_substring)
 {
-	printf("rem_substring: %s\nnode: %p\n\n", rem_substring, node);
-
 	/* no match */
 	if (node == NULL)
 		return false;
@@ -121,6 +119,7 @@ void do_insert_suffix_leaf(struct SuffixNode **const restrict edge_map,
 			   struct SuffixNode *const restrict leaf,
 			   const char *rem_string)
 {
+	printf("inserting %s\n", rem_string);
 
 	struct SuffixNode **const restrict bucket = &CHAR_GET(edge_map,
 							      *rem_string);
@@ -283,7 +282,7 @@ struct SuffixTree *build_suffix_tree(const char *string)
 		if (*string == '\0')
 			return tree;
 
-		--string;
+		++string;
 		++node;
 	}
 }
