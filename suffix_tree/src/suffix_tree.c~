@@ -19,6 +19,8 @@ extern inline bool rem_match_contains(const char *rem_string,
 bool do_suffix_node_contains(const struct SuffixNode *const node,
 			     const char *rem_substring)
 {
+	printf("rem_substring: %s\nnode: %p\n\n", rem_substring, node);
+
 	/* no match */
 	if (node == NULL)
 		return false;
