@@ -1,0 +1,44 @@
+#ifndef BINARY_TREE_BINARY_TREE_H_
+#define BINARY_TREE_BINARY_TREE_H_
+
+/* external dependencies
+ * ────────────────────────────────────────────────────────────────────────── */
+#include <stdlib.h>	/* malloc, free */
+#include <stdio.h>	/* printf, (f)puts */
+
+/* typedefs, struct declarations
+ * ────────────────────────────────────────────────────────────────────────── */
+struct Node {
+	unsigned int value;
+	struct Node *left;
+	struct Node *right;
+};
+
+/* struct TreeInitState { */
+/* 	struct Node **alloc; */
+/* 	unsigned int from; */
+/* 	unsigned int upto; */
+/* }; */
+
+struct Node *
+tree_init(struct Node *restrict *const restrict alloc,
+	  const unsigned int from,
+	  const unsigned int upto);
+
+static inline int
+tree_create(struct Node *restrict *const restrict root,
+	    const unsigned int node_count);
+
+void
+tree_invert(struct Node *const restrict node);
+
+void
+do_tree_print(struct Node *const restrict node);
+
+static inline void
+tree_print(struct Node *const restrict node);
+
+static inline void
+tree_free(struct Node *const restrict node);
+
+#endif /* ifndef BINARY_TREE_BINARY_TREE_H_ */
