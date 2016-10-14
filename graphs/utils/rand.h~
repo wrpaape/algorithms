@@ -1,5 +1,5 @@
 #ifndef GRAPHS_UTILS_RAND_H_
-#define GRAPHS_UTILS_RAND_H_
+#define GRAPHS_UTILS_RAND_H_ value
 #include <pcg_basic.h> /* psuedorandom number generator */
 #include <time.h>      /* unique seed */
 #include <stdbool.h>

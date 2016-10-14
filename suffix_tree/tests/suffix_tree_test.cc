@@ -113,5 +113,4 @@ TEST_F(SuffixTreeTest, StringContains) {
 
 	EXPECT_TRUE(string_contains(LOREM,  "cillum"));
 	EXPECT_FALSE(string_contains(LOREM, "cillym"));
-
 }

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define LENGTH_DATA (5ul)
+#define LENGTH_DATA 200ul
 
 #define PUT_CHAR(PTR, CHAR)	\
 do {				\
@@ -83,7 +83,6 @@ static inline void swap(int *data,
 			const ptrdiff_t i,
 			const ptrdiff_t j)
 {
-	printf("data[%zd]: %d\ndata[%zd]: %d\n", i, data[i], j, data[j]);
 	const int tmp = data[i];
 	data[i] = data[j];
 	data[j] = tmp;
@@ -104,14 +103,10 @@ ptrdiff_t split_data(int *data,
 
 		while (1) {
 			if (i == j) {
-
-				if (compare(pivot, data[j])) {
+				if (compare(pivot, data[j]))
 					--j;
-				}
 
-				printf("\nplacing pivot: %d\n", pivot);
-				swap(data, i_pivot, j);
-				return j;
+				goto PLACE_PIVOT;
 			}
 
 			if (compare(pivot, data[i]))
@@ -125,23 +120,20 @@ ptrdiff_t split_data(int *data,
 			if (compare(data[j], pivot))
 				break;
 
-			if (i == j) {
-				puts("AWOOGA1");
-				printf("data[%zu]: %d\npivot: %d\n", i, data[i], pivot);
-				--j;
-				printf("\nplacing pivot: %d\n", pivot);
-				swap(data, i_pivot, j);
-				return j;
-			}
-
 			--j;
 
+			if (i == j) {
+				--j;
+				goto PLACE_PIVOT;
+			}
 		}
-
-		puts("AWOOGA2");
 
 		swap(data, i, j);
 	}
+
+PLACE_PIVOT:
+	swap(data, i_pivot, j);
+	return j;
 }
 
 void do_sort(int *data,
@@ -151,8 +143,6 @@ void do_sort(int *data,
 	if (i_first < i_last) {
 
 		const ptrdiff_t i_split = split_data(data, i_first, i_last);
-
-		printf("\n\nsplit_at: %zd\n", i_split);
 
 		do_sort(data, i_first,	     i_split - 1l);
 		do_sort(data, i_split + 1l, i_last);
@@ -173,13 +163,12 @@ int main(void)
 	char raw[LENGTH_DATA * 12ul];
 	char sorted[LENGTH_DATA * 12ul];
 	int data[LENGTH_DATA];
-	/* int data[LENGTH_DATA] = {10, 38, 77, 16, 99}; */
 	time_t dummy;
 
 	srand((unsigned) time(&dummy));
 
 	for (size_t i = 0ul; i < LENGTH_DATA; ++i)
-		data[i] = rand() % 100;
+		data[i] = rand();
 
 	put_data(&raw[0l], data, LENGTH_DATA);
 
@@ -188,7 +177,7 @@ int main(void)
 
 	put_data(&sorted[0l], data, LENGTH_DATA);
 
-	printf("raw:\n%s\nsorted:\n%s\n", raw, sorted);
+	printf("raw:\n%s\n\nsorted:\n%s\n", raw, sorted);
 
 	return 0;
 }

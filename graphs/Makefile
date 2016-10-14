@@ -16,7 +16,7 @@ inspect.o: inspect.c inspect.h graphs.h bheap.h
 bheap.o: bheap.c bheap.h utils/utils.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
-rand.o: utils/rand.c utils/rand.h utils/utils.h utils/rand.h
+rand.o: utils/rand.c utils/rand.h utils/utils.h
 		$(CC) $(CFLAGS) -c -o $@ $<
 
 pcg_basic.o: pcg_basic.c pcg_basic.h

@@ -1,7 +1,7 @@
 CC	= gcc
 CFLAGS	= -g -I. -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
-graphs: graphs.o builder.o inspect.o bheap.o paths.o maker.o printer.o rand.o pcg_basic.o map_tokens.o
+graphs: graphs.o builder.o inspect.o bheap.o paths.o maker.o printer.o rand.o pcg_basic.o map_tokens.o a_star.o
 		$(CC) $(CFLAGS) -o $@ $^
 
 graphs.o: graphs.c graphs.h builder.h bheap.h inspect.h maps/maker.h maps/paths.h maps/printer.h traversal/a_star.h utils/rand.h utils/utils.h
