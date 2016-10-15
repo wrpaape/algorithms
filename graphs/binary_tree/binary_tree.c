@@ -6,12 +6,13 @@ main(void)
 	struct Node *restrict root;
 
 	const int exit_status = tree_create(&root,
-					    100u);
+					    20u);
 
 	if (exit_status == 0u) {
 		tree_print(root);
 		tree_invert(root);
 		tree_print(root);
+		printf("tree_length: %u\n", tree_length(root));
 		tree_free(root);
 
 	} else {
@@ -97,14 +98,19 @@ tree_print(struct Node *const restrict node)
 	fputs("- X\n", stdout);
 }
 
+unsigned int
+tree_length(struct Node *const restrict node)
+{
+	return (node == NULL)
+	     ? 0u
+	     : (1u + tree_length(node->left) + tree_length(node->right));
+}
+
+static inline void
+tree_sort(struct Node *const restrict root);
+
 static inline void
 tree_free(struct Node *const restrict node)
 {
 	free(node);
-	/* if (node != NULL) { */
-	/* 	while (node->right != NULL) */
-	/* 		node = node->right; */
-
-	/* 	free(node); */
-	/* } */
 }

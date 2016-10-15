@@ -14,12 +14,6 @@ struct Node {
 	struct Node *right;
 };
 
-/* struct TreeInitState { */
-/* 	struct Node **alloc; */
-/* 	unsigned int from; */
-/* 	unsigned int upto; */
-/* }; */
-
 struct Node *
 tree_init(struct Node *restrict *const restrict alloc,
 	  const unsigned int from,
@@ -37,6 +31,14 @@ do_tree_print(struct Node *const restrict node);
 
 static inline void
 tree_print(struct Node *const restrict node);
+
+unsigned int
+tree_length(struct Node *const restrict node);
+
+static inline void
+tree_sort(struct Node *const restrict root)
+{
+}
 
 static inline void
 tree_free(struct Node *const restrict node);
