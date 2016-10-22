@@ -35,10 +35,14 @@ tree_print(struct Node *const restrict node);
 unsigned int
 tree_length(struct Node *const restrict node);
 
-static inline void
-tree_sort(struct Node *const restrict root)
-{
-}
+struct Node *
+do_tree_nth(struct Node *const restrict node,
+	    int *const restrict acc,
+	    const int n);
+
+static inline struct Node *
+tree_nth(struct Node *const restrict root,
+	 const int n);
 
 static inline void
 tree_free(struct Node *const restrict node);

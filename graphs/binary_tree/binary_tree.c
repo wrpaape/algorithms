@@ -1,9 +1,14 @@
 #include "binary_tree.h"
 
+#define PRINT_NTH(N)							\
+node = tree_nth(root, N);						\
+printf("tree_nth(" #N "): %d\n", (node == NULL) ? -1 : node->value)
+
 int
 main(void)
 {
 	struct Node *restrict root;
+	struct Node *restrict node;
 
 	const int exit_status = tree_create(&root,
 					    20u);
@@ -13,6 +18,11 @@ main(void)
 		tree_invert(root);
 		tree_print(root);
 		printf("tree_length: %u\n", tree_length(root));
+		PRINT_NTH(0);
+		PRINT_NTH(-1);
+		PRINT_NTH(10);
+		PRINT_NTH(19);
+		PRINT_NTH(20);
 		tree_free(root);
 
 	} else {
@@ -106,8 +116,43 @@ tree_length(struct Node *const restrict node)
 	     : (1u + tree_length(node->left) + tree_length(node->right));
 }
 
-static inline void
-tree_sort(struct Node *const restrict root);
+struct Node *
+do_tree_nth(struct Node *const restrict node,
+	    int *const restrict acc,
+	    const int n)
+{
+	struct Node *restrict nth;
+
+	if (node == NULL)
+		return NULL;
+
+	nth = do_tree_nth(node->left,
+			  acc,
+			  n);
+
+	if (nth != NULL)
+		return nth;
+
+	if (*acc == n)
+		return node;
+
+	++(*acc);
+
+	return do_tree_nth(node->right,
+			   acc,
+			   n);
+}
+
+static inline struct Node *
+tree_nth(struct Node *const restrict root,
+	 const int n)
+{
+	int acc = 0;
+
+	return do_tree_nth(root,
+			   &acc,
+			   n);
+}
 
 static inline void
 tree_free(struct Node *const restrict node)
