@@ -136,7 +136,7 @@ void
 dutch_sort(enum Color *const restrict colors,
 	   const size_t length)
 {
-	if (length > 1)
+	if (length > 1) {
 		do_dutch_sort(colors,
 			      colors + length - 1);
 }
