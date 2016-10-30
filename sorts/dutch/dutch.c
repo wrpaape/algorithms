@@ -61,30 +61,38 @@ do_dutch_sort(enum Color *restrict from,
 			return;
 	}
 
+	if (*from == BLUE) {
+		swap(from,
+		     upto);
+
+		while (1) {
+			--upto;
+			if (upto == from)
+				return;
+			else if (*upto != BLUE)
+				break;
+		}
+	}
+
 	enum Color *const restrict start = from;
 
 	while (1) {
+		++from;
+		if (from == upto)
+			break;
+
 		if (*from == BLUE) {
 			swap(from,
 			     upto);
 
 			while (1) {
 				--upto;
-				if (upto == from) {
-					if (from == start)
-						return;
-					else
-						goto BLUE_SET;
-
-				} else if (*upto != BLUE) {
+				if (upto == from)
+					goto BLUE_SET;
+				else if (*upto != BLUE)
 					break;
-				}
 			}
 		}
-
-		++from;
-		if (from == upto)
-			break;
 	}
 
 BLUE_SET:
@@ -128,10 +136,9 @@ void
 dutch_sort(enum Color *const restrict colors,
 	   const size_t length)
 {
-	if (length > 1) {
+	if (length > 1)
 		do_dutch_sort(colors,
 			      colors + length - 1);
-	}
 }
 
 void
