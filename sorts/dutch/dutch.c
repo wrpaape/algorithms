@@ -11,7 +11,7 @@ void
 print_array(const enum Color *restrict color,
 	    const size_t length)
 {
-	static const char color_strings[] = {
+	static const char *color_strings[] = {
 		[RED]	= "RED",
 		[WHITE] = "WHITE",
 		[BLUE]	= "BLUE"
@@ -50,73 +50,76 @@ swap(enum Color *const restrict x,
 }
 
 void
-do_dutch_sort(enum Color *restrict red_bound,
-	      enum Color *restrict blue_bound)
+do_dutch_sort(enum Color *restrict from,
+	      enum Color *restrict upto)
 {
-	enum Color *restrict white_bound;
 	enum Color color;
 
+	while (*upto == BLUE) {
+		--upto;
+		if (upto == from)
+			return;
+	}
+
+	enum Color *const restrict start = from;
 
 	while (1) {
-		while (*red_bound == RED) {
-			++red_bound;
-			if (red_bound == blue_bound)
-				return;
-		}
-
-		while (*blue_bound == BLUE) {
-			--blue_bound;
-			if (blue_bound == red_bound)
-				return;
-		}
-
-
-		if (*red_bound == WHITE) {
-			white_bound = red_bound;
+		if (*from == BLUE) {
+			swap(from,
+			     upto);
 
 			while (1) {
-				++white_bound;
-				if (white_bound == blue_bound) {
-					swap(red_bound,
-					     blue_bound);
+				--upto;
+				if (upto == from) {
+					if (from == start)
+						return;
+					else
+						goto BLUE_SET;
 
-					return;
-				}
-
-				color = *white_bound;
-
-				if (color == RED) {
-					swap(red_bound,
-					     white_bound);
-
-					++red_bound;
-
-				} else if (color == BLUE) {
-
-					if (*blue_bound == WHITE)
-					swap(white_bound,
-					     blue_bound);
+				} else if (*upto != BLUE) {
+					break;
 				}
 			}
+		}
 
+		++from;
+		if (from == upto)
+			break;
+	}
 
+BLUE_SET:
+	from = start;
 
+	while (1) {
+		while (*from == RED) {
+			++from;
 
-
-
-		} else if (*blue_bound == WHITE) {
-
-		} else {
-			swap(red_bound,
-			     blue_bound);
-
-			++red_bound;
-			if (red_bound == blue_bound)
+			if (from == upto)
 				return;
+		}
 
-			--blue_bound;
-			if (blue_bound == red_bound)
+
+		while (*upto == WHITE) {
+			--upto;
+
+			if (upto == from)
 				return;
+		}
+
+		swap(from,
+		     upto);
+
+		++from;
+		if (from == upto)
+			return;
+
+		--upto;
+		if (upto == from) {
+			if (*upto == RED)
+				swap(upto - 1,
+				     upto);
+
+			return;
 		}
 	}
 }
@@ -131,24 +134,67 @@ dutch_sort(enum Color *const restrict colors,
 	}
 }
 
+void
+test_dutch(enum Color *const restrict colors,
+	   const size_t length)
+{
+	puts("-- DOIN IT --");
+	print_array(colors,
+		    length);
+	dutch_sort(colors,
+		   length);
+	print_array(colors,
+		    length);
+	puts("-- DID IT --");
+}
 
 int
 main(void)
 {
-	enum Color colors[21] = {
+	enum Color colors1[21] = {
 		RED, WHITE, BLUE, BLUE, RED, BLUE, WHITE,
 		WHITE, RED, BLUE, BLUE, WHITE, WHITE, RED,
 		BLUE, RED, RED, RED, WHITE, BLUE, RED
 	};
 
-	print_array(&colors[0],
-		    21);
+	enum Color colors2[2] = {
+		RED, WHITE
+	};
 
-	dutch_sort(&colors[0],
+	enum Color colors3[2] = {
+		WHITE, RED
+	};
+
+	enum Color colors4[2] = {
+		BLUE, BLUE
+	};
+
+	enum Color colors5[2] = {
+		BLUE, WHITE
+	};
+
+	enum Color colors6[3] = {
+		BLUE, WHITE, RED
+	};
+
+	enum Color colors7[7] = {
+		BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, WHITE
+	};
+
+	test_dutch(&colors1[0],
 		   21);
-
-	print_array(&colors[0],
-		    21);
+	test_dutch(&colors2[0],
+		   2);
+	test_dutch(&colors3[0],
+		   2);
+	test_dutch(&colors4[0],
+		   2);
+	test_dutch(&colors5[0],
+		   2);
+	test_dutch(&colors6[0],
+		   3);
+	test_dutch(&colors7[0],
+		   7);
 
 	return 0;
 }
