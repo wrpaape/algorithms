@@ -3,8 +3,9 @@
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
-#include <stdlib.h>	/* malloc, free */
-#include <stdbool.h>	/* bool */
+#include <stdlib.h>		/* malloc, free */
+#include <stdbool.h>		/* bool */
+#include <errno.h>		/* errno */
 
 /* helper macros
  * ────────────────────────────────────────────────────────────────────────── */

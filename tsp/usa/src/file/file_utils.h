@@ -14,8 +14,7 @@
 #	include <sys/uio.h>	/* needed for read */
 #endif /* ifdef WIN32 */
 #include <unistd.h>		/* STDOUT/IN/ERR_FILENO, read, write, close */
-#include <errno.h>		/* errno */
-#include "utils/utils.h"	/* bool, LIKELY, UNLIKELY */
+#include "utils/utils.h"	/* bool, LIKELY, UNLIKELY, errno */
 
 
 
@@ -27,6 +26,13 @@
 			 OPEN_FLAG)					\
 	_open(PATH,							\
 	      OPEN_FLAG)
+/* open a file w/ mode */
+#	define FILE_OPEN_MODE(PATH,					\
+			      OPEN_FLAG,				\
+			      MODE)					\
+	_open(PATH,							\
+	      OPEN_FLAG,						\
+	      MODE)
 /* read a file */
 #	define FILE_READ(FILE_DESCRIPTOR,				\
 			 BUFFER,					\
@@ -60,6 +66,13 @@
 			 OPEN_FLAG)					\
 	open(PATH,							\
 	     OPEN_FLAG)
+/* open a file w/ mode */
+#	define FILE_OPEN_MODE(PATH,					\
+			      OPEN_FLAG,				\
+			      MODE)					\
+	open(PATH,							\
+	     OPEN_FLAG,							\
+	     MODE)
 /* read a file */
 #	define FILE_READ(FILE_DESCRIPTOR,				\
 			 BUFFER,					\
@@ -119,7 +132,172 @@ file_open_report(int *const restrict file_descriptor,
 	case EACCES:
 		*failure = "open failure (one of the following):\n"
 			   "\t- Search permission is denied for a component of "
-			   "the path prefix."
+			   "the path prefix.\n"
+			   "\t- The required permissions (for reading and/or "
+			   "writing) are denied for the given flags.\n"
+			   "\t- 'O_CREAT' is specified, the file does not exist"
+			   ", and the directory in which it is to be created "
+			   "does not permit writing.\n"
+			   "\t- 'O_TRUNC' is specified and write permission is "
+			   "denied.\n";
+		return false;
+	case EAGAIN:
+		*failure = "open failure: path specifies the slave side of a "
+			   "locked pseudo-terminal device.\n";
+		return false;
+	case EDQUOT:
+		*failure = "open failure (one of the following):\n"
+			   "\t- 'O_CREAT' is specified, the file does not exist"
+			   ", and the directory in which the entry for the new "
+			   "file is being placed cannot be extended because the"
+			   " user's quota of disk blocks on the file system "
+			   "containing the directory has been exhausted.\n"
+			   "\t- 'O_CREAT' is specified, the file does not exist"
+			   ", and the user's quota of inodes on the file system"
+			   " on which the file is being created has been "
+			   "exhausted.\n";
+		return false;
+	case EEXIST:
+		*failure = "open failure: 'O_CREAT' and 'O_EXCL' are specified "
+			   "and the file exists.\n";
+		return false;
+	case EFAULT:
+		*failure = "open failure: 'path' points outside the process's "
+			   "allocated address space.\n";
+		return false;
+	case EINTR:
+		*failure = "open failure: The open() operation was interrupted "
+			   "by a signal.\n";
+		return false;
+	case EINVAL:
+		*failure = "open failure: The value of 'open_flag' is not valid"
+			   ".\n";
+		return false;
+	case EIO:
+		*failure = "open failure: An I/O error occurred while making "
+			   "the directory entry or allocating the inode for '"
+			   "O_CREAT'.\n";
+		return false;
+	case EISDIR:
+		*failure = "open failure: The named file is a directory, and "
+			   "the arguments specify that it is to be opened for"
+			   " writing.\n";
+		return false;
+	case ELOOP:
+		*failure = "open failure: (one of the following):\n"
+			   "\t- Too many symbolic links were encountered in "
+			   "translating the pathname. This is taken to be "
+			   "indicative of a looping symbolic link.\n"
+			   "\t- 'O_NOFOLLOW' was specified and the target is a "
+			   "symbolic link.\n";
+		return false;
+	case EMFILE:
+		*failure = "open failure: The process has already reached its "
+			   "limit for open file descriptors.\n";
+		return false;
+	case ENAMETOOLONG:
+		*failure = "open failure: A component of a pathname exceeds "
+			   "{NAME_MAX} characters, or an entire path name "
+			   "exceeded {PATH_MAX} characters.\n";
+		return false;
+	case ENFILE:
+		*failure = "open failure: The system file table is full.\n";
+		return false;
+	case ENOENT:
+		*failure = "open failure: (one of the following):\n"
+			   "\t- 'O_CREAT' is not set and the named file does "
+			   "not exist.\n"
+			   "\t- A component of the path name that must exist "
+			   "does not exist.\n";
+		return false;
+	case ENOSPC:
+		*failure = "open failure: (one of the following):\n"
+			   "\t- 'O_CREAT' is specified, the file does not exist"
+			   ", and the directory in which the entry for the new "
+			   "file is being placed cannot be extended because "
+			   "there is no space left on the file system "
+			   "containing the directory.\n"
+			   "\t- 'O_CREAT' is specified, the file does not exist"
+			   ", and there are no free inodes on the file system "
+			   "on which the file is being created.\n";
+		return false;
+	case ENOTDIR:
+		*failure = "open failure: (one of the following):\n"
+			   "\t- A component of the path prefix is not a "
+			   "directory.\n"
+			   "\t- The path argument is not an absolute path.\n";
+		return false;
+	case ENXIO:
+		*failure = "open failure: (one of the following):\n"
+			   "\t- The named file is a character-special or block-"
+			   "special file and the device associated with this "
+			   "special file does not exist.\n"
+			   "\t- 'O_NONBLOCK' and 'O_WRONLY' are set, the file "
+			   "is a FIFO, and no process has it open for reading."
+			   "\n";
+		return false;
+	case EOPNOTSUPP:
+		*failure = "open failure: (one of the following):\n"
+			   "\t- 'O_SHLOCK' or 'O_EXLOCK' is specified, but the "
+			   "underlying filesystem does not support locking.\n"
+			   "\t- An attempt was made to open a socket (not "
+			   "currently implemented).\n";
+		return false;
+	case EOVERFLOW:
+		*failure = "open failure: The named file is a regular file and "
+			   "its size does not fit in an object of type 'off_t'"
+			   ".\n";
+		return false;
+	case EROFS:
+		*failure = "open failure: The named file resides on a read-only"
+			   " file system, and the file was to be modified.\n";
+		return false;
+	case ETXTBSY:
+		*failure = "open failure: The file is a pure procedure (shared "
+			   "text) file that is being executed and the open() "
+			   "call requests write access.\n";
+		return false;
+	case EBADF:
+		*failure = "open failure: The path argument does not specify an"
+			   " absolute path.\n";
+		return false;
+	default:
+		*failure = "open failure: unknown\n";
+		return false;
+	}
+}
+
+/* open (absolute or relative path, provide mode) */
+inline void
+file_open_mode_muffle(int *const restrict file_descriptor,
+		      const char *const path,
+		      const int open_flag,
+		      const mode_t mode)
+{
+	*file_descriptor = FILE_OPEN_MODE(path,
+					  open_flag,
+					  mode);
+}
+
+inline bool
+file_open_mode_report(int *const restrict file_descriptor,
+		      const char *const path,
+		      const int open_flag,
+		      const mode_t mode,
+		      const char *restrict *const restrict failure)
+{
+	*file_descriptor = FILE_OPEN_MODE(path,
+					  open_flag,
+					  mode);
+
+	if (LIKELY(*file_descriptor >= 0))
+		return true;
+
+	switch (errno) {
+	case EACCES:
+		*failure = "open failure (one of the following):\n"
+			   "\t- Search permission is denied for a component of "
+			   "the path prefix.\n"
 			   "\t- The required permissions (for reading and/or "
 			   "writing) are denied for the given flags.\n"
 			   "\t- 'O_CREAT' is specified, the file does not exist"

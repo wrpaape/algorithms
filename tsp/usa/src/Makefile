@@ -112,7 +112,7 @@ SOURCE_DIR		:= $(call PATH_JOIN,$(PROJECT_ROOT) src)
 HEADER_DIR		:= $(SOURCE_DIR)
 OBJECT_DIR		:= $(call PATH_JOIN,$(PROJECT_ROOT) obj)
 BINARY_DIR		:= $(call PATH_JOIN,$(PROJECT_ROOT) bin)
-DATA_DIR		:= $(call PATH_JOIN,$(PROJECT_ROOT) data)
+DATA_DIR		:= $(realpath $(call PATH_JOIN,$(PROJECT_ROOT) data))
 
 # PATH CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
@@ -136,8 +136,8 @@ DATA_PATH		= $(call DATA_FILE_PATH,$(DATA_DIR),$1)
 
 # DATA FILE CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
-COORDINATES_PATH	:= $(call TRIM,"\"$(realpath $(call DATA_PATH,coordinates))\"")
-DISTANCES_PATH		:= $(call TRIM,"\"$(realpath $(call DATA_PATH,distances))\"")
+COORDINATES_PATH	:= $(call TRIM,"\"$(call DATA_PATH,coordinates)\"")
+DISTANCES_PATH		:= $(call TRIM,"\"$(call DATA_PATH,distances)\"")
 
 
 # UTILITY CONFIG
@@ -205,8 +205,10 @@ STRING_STRING_UTILS_HDR		:= $(call HEADER_PATH,string string_utils)
 STRING_STRING_UTILS_OBJ 	:= $(call OBJECT_PATH,string string_utils)
 # ─────────────── target prequisites ───────────────────────────────────────────
 STRING_STRING_UTILS_OBJ_PREQS	:= $(STRING_STRING_UTILS_SRC) 	\
-			   	   $(STRING_STRING_UTILS_HDR)
-STRING_STRING_UTILS_OBJ_GROUP	:= $(STRING_STRING_UTILS_OBJ)
+			   	   $(STRING_STRING_UTILS_HDR)	\
+				   $(UTILS_UTILS_HDR)
+STRING_STRING_UTILS_OBJ_GROUP	:= $(STRING_STRING_UTILS_OBJ)	\
+				   $(UTILS_UTILS_OBJ_GROUP)
 # ─────────────── targets ──────────────────────────────────────────────────────
 TARGETS				+= $(STRING_STRING_UTILS_OBJ)
 
@@ -227,6 +229,43 @@ FILE_FILE_UTILS_OBJ_GROUP	:= $(FILE_FILE_UTILS_OBJ)	\
 TARGETS				+= $(FILE_FILE_UTILS_OBJ)
 
 
+
+# usa/usa_utils
+# ──────────────────────────────────────────────────────────────────────────────
+USA_USA_UTILS_SRC 	:= $(call SOURCE_PATH,usa usa_utils)
+USA_USA_UTILS_HDR	:= $(call HEADER_PATH,usa usa_utils)
+USA_USA_UTILS_OBJ 	:= $(call OBJECT_PATH,usa usa_utils)
+# ─────────────── target prequisites ───────────────────────────────────────────
+USA_USA_UTILS_OBJ_PREQS	:= $(USA_USA_UTILS_SRC) 		\
+		  	   $(USA_USA_UTILS_HDR)			\
+		   	   $(STRING_STRING_UTILS_HDR)		\
+		   	   $(FILE_FILE_UTILS_HDR)
+USA_USA_UTILS_OBJ_GROUP	:= $(USA_USA_UTILS_OBJ)			\
+		   	   $(STRING_STRING_UTILS_OBJ_GROUP)	\
+		   	   $(FILE_FILE_UTILS_OBJ_GROUP)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS			+= $(USA_USA_UTILS_OBJ)
+
+
+
+# generate/generate_distances
+# ──────────────────────────────────────────────────────────────────────────────
+GENERATE_GENERATE_DISTANCES_SRC 	:= $(call SOURCE_PATH,generate generate_distances)
+GENERATE_GENERATE_DISTANCES_HDR		:= $(call HEADER_PATH,generate generate_distances)
+GENERATE_GENERATE_DISTANCES_OBJ 	:= $(call OBJECT_PATH,generate_distances)
+GENERATE_GENERATE_DISTANCES_BIN 	:= $(call BINARY_PATH,generate_distances)
+# ─────────────── target prequisites ───────────────────────────────────────────
+GENERATE_GENERATE_DISTANCES_BIN_PREQS	:= $(GENERATE_GENERATE_DISTANCES_OBJ)	\
+		   	   		   $(USA_USA_UTILS_OBJ_GROUP)
+GENERATE_GENERATE_DISTANCES_OBJ_PREQS	:= $(GENERATE_GENERATE_DISTANCES_SRC) 	\
+		  	   		   $(GENERATE_GENERATE_DISTANCES_HDR)	\
+		   	   		   $(USA_USA_UTILS_HDR)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS					+= $(GENERATE_GENERATE_DISTANCES_OBJ)	\
+					   $(GENERATE_GENERATE_DISTANCES_BIN)
+
+
+
 # usa (entry point)
 # ──────────────────────────────────────────────────────────────────────────────
 USA_SRC 	:= $(call SOURCE_PATH,usa)
@@ -235,12 +274,10 @@ USA_OBJ 	:= $(call OBJECT_PATH,usa)
 USA_BIN 	:= $(call BINARY_PATH,usa)
 # ─────────────── target prequisites ───────────────────────────────────────────
 USA_BIN_PREQS	:= $(USA_OBJ)				\
-		   $(FILE_FILE_UTILS_OBJ_GROUP)		\
-		   $(STRING_STRING_UTILS_OBJ_GROUP)
+		   $(USA_USA_UTILS_OBJ_GROUP)
 USA_OBJ_PREQS	:= $(USA_SRC) 				\
 		   $(USA_HDR)				\
-		   $(FILE_FILE_UTILS_HDR)		\
-		   $(STRING_STRING_UTILS_HDR)
+		   $(USA_USA_UTILS_HDR)
 # ─────────────── targets ──────────────────────────────────────────────────────
 TARGETS		+= $(USA_OBJ)				\
 		   $(USA_BIN)
@@ -276,6 +313,21 @@ $(USA_BIN): $(USA_BIN_PREQS)
 # ──────────────────────────────────────────────────────────────────────────────
 $(USA_OBJ): $(USA_OBJ_PREQS)
 	$(CC) $(CC_FLAGS) -DDISTANCES_PATH=$(DISTANCES_PATH) -c $< -o $@
+
+# make generate_distances binary
+# ──────────────────────────────────────────────────────────────────────────────
+$(GENERATE_GENERATE_DISTANCES_BIN): $(GENERATE_GENERATE_DISTANCES_BIN_PREQS)
+	$(LD) $(LD_FLAGS) $^ $(LD_LIB_FLAGS) -o $@
+
+# make generate_distances object
+# ──────────────────────────────────────────────────────────────────────────────
+$(GENERATE_GENERATE_DISTANCES_OBJ): $(GENERATE_GENERATE_DISTANCES_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -DDISTANCES_PATH=$(DISTANCES_PATH) -DCOORDINATES_PATH=$(COORDINATES_PATH) -c $< -o $@
+
+# make usa/usa_utils object
+# ──────────────────────────────────────────────────────────────────────────────
+$(USA_USA_UTILS_OBJ): $(USA_USA_UTILS_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # make file/file_utils object
 # ──────────────────────────────────────────────────────────────────────────────
