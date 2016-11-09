@@ -122,6 +122,7 @@ HEADER_FILE_PATH	= $(call FILE_PATH,$1,$2.h)
 OBJECT_FILE_PATH	= $(call FILE_PATH,$1,$2.o)
 BINARY_FILE_PATH	= $(call FILE_PATH,$1,$2$(BIN_EXT))
 DATA_FILE_PATH		= $(call FILE_PATH,$1,$2.csv)
+SOLUTION_FILE_PATH	= $(call FILE_PATH,$1,$2.txt)
 
 # Project
 # ─────────────── source ───────────────────────────────────────────────────────
@@ -132,12 +133,14 @@ OBJECT_PATH   		= $(call OBJECT_FILE_PATH,$(OBJECT_DIR),$(call JOIN,$1,_))# obje
 BINARY_PATH 		= $(call BINARY_FILE_PATH,$(BINARY_DIR),$(call JOIN,$1,_))# binary executable output
 # ─────────────── data ────────────────────────────────────────────────────────
 DATA_PATH		= $(call DATA_FILE_PATH,$(DATA_DIR),$1)
+SOLUTION_PATH		= $(call SOLUTION_FILE_PATH,$(DATA_DIR),$1)
 
 
 # DATA FILE CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
 COORDINATES_PATH	:= $(call TRIM,"\"$(call DATA_PATH,coordinates)\"")
 DISTANCES_PATH		:= $(call TRIM,"\"$(call DATA_PATH,distances)\"")
+SOLUTION_PATH		:= $(call TRIM,"\"$(call SOLUTION_PATH,solution)\"")
 
 
 # UTILITY CONFIG
@@ -371,10 +374,12 @@ USA_BIN 	:= $(call BINARY_PATH,usa)
 # ─────────────── target prequisites ───────────────────────────────────────────
 USA_BIN_PREQS	:= $(USA_OBJ)				\
 		   $(USA_USA_UTILS_OBJ_GROUP)		\
+		   $(RANDOM_RANDOM_UTILS_OBJ_GROUP)	\
 		   $(SIGNAL_SIGNAL_UTILS_OBJ_GROUP)
 USA_OBJ_PREQS	:= $(USA_SRC) 				\
 		   $(USA_HDR)				\
 		   $(USA_USA_UTILS_HDR)			\
+		   $(RANDOM_RANDOM_UTILS_HDR)		\
 		   $(SIGNAL_SIGNAL_UTILS_HDR)
 # ─────────────── targets ──────────────────────────────────────────────────────
 TARGETS		+= $(USA_OBJ)				\
@@ -410,7 +415,7 @@ $(USA_BIN): $(USA_BIN_PREQS)
 # make usa object
 # ──────────────────────────────────────────────────────────────────────────────
 $(USA_OBJ): $(USA_OBJ_PREQS)
-	$(CC) $(CC_FLAGS) -DDISTANCES_PATH=$(DISTANCES_PATH) -c $< -o $@
+	$(CC) $(CC_FLAGS) -DDISTANCES_PATH=$(DISTANCES_PATH) -DSOLUTION_PATH=$(SOLUTION_PATH) -c $< -o $@
 
 # make generate_distances binary
 # ──────────────────────────────────────────────────────────────────────────────

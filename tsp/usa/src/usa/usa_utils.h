@@ -14,6 +14,12 @@ struct Location {
 };
 
 
+/* macro constants
+ * ────────────────────────────────────────────────────────────────────────── */
+#define STATE_LENGTH_MAX	14	/* North|South Carolina */
+#define CITY_LENGTH_MAX		13	/* Jefferson City */
+#define DISTANCE_DIGITS_MAX	4	/* thousands of km */
+
 inline void
 exit_on_failure(const char *const restrict failure)
 {
@@ -141,8 +147,8 @@ get_location(struct Location *const restrict location,
 }
 
 inline void
-put_location(struct Location *const restrict location,
-	     char *restrict *const restrict buffer_ptr)
+put_location(char *restrict *const restrict buffer_ptr,
+	     const struct Location *const restrict location)
 {
 	char *restrict buffer;
 	const char *restrict ptr;

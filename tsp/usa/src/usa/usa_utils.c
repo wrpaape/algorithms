@@ -20,5 +20,5 @@ get_location(struct Location *const restrict location,
 	     char *restrict *const restrict buffer_ptr);
 
 extern inline void
-put_location(struct Location *const restrict location,
-	     char *restrict *const restrict buffer_ptr);
+put_location(char *restrict *const restrict buffer_ptr,
+	     const struct Location *const restrict location);

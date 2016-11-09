@@ -141,8 +141,8 @@ put_node(const unsigned int i_node,
 
 	buffer = *buffer_ptr;
 
-	put_location(&locations_map[i_node],
-		     &buffer);
+	put_location(&buffer,
+		     &locations_map[i_node]);
 
 	const struct Coordinates *const restrict node_coordinates
 	= &coordinates_map[i_node];

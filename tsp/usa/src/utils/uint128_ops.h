@@ -87,8 +87,6 @@ uint128_mult(uint128_t *const restrict acc,
 #endif /* if HAVE_128_BIT_OPERATIONS */
 }
 
-#include <stdio.h>
-
 inline void
 uint128_fma(uint128_t *const restrict acc,
 	    const uint128_t *const restrict mult,
