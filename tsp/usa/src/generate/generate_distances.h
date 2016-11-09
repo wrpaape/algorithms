@@ -4,7 +4,7 @@
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
 #include "usa/usa_utils.h"	/* struct Location, misc utils */
-#include <math.h>		/* sin, cos, M_PI */
+#include <math.h>		/* sin, cos, atan2, M_PI */
 
 /* macro constants
  * ────────────────────────────────────────────────────────────────────────── */
@@ -36,7 +36,7 @@ get_coordinates(struct Coordinates *const restrict coordinates,
 		const char *restrict *const restrict failure);
 
 static inline void
-init_locations_coordinates_map(void);
+init_locations_coordinates_maps(void);
 
 static inline double
 sin_sq(const double angle);

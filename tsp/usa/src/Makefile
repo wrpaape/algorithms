@@ -180,9 +180,11 @@ endif
 
 # COMPILATION MODULES
 # ══════════════════════════════════════════════════════════════════════════════
-# # independent headers
-# # ──────────────────────────────────────────────────────────────────────────────
-# UTILS_UTILS_HDR	:= $(call HEADER_PATH,utils utils)
+# independent headers
+# ──────────────────────────────────────────────────────────────────────────────
+UTILS_TYPES_UINT128_HDR		:= $(call HEADER_PATH,utils types uint128)
+
+
 
 # utils/utils
 # ──────────────────────────────────────────────────────────────────────────────
@@ -195,6 +197,85 @@ UTILS_UTILS_OBJ_PREQS	:= $(UTILS_UTILS_SRC) 	\
 UTILS_UTILS_OBJ_GROUP	:= $(UTILS_UTILS_OBJ)
 # ─────────────── targets ──────────────────────────────────────────────────────
 TARGETS			+= $(UTILS_UTILS_OBJ)
+
+
+
+# utils/uint128_ops
+# ──────────────────────────────────────────────────────────────────────────────
+UTILS_UINT128_OPS_SRC 		:= $(call SOURCE_PATH,utils uint128_ops)
+UTILS_UINT128_OPS_HDR		:= $(call HEADER_PATH,utils uint128_ops)
+UTILS_UINT128_OPS_OBJ 		:= $(call OBJECT_PATH,utils uint128_ops)
+# ─────────────── target prequisites ───────────────────────────────────────────
+UTILS_UINT128_OPS_OBJ_PREQS	:= $(UTILS_UINT128_OPS_SRC) 	\
+			   	   $(UTILS_UINT128_OPS_HDR)	\
+			   	   $(UTILS_TYPES_UINT128_HDR)
+UTILS_UINT128_OPS_OBJ_GROUP	:= $(UTILS_UINT128_OPS_OBJ)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(UTILS_UINT128_OPS_OBJ)
+
+
+
+# bitwise/bitwise_utils
+# ──────────────────────────────────────────────────────────────────────────────
+BITWISE_BITWISE_UTILS_SRC 	:= $(call SOURCE_PATH,bitwise bitwise_utils)
+BITWISE_BITWISE_UTILS_HDR	:= $(call HEADER_PATH,bitwise bitwise_utils)
+BITWISE_BITWISE_UTILS_OBJ 	:= $(call OBJECT_PATH,bitwise bitwise_utils)
+# ─────────────── target prequisites ───────────────────────────────────────────
+BITWISE_BITWISE_UTILS_OBJ_PREQS	:= $(BITWISE_BITWISE_UTILS_SRC) \
+			      	   $(BITWISE_BITWISE_UTILS_HDR)
+BITWISE_BITWISE_UTILS_OBJ_GROUP	:= $(BITWISE_BITWISE_UTILS_OBJ)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(BITWISE_BITWISE_UTILS_OBJ)
+
+
+
+# time/time_utils
+# ──────────────────────────────────────────────────────────────────────────────
+TIME_TIME_UTILS_SRC 		:= $(call SOURCE_PATH,time time_utils)
+TIME_TIME_UTILS_HDR		:= $(call HEADER_PATH,time time_utils)
+TIME_TIME_UTILS_OBJ 		:= $(call OBJECT_PATH,time time_utils)
+# ─────────────── target prequisites ───────────────────────────────────────────
+TIME_TIME_UTILS_OBJ_PREQS	:= $(TIME_TIME_UTILS_SRC) 	\
+			   	   $(TIME_TIME_UTILS_HDR)
+TIME_TIME_UTILS_OBJ_GROUP	:= $(TIME_TIME_UTILS_OBJ)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(TIME_TIME_UTILS_OBJ)
+
+
+
+# random/pcg_random
+# ──────────────────────────────────────────────────────────────────────────────
+RANDOM_PCG_RANDOM_UTILS_SRC 		:= $(call SOURCE_PATH,random pcg_random)
+RANDOM_PCG_RANDOM_UTILS_HDR		:= $(call HEADER_PATH,random pcg_random)
+RANDOM_PCG_RANDOM_UTILS_OBJ 		:= $(call OBJECT_PATH,random pcg_random)
+# ─────────────── target prequisites ───────────────────────────────────────────
+RANDOM_PCG_RANDOM_UTILS_OBJ_PREQS	:= $(RANDOM_PCG_RANDOM_UTILS_SRC) 	\
+			   	   	   $(RANDOM_PCG_RANDOM_UTILS_HDR)	\
+			   	   	   $(BITWISE_BITWISE_UTILS_HDR)		\
+			   	   	   $(UTILS_UINT128_OPS_HDR)
+RANDOM_PCG_RANDOM_UTILS_OBJ_GROUP	:= $(RANDOM_PCG_RANDOM_UTILS_OBJ)	\
+			   	   	   $(BITWISE_BITWISE_UTILS_OBJ_GROUP)	\
+			   	   	   $(UTILS_UINT128_OPS_OBJ_GROUP)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS					+= $(RANDOM_PCG_RANDOM_UTILS_OBJ)
+
+
+
+# random/random
+# ──────────────────────────────────────────────────────────────────────────────
+RANDOM_RANDOM_UTILS_SRC 	:= $(call SOURCE_PATH,random random_utils)
+RANDOM_RANDOM_UTILS_HDR		:= $(call HEADER_PATH,random random_utils)
+RANDOM_RANDOM_UTILS_OBJ 	:= $(call OBJECT_PATH,random random_utils)
+# ─────────────── target prequisites ───────────────────────────────────────────
+RANDOM_RANDOM_UTILS_OBJ_PREQS	:= $(RANDOM_RANDOM_UTILS_SRC) 			\
+			   	   $(RANDOM_RANDOM_UTILS_HDR)			\
+			   	   $(RANDOM_PCG_RANDOM_UTILS_HDR)		\
+			   	   $(TIME_TIME_UTILS_HDR)
+RANDOM_RANDOM_UTILS_OBJ_GROUP	:= $(RANDOM_RANDOM_UTILS_OBJ)			\
+			   	   $(RANDOM_PCG_RANDOM_UTILS_OBJ_GROUP)		\
+			   	   $(TIME_TIME_UTILS_OBJ_GROUP)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(RANDOM_RANDOM_UTILS_OBJ)
 
 
 
@@ -227,6 +308,21 @@ FILE_FILE_UTILS_OBJ_GROUP	:= $(FILE_FILE_UTILS_OBJ)	\
 				   $(UTILS_UTILS_OBJ_GROUP)
 # ─────────────── targets ──────────────────────────────────────────────────────
 TARGETS				+= $(FILE_FILE_UTILS_OBJ)
+
+
+
+# signal/signal_utils
+# ──────────────────────────────────────────────────────────────────────────────
+SIGNAL_SIGNAL_UTILS_SRC 	:= $(call SOURCE_PATH,signal signal_utils)
+SIGNAL_SIGNAL_UTILS_HDR		:= $(call HEADER_PATH,signal signal_utils)
+SIGNAL_SIGNAL_UTILS_OBJ 	:= $(call OBJECT_PATH,signal signal_utils)
+# ─────────────── target prequisites ───────────────────────────────────────────
+SIGNAL_SIGNAL_UTILS_OBJ_PREQS	:= $(SIGNAL_SIGNAL_UTILS_SRC) 	\
+			   	   $(SIGNAL_SIGNAL_UTILS_HDR)	\
+			   	   $(UTILS_UTILS_HDR)
+SIGNAL_SIGNAL_UTILS_OBJ_GROUP	:= $(SIGNAL_SIGNAL_UTILS_OBJ)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(SIGNAL_SIGNAL_UTILS_OBJ)
 
 
 
@@ -274,10 +370,12 @@ USA_OBJ 	:= $(call OBJECT_PATH,usa)
 USA_BIN 	:= $(call BINARY_PATH,usa)
 # ─────────────── target prequisites ───────────────────────────────────────────
 USA_BIN_PREQS	:= $(USA_OBJ)				\
-		   $(USA_USA_UTILS_OBJ_GROUP)
+		   $(USA_USA_UTILS_OBJ_GROUP)		\
+		   $(SIGNAL_SIGNAL_UTILS_OBJ_GROUP)
 USA_OBJ_PREQS	:= $(USA_SRC) 				\
 		   $(USA_HDR)				\
-		   $(USA_USA_UTILS_HDR)
+		   $(USA_USA_UTILS_HDR)			\
+		   $(SIGNAL_SIGNAL_UTILS_HDR)
 # ─────────────── targets ──────────────────────────────────────────────────────
 TARGETS		+= $(USA_OBJ)				\
 		   $(USA_BIN)
@@ -329,6 +427,11 @@ $(GENERATE_GENERATE_DISTANCES_OBJ): $(GENERATE_GENERATE_DISTANCES_OBJ_PREQS)
 $(USA_USA_UTILS_OBJ): $(USA_USA_UTILS_OBJ_PREQS)
 	$(CC) $(CC_FLAGS) -c $< -o $@
 
+# make signal/signal_utils object
+# ──────────────────────────────────────────────────────────────────────────────
+$(SIGNAL_SIGNAL_UTILS_OBJ): $(SIGNAL_SIGNAL_UTILS_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
+
 # make file/file_utils object
 # ──────────────────────────────────────────────────────────────────────────────
 $(FILE_FILE_UTILS_OBJ): $(FILE_FILE_UTILS_OBJ_PREQS)
@@ -337,6 +440,31 @@ $(FILE_FILE_UTILS_OBJ): $(FILE_FILE_UTILS_OBJ_PREQS)
 # make string/string_utils object
 # ──────────────────────────────────────────────────────────────────────────────
 $(STRING_STRING_UTILS_OBJ): $(STRING_STRING_UTILS_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
+
+# make random/random_utils object
+# ──────────────────────────────────────────────────────────────────────────────
+$(RANDOM_RANDOM_UTILS_OBJ): $(RANDOM_RANDOM_UTILS_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
+
+# make time/time_utils object
+# ──────────────────────────────────────────────────────────────────────────────
+$(TIME_TIME_UTILS_OBJ): $(TIME_TIME_UTILS_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
+
+# make random/pcg_random object
+# ──────────────────────────────────────────────────────────────────────────────
+$(RANDOM_PCG_RANDOM_UTILS_OBJ): $(RANDOM_PCG_RANDOM_UTILS_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
+
+# make bitwise/bitwise_utils object
+# ──────────────────────────────────────────────────────────────────────────────
+$(BITWISE_BITWISE_UTILS_OBJ): $(BITWISE_BITWISE_UTILS_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
+
+# make utils/uint128_ops object
+# ──────────────────────────────────────────────────────────────────────────────
+$(UTILS_UINT128_OPS_OBJ): $(UTILS_UINT128_OPS_OBJ_PREQS)
 	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # make utils/utils object

@@ -14,7 +14,7 @@ main(void)
 	char *restrict buffer;
 	unsigned int i_node;
 
-	init_locations_coordinates_map();
+	init_locations_coordinates_maps();
 
 	buffer = &distances_buffer[0];
 
@@ -67,7 +67,7 @@ get_coordinates(struct Coordinates *const restrict coordinates,
 
 
 static inline void
-init_locations_coordinates_map(void)
+init_locations_coordinates_maps(void)
 {
 	const char *restrict failure;
 	char *restrict buffer;
