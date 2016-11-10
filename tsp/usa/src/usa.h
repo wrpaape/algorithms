@@ -24,17 +24,10 @@
 /* typedefs, struct definitions
  * ────────────────────────────────────────────────────────────────────────── */
 struct Path {
-	const unsigned int *restrict edges;
-	/* unsigned int self; */
+	unsigned int self;
 	unsigned int next;
 	unsigned int distance;
 };
-
-struct Node {
-	struct Path path;
-	const char *location;
-};
-
 
 void
 catch_interrupt(int signal);
@@ -45,17 +38,10 @@ get_distance_row(unsigned int *restrict distance,
 		 const char *restrict *const restrict buffer_ptr);
 
 static inline void
-path_init(struct Path *const restrict path,
-	  const unsigned int *const restrict edges,
-	  const unsigned int self,
-	  const unsigned int next);
-
-static inline void
 init_tsp_state(void);
 
 static inline void
-put_path(const struct Node *const restrict node1,
-	 const struct Node *const restrict node2,
+put_path(const struct Path *const restrict path1,
 	 char *restrict *const restrict buffer_ptr);
 
 static inline void

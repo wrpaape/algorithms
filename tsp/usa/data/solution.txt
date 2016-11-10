@@ -1,3 +1,4 @@
-Montgomery, Alabama      	to	Montgomery, Alabama      	0 km
+Montgomery, Alabama      	to	Tallahassee, Florida     	285 km
+Tallahassee, Florida     	to	Montgomery, Alabama      	285 km
 
-total: 0 km
+total: 23015 km
