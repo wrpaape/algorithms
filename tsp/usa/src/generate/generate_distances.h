@@ -4,7 +4,6 @@
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
 #include "usa/usa_utils.h"	/* misc utils */
-#include <math.h>		/* sin, cos, atan2, M_PI */
 
 /* macro constants
  * ────────────────────────────────────────────────────────────────────────── */

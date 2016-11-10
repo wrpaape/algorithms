@@ -39,7 +39,7 @@ get_distance_row(unsigned int *restrict distance,
 			exit_on_failure(failure);
 		}
 
-		++(*buffer_ptr); /* skip ',' */
+		++(*buffer_ptr); /* skip '\t' or final '\n' */
 		++distance;
 	} while (distance < distance_until);
 }
@@ -59,6 +59,7 @@ path_init(struct Path *const restrict path,
 static inline void
 init_tsp_state(void)
 {
+	unsigned int self;
 	unsigned int next;
 	unsigned int *restrict row;
 	unsigned int *restrict next_row;
@@ -216,15 +217,35 @@ write_solution(void)
 		next_node = &nodes_map[node->path.next];
 	}
 
+	free(distances_buffer);
+
 	put_total(&ptr);
 
 	if (UNLIKELY(!write_file(&buffer[0],
 				 ptr - &buffer[0],
 				 SOLUTION_PATH,
-				 &failure))) {
-		free(distances_buffer);
+				 &failure)))
 		exit_on_failure(failure);
-	}
+}
+
+static inline void
+sample_paths(struct Path *restrict *const restrict path1_ptr,
+	     struct Path *restrict *const restrict path2_ptr)
+{
+	uint64_t i_path2;
+
+	struct Path *restrict path1;
+	struct Path *restrict path2;
+
+	const uint64_t i_path1 = random_uint64_upto(49u);
+
+	do {
+		i_path2 = random_uint64_upto(49u);
+	} while (i_path2 == i_path1);
+
+
+	*path1 = &nodes_map[i_path1].path;
+	*path2 = &nodes_map[i_path2].path;
 }
 
 
@@ -255,12 +276,90 @@ swap_paths(struct Path *const restrict path1,
 			    old_next1);
 }
 
+static inline bool
+make_inferior_transition(const int delta_distance,
+			 const double temperature)
+{
+	const double transition_probability
+	= exp(((double) (delta_distance * EXPONENT_CONSTANT)) / temperature);
+
+	/* printf("temperature: %f, transition_probability: %f\n", */
+	/*        temperature, */
+	/*        transition_probability); */
+
+	return transition_probability > random_probability();
+}
+
+static inline void
+evaluate(void)
+{
+	struct Path *restrict path1;
+	struct Path *restrict path2;
+	unsigned int old_next2;
+	unsigned int old_distance1;
+	unsigned int old_distance2;
+	double temperature;
+	int delta_distance;
+	const char *restrict failure;
+
+
+	/* static const struct timespec sleep_time = { */
+	/* 	.tv_nsec = 10000000 */
+	/* }; */
+	/* struct timespec buffer_time; */
+
+	temperature = INITIAL_TEMPERATURE;
+
+	do {
+		sample_paths(&path1,
+			     &path2);
+
+		old_distance1 = path1->distance;
+		old_distance2 = path2->distance;
+
+		delta_distance = swap_paths(path1,
+					    path2);
+
+		/* printf("delta_distance: %d\n", */
+		/*        delta_distance); */
+
+		if (   (delta_distance < 0)
+		    || make_inferior_transition(delta_distance,
+						temperature)) {
+			total_distance += delta_distance;
+
+		} else {
+			old_next2   = path1->next;
+			path1->next = path2->next;
+			path2->next = old_next2;
+
+			path1->distance = old_distance1;
+			path2->distance = old_distance2;
+		}
+
+		/* (void) nanosleep(&sleep_time, */
+		/* 		 &buffer_time); */
+
+		temperature -= DELTA_TEMPERATURE;
+
+	} while (!stop_evaluation && (temperature >= 0.0));
+
+
+	if (UNLIKELY(!file_write_report(STDOUT_FILENO,
+					"\ndone!\n",
+					sizeof("\ndone!\n") - 1,
+					&failure))) {
+		free(distances_buffer);
+		exit_on_failure(failure);
+	}
+}
+
 int
 main(void)
 {
 	init_tsp_state();
 
-	while (!stop_evaluation);
+	evaluate();
 
 	write_solution();
 

@@ -16,13 +16,16 @@
 #define SOLUTION_BUFFER_SIZE						\
 (PATH_BUFFER_SIZE + sizeof("\ntotal: km") + DISTANCE_TOTAL_DIGITS_MAX)
 
+#define EXPONENT_CONSTANT	-1000
+#define INITIAL_TEMPERATURE	1000000.0
+#define DELTA_TEMPERATURE	0.1
+
 
 /* typedefs, struct definitions
  * ────────────────────────────────────────────────────────────────────────── */
-struct Node;
-
 struct Path {
-	const unsigned int *restrict self; /* can fit +4 bytes into Node free */
+	const unsigned int *restrict edges;
+	/* unsigned int self; */
 	unsigned int next;
 	unsigned int distance;
 };
@@ -31,6 +34,7 @@ struct Node {
 	struct Path path;
 	const char *location;
 };
+
 
 void
 catch_interrupt(int signal);
@@ -42,7 +46,8 @@ get_distance_row(unsigned int *restrict distance,
 
 static inline void
 path_init(struct Path *const restrict path,
-	  const unsigned int *const restrict self,
+	  const unsigned int *const restrict edges,
+	  const unsigned int self,
 	  const unsigned int next);
 
 static inline void
@@ -59,6 +64,10 @@ put_total(char *restrict *const restrict buffer_ptr);
 static inline void
 write_solution(void);
 
+static inline void
+sample_paths(struct Path *restrict *const restrict path1_ptr,
+	     struct Path *restrict *const restrict path2_ptr);
+
 static inline int
 do_swap_path(struct Path *const restrict path,
 	     const unsigned int next);
@@ -66,6 +75,13 @@ do_swap_path(struct Path *const restrict path,
 static inline int
 swap_paths(struct Path *const restrict path1,
 	   struct Path *const restrict path2);
+
+static inline bool
+make_inferior_transition(const int delta_distance,
+			 const double temperature);
+
+static inline void
+evaluate(void);
 
 
 #endif /* ifndef TSP_USA_USA_H_ */

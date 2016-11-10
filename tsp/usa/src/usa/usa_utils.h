@@ -5,6 +5,7 @@
  * ────────────────────────────────────────────────────────────────────────── */
 #include "string/string_utils.h"	/* string_length, stdlib */
 #include "file/file_utils.h"		/* file utils */
+#include <math.h>			/* sin, cos, atan2, M_PI, exp */
 
 
 /* macro constants
