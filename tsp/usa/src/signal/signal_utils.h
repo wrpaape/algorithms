@@ -10,20 +10,24 @@
 /* API
  * ────────────────────────────────────────────────────────────────────────── */
 inline void
-signal_muffle(const int name,
+signal_muffle(sig_t *const restrict prev_action,
+	      const int name,
 	      const sig_t action)
 {
-	(void) signal(name,
-		      action);
+	*prev_action = signal(name,
+			      action);
 }
 
 inline bool
-signal_report(const int name,
+signal_report(sig_t *const restrict prev_action,
+	      const int name,
 	      const sig_t action,
 	      const char *restrict *const restrict failure)
 {
-	const bool success = (signal(name,
-				     action) != SIG_ERR);
+	*prev_action = signal(name,
+			      action);
+
+	const bool success = (*prev_action != SIG_ERR);
 
 	if (UNLIKELY(!success))
 		*failure = "signal failure (one of the following):\n"

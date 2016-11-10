@@ -1,7 +1,7 @@
 #include "generate/generate_distances.h"
 
 
-static struct Location locations_map[50];
+static const char *locations_map[50];
 static struct Coordinates coordinates_map[50];
 static const struct Coordinates *const restrict coordinates_map_until
 = &coordinates_map[50];
@@ -71,8 +71,8 @@ init_locations_coordinates_maps(void)
 {
 	const char *restrict failure;
 	char *restrict buffer;
-	char *restrict ptr;
-	struct Location *restrict location;
+	const char *restrict ptr;
+	const char *restrict *restrict location;
 	struct Coordinates *restrict coordinates;
 
 	if (UNLIKELY(!read_file(&buffer,
@@ -142,7 +142,7 @@ put_node(const unsigned int i_node,
 	buffer = *buffer_ptr;
 
 	put_location(&buffer,
-		     &locations_map[i_node]);
+		     locations_map[i_node]);
 
 	const struct Coordinates *const restrict node_coordinates
 	= &coordinates_map[i_node];
@@ -150,7 +150,7 @@ put_node(const unsigned int i_node,
 	coordinates = &coordinates_map[0];
 
 	while (1) {
-		*buffer = ',';
+		*buffer = '\t';
 		++buffer;
 
 		if (coordinates == node_coordinates)
@@ -170,7 +170,7 @@ put_node(const unsigned int i_node,
 		if (coordinates == coordinates_map_until)
 			break;
 
-		*buffer = ',';
+		*buffer = '\t';
 		++buffer;
 
 		put_uint(&buffer,

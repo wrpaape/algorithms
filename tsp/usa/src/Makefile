@@ -121,7 +121,7 @@ SOURCE_FILE_PATH	= $(call FILE_PATH,$1,$2.c)
 HEADER_FILE_PATH	= $(call FILE_PATH,$1,$2.h)
 OBJECT_FILE_PATH	= $(call FILE_PATH,$1,$2.o)
 BINARY_FILE_PATH	= $(call FILE_PATH,$1,$2$(BIN_EXT))
-DATA_FILE_PATH		= $(call FILE_PATH,$1,$2.csv)
+DATA_FILE_PATH		= $(call FILE_PATH,$1,$2.tsv)
 SOLUTION_FILE_PATH	= $(call FILE_PATH,$1,$2.txt)
 
 # Project

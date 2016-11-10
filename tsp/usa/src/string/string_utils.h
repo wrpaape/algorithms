@@ -7,6 +7,7 @@
 #include <stdio.h>		/* sprintf */
 #include <limits.h>		/* LONG_MAX, UINT_MAX */
 
+
 inline size_t
 string_length(const char *const restrict string)
 {

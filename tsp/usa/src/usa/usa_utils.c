@@ -16,9 +16,9 @@ write_file(const char *const restrict buffer,
 	   const char *restrict *const restrict failure);
 
 extern inline void
-get_location(struct Location *const restrict location,
-	     char *restrict *const restrict buffer_ptr);
+get_location(const char *restrict *const restrict location,
+	     const char *restrict *const restrict buffer_ptr);
 
 extern inline void
 put_location(char *restrict *const restrict buffer_ptr,
-	     const struct Location *const restrict location);
+	     const char *restrict location);

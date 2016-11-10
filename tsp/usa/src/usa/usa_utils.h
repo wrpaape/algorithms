@@ -6,19 +6,12 @@
 #include "string/string_utils.h"	/* string_length, stdlib */
 #include "file/file_utils.h"		/* file utils */
 
-/* typedefs, struct declarations
- * ────────────────────────────────────────────────────────────────────────── */
-struct Location {
-	const char *restrict state;
-	const char *restrict city;
-};
-
 
 /* macro constants
  * ────────────────────────────────────────────────────────────────────────── */
-#define STATE_LENGTH_MAX	14	/* North|South Carolina */
-#define CITY_LENGTH_MAX		13	/* Jefferson City */
-#define DISTANCE_DIGITS_MAX	4	/* thousands of km */
+#define LOCATION_LENGTH			26	/* Charleston, West Virginia */
+#define DISTANCE_PATH_DIGITS_MAX	4	/* thousands of km */
+#define DISTANCE_TOTAL_DIGITS_MAX	6	/* hundred-thousands of km */
 
 inline void
 exit_on_failure(const char *const restrict failure)
@@ -118,61 +111,34 @@ write_file(const char *const restrict buffer,
 }
 
 inline void
-get_location(struct Location *const restrict location,
-	     char *restrict *const restrict buffer_ptr)
+get_location(const char *restrict *const restrict location,
+	     const char *restrict *const restrict buffer_ptr)
 {
-	char *restrict buffer;
+	const char *restrict buffer;
 
-	buffer = *buffer_ptr;
-
-	location->state = buffer;
-
-	do {
-		++buffer;
-	} while (*buffer != ',');
-
-	*buffer = '\0';
-	++buffer;
-
-	location->city = buffer;
+	buffer    = *buffer_ptr;
+	*location = buffer;
 
 	do {
 		++buffer;
-	} while (*buffer != ',');
-
-	*buffer = '\0';
-	++buffer;
+	} while (*buffer != '\t');
 
 	*buffer_ptr = buffer;
 }
 
 inline void
 put_location(char *restrict *const restrict buffer_ptr,
-	     const struct Location *const restrict location)
+	     const char *restrict location)
 {
 	char *restrict buffer;
-	const char *restrict ptr;
 
 	buffer = *buffer_ptr;
 
-	ptr = location->state;
-
 	do {
-		*buffer = *ptr;
+		*buffer = *location;
 		++buffer;
-		++ptr;
-	} while (*ptr != '\0');
-
-	*buffer = ',';
-	++buffer;
-
-	ptr = location->city;
-
-	do {
-		*buffer = *ptr;
-		++buffer;
-		++ptr;
-	} while (*ptr != '\0');
+		++location;
+	} while (*location != '\t');
 
 	*buffer_ptr = buffer;
 }

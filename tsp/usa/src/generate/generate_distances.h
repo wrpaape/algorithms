@@ -3,7 +3,7 @@
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
-#include "usa/usa_utils.h"	/* struct Location, misc utils */
+#include "usa/usa_utils.h"	/* misc utils */
 #include <math.h>		/* sin, cos, atan2, M_PI */
 
 /* macro constants
@@ -14,12 +14,8 @@
 
 #define EARTH_RADIUS 6371.0	/* km */
 
-#define STATE_LENGTH_MAX	14	/* North|South Carolina */
-#define CITY_LENGTH_MAX		13	/* Jefferson City */
-#define DISTANCE_DIGITS_MAX	4	/* thousands of km */
-
 #define DISTANCES_BUFFER_SIZE						\
-(50 * (STATE_LENGTH_MAX + CITY_LENGTH_MAX + (50 * DISTANCE_DIGITS_MAX) + 52))
+(50 * (LOCATION_LENGTH + (50 * (DISTANCE_PATH_DIGITS_MAX + 1)) + 1))
 
 
 

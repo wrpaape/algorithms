@@ -3,8 +3,26 @@
 static struct Node nodes_map[50];
 static unsigned int distances_map[50][50];
 char *restrict distances_buffer;
-static bool stop;
+static bool stop_evaluation;
 static int total_distance;
+
+static sig_t initial_handler;
+
+void
+catch_interrupt(int signal)
+{
+	const char *restrict failure;
+
+	if (UNLIKELY(!signal_report(&initial_handler,
+				    SIGINT,
+				    initial_handler,
+				    &failure))) {
+		free(distances_buffer);
+		exit_on_failure(failure);
+	}
+
+	stop_evaluation = true;
+}
 
 static inline void
 get_distance_row(unsigned int *restrict distance,
@@ -39,13 +57,13 @@ path_init(struct Path *const restrict path,
 
 
 static inline void
-init_nodes_distances_maps(void)
+init_tsp_state(void)
 {
 	unsigned int next;
 	unsigned int *restrict row;
 	unsigned int *restrict next_row;
 	struct Node *restrict node;
-	char *restrict buffer;
+	const char *restrict buffer;
 	const char *restrict failure;
 
 	if (UNLIKELY(!read_file(&distances_buffer,
@@ -73,6 +91,8 @@ init_nodes_distances_maps(void)
 			  row,
 			  next);
 
+		total_distance += node->path.distance;
+
 		++node;
 		row = next_row;
 		next_row += 50;
@@ -91,6 +111,18 @@ init_nodes_distances_maps(void)
 	path_init(&node->path,
 		  row,
 		  next);
+
+	total_distance += node->path.distance;
+
+
+	if (UNLIKELY(!(   signal_report(&initial_handler,
+					SIGINT,
+					&catch_interrupt,
+					&failure)
+		       && random_64_constructor(&failure)))) {
+		free(distances_buffer);
+		exit_on_failure(failure);
+	}
 }
 
 static inline void
@@ -103,21 +135,20 @@ put_path(const struct Node *const restrict node1,
 	buffer = *buffer_ptr;
 
 	put_location(&buffer,
-		     &node1->location);
+		     node1->location);
 
-	*buffer = ' '; ++buffer;
-	*buffer = 't'; ++buffer;
-	*buffer = 'o'; ++buffer;
-	*buffer = ' '; ++buffer;
+	*buffer = '\t'; ++buffer;
+	*buffer = 't';	++buffer;
+	*buffer = 'o';	++buffer;
+	*buffer = '\t'; ++buffer;
 
 	put_location(&buffer,
-		     &node2->location);
+		     node2->location);
 
-	*buffer = ':'; ++buffer;
-	*buffer = ' '; ++buffer;
+	*buffer = '\t'; ++buffer;
 
 	put_uint(&buffer,
-		 node2->path.distance);
+		 node1->path.distance);
 
 	*buffer = ' ';	++buffer;
 	*buffer = 'k';	++buffer;
@@ -127,6 +158,36 @@ put_path(const struct Node *const restrict node1,
 	*buffer_ptr = buffer;
 }
 
+
+static inline void
+put_total(char *restrict *const restrict buffer_ptr)
+{
+	char *restrict buffer;
+
+	buffer = *buffer_ptr;
+
+	*buffer = '\n';	++buffer;
+	*buffer = 't';	++buffer;
+	*buffer = 'o';	++buffer;
+	*buffer = 't';	++buffer;
+	*buffer = 'a';	++buffer;
+	*buffer = 'l';	++buffer;
+	*buffer = ':';	++buffer;
+	*buffer = ' ';	++buffer;
+
+	put_uint(&buffer,
+		 total_distance);
+
+	*buffer = ' ';	++buffer;
+	*buffer = 'k';	++buffer;
+	*buffer = 'm';	++buffer;
+	*buffer = '\n';	++buffer;
+
+	*buffer_ptr = buffer;
+}
+
+
+
 static inline void
 write_solution(void)
 {
@@ -134,7 +195,7 @@ write_solution(void)
 	const struct Node *restrict next_node;
 	char *restrict ptr;
 	const char *restrict failure;
-	static char buffer[PATH_BUFFER_SIZE];
+	static char buffer[SOLUTION_BUFFER_SIZE];
 
 
 	const struct Node *const restrict first_node = &nodes_map[0];
@@ -154,6 +215,8 @@ write_solution(void)
 		node	  = next_node;
 		next_node = &nodes_map[node->path.next];
 	}
+
+	put_total(&ptr);
 
 	if (UNLIKELY(!write_file(&buffer[0],
 				 ptr - &buffer[0],
@@ -195,7 +258,10 @@ swap_paths(struct Path *const restrict path1,
 int
 main(void)
 {
-	init_nodes_distances_maps();
+	init_tsp_state();
+
+	while (!stop_evaluation);
+
 	write_solution();
 
 	return 0;
