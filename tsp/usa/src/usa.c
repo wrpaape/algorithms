@@ -4,6 +4,7 @@ static struct Node nodes_map[50];
 static unsigned int distances_map[50][50];
 char *restrict distances_buffer;
 static bool stop;
+static int total_distance;
 
 static inline void
 get_distance_row(unsigned int *restrict distance,
