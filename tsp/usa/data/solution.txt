@@ -1,4 +1,52 @@
-Montgomery, Alabama      	to	Tallahassee, Florida     	285 km
-Tallahassee, Florida     	to	Montgomery, Alabama      	285 km
+Montgomery, Alabama      	to	Juneau, Alaska           	4589 km
+Juneau, Alaska           	to	Phoenix, Arizona         	3226 km
+Phoenix, Arizona         	to	Little Rock, Arkansas    	1820 km
+Little Rock, Arkansas    	to	Sacramento, California   	2622 km
+Sacramento, California   	to	Denver, Colorado         	1425 km
+Denver, Colorado         	to	Hartford, Connecticut    	2714 km
+Hartford, Connecticut    	to	Dover, Delaware          	376 km
+Dover, Delaware          	to	Tallahassee, Florida     	1253 km
+Tallahassee, Florida     	to	Atlanta, Georgia         	368 km
+Atlanta, Georgia         	to	Honolulu, Hawaii         	7226 km
+Honolulu, Hawaii         	to	Boise, Idaho             	4554 km
+Boise, Idaho             	to	Springfield, Illinois    	2238 km
+Springfield, Illinois    	to	Indianapolis, Indiana    	299 km
+Indianapolis, Indiana    	to	Des Moines, Iowa         	660 km
+Des Moines, Iowa         	to	Topeka, Kansas           	333 km
+Topeka, Kansas           	to	Frankfort, Kentucky      	944 km
+Frankfort, Kentucky      	to	Baton Rouge, Louisiana   	1035 km
+Baton Rouge, Louisiana   	to	Augusta, Maine           	2424 km
+Augusta, Maine           	to	Annapolis, Maryland      	816 km
+Annapolis, Maryland      	to	Boston, Massachusetts    	587 km
+Boston, Massachusetts    	to	Lansing, Michigan        	1108 km
+Lansing, Michigan        	to	Saint Paul, Minnesota    	728 km
+Saint Paul, Minnesota    	to	Jackson, Mississippi     	1426 km
+Jackson, Mississippi     	to	Jefferson City, Missouri 	718 km
+Jefferson City, Missouri 	to	Helana, Montana          	1845 km
+Helana, Montana          	to	Lincoln, Nebraska        	1388 km
+Lincoln, Nebraska        	to	Carson City, Nevada      	1969 km
+Carson City, Nevada      	to	Concord, New Hampshire   	4002 km
+Concord, New Hampshire   	to	Trenton, New Jersey      	426 km
+Trenton, New Jersey      	to	Santa Fe, New Mexico     	2768 km
+Santa Fe, New Mexico     	to	Albany, New York         	2862 km
+Albany, New York         	to	Raleigh, North Carolina  	872 km
+Raleigh, North Carolina  	to	Bismarck, North Dakota   	2313 km
+Bismarck, North Dakota   	to	Columbus, Ohio           	1714 km
+Columbus, Ohio           	to	Oklahoma City, Oklahoma  	1369 km
+Oklahoma City, Oklahoma  	to	Salem, Oregon            	2392 km
+Salem, Oregon            	to	Harrisburg, Pennsylvania 	3761 km
+Harrisburg, Pennsylvania 	to	Providence, Rhode Island 	488 km
+Providence, Rhode Island 	to	Columbia, South Carolina 	1210 km
+Columbia, South Carolina 	to	Pierre, South Dakota     	2015 km
+Pierre, South Dakota     	to	Nashville, Tennessee     	1464 km
+Nashville, Tennessee     	to	Austin, Texas            	1211 km
+Austin, Texas            	to	Salt Lake City, Utah     	1727 km
+Salt Lake City, Utah     	to	Montpelier, Vermont      	3215 km
+Montpelier, Vermont      	to	Richmond, Virginia       	852 km
+Richmond, Virginia       	to	Olympia, Washington      	3825 km
+Olympia, Washington      	to	Charleston, West Virginia	3463 km
+Charleston, West Virginia	to	Madison, Wisconsin       	837 km
+Madison, Wisconsin       	to	Cheyenne, Wyoming        	1287 km
+Cheyenne, Wyoming        	to	Montgomery, Alabama      	1911 km
 
-total: 23015 km
+total: 94675 km
