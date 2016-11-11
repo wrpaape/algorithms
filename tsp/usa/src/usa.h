@@ -8,6 +8,16 @@
 #include "signal/signal_utils.h"	/* signal_report */
 
 
+/* typedefs, struct declarations
+ * ────────────────────────────────────────────────────────────────────────── */
+struct SwapSet {
+	unsigned int *restrict node1;
+	unsigned int *restrict node2;
+	unsigned int *restrict distances[4];
+	unsigned int new_distances[4];
+};
+
+
 /* macro constants
  * ────────────────────────────────────────────────────────────────────────── */
 #define PATH_BUFFER_SIZE						\
@@ -48,12 +58,9 @@ sample_node_indices(unsigned int *const restrict i_node1_ptr,
 		    unsigned int *const restrict i_node2_ptr);
 
 static inline int
-do_swap_path(struct Path *const restrict path,
-	     const unsigned int next);
-
-static inline int
-swap_paths(struct Path *const restrict path1,
-	   struct Path *const restrict path2);
+get_swap_set(struct SwapSet *const restrict swap_set,
+	     unsigned int i_node1,
+	     unsigned int i_node2);
 
 static inline bool
 make_inferior_transition(const int delta_distance,

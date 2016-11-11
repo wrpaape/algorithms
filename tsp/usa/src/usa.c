@@ -246,38 +246,162 @@ sample_node_indices(unsigned int *const restrict i_node1_ptr,
 		i_node2_div2 = random_uint32_upto(49u);
 	} while (i_node2_div2 == i_node1_div2);
 
-
 	*i_node1_ptr = (unsigned int) (i_node1_div2 * 2u);
 	*i_node2_ptr = (unsigned int) (i_node2_div2 * 2u);
 }
 
-
 static inline int
-do_swap_path(struct Path *const restrict path,
-	     const unsigned int next)
+get_swap_set(struct SwapSet *const restrict swap_set,
+	     unsigned int i_node1,
+	     unsigned int i_node2)
 {
-	const unsigned int new_distance = distance_map[path->self][next];
+	unsigned int *restrict *restrict swap_distance_ptr;
+	unsigned int *restrict old_distance_ptr;
+	unsigned int *restrict new_distance_ptr;
+	unsigned int old_distance;
+	unsigned int new_distance;
+	int delta_distance;
 
-	path->next = next;
+	if (i_node1 > i_node2) {
+		const unsigned int i_tmp = i_node1;
+		i_node1 = i_node2;
+		i_node2 = i_tmp;
+	}
 
-	const int difference = new_distance - path->distance;
+	/* node1 comes before node2 */
 
-	path->distance = new_distance;
+	unsigned int *const restrict node1 = &solution[i_node1];
+	unsigned int *const restrict node2 = &solution[i_node2];
 
-	return difference;
+	swap_set->node1 = node1;
+	swap_set->node2 = node2;
+
+	swap_distance_ptr = &swap_set->distances[0];
+	new_distance_ptr  = &swap_set->new_distances[0];
+
+	if (i_node1 == 0) {
+		} else if (i_node2 == 98) {
+			new_distance	 = distance_map[*node2][node1[ 2]];
+			old_distance_ptr = node1 + 1;
+
+			delta_distance    += new_distance - *old_distance_ptr;
+
+			*swap_distance_ptr = old_distance_ptr;
+			++swap_distance_ptr;
+
+			*new_distance_ptr  = new_distance;
+			++new_distance_ptr;
+
+
+			new_distance	 = distance_map[node2[-2]][*node1];
+			old_distance_ptr = node2 - 1;
+
+			delta_distance    += new_distance - *old_distance_ptr;
+
+			*new_distance_ptr  = new_distance;
+
+			*swap_distance_ptr = old_distance_ptr;
+			++swap_distance_ptr;
+
+			*swap_distance_ptr = NULL;
+
+		} else {
+			new_distance	 = distance_map[node1[98]][*node2];
+			old_distance_ptr = node1 + 99;
+
+			delta_distance    += new_distance - *old_distance_ptr;
+
+			*swap_distance_ptr = old_distance_ptr;
+			++swap_distance_ptr;
+
+			*new_distance_ptr  = new_distance;
+			++new_distance_ptr;
+
+
+			new_distance	 = distance_map[*node1][node2[ 2]];
+			old_distance_ptr = node2 + 1;
+
+			delta_distance    += new_distance - *old_distance_ptr;
+
+			*new_distance_ptr  = new_distance;
+
+			*swap_distance_ptr = old_distance_ptr;
+			++swap_distance_ptr;
+
+			if (i_node2 == 2) {
+				*swap_distance_ptr = NULL;
+				return delta_distance;
+			}
+		}
+	} else {
+		/*  prev1   →←   distp1   →←   node1   →←   dist1n   →←   next1
+		 *	          [X]
+		 * i_node1-2   i_node1-1      i_node1      i_node1+1   i_node1+2
+		 */
+		new_distance	   = distance_map[node1[-2]][*node2];
+		old_distance_ptr   = node1 - 1;
+
+		delta_distance	   = new_distance - *old_distance_ptr;
+
+		*new_distance_ptr  = new_distance;
+		++new_distance_ptr;
+
+		*swap_distance_ptr = old_distance_ptr;
+		++swap_distance_ptr;
+
+
+		/*  prev2   →←   distp2   →←   node2   →←   dist2n   →←   next2
+		 *	                                      [X]
+		 * i_node2-2   i_node2-1      i_node2      i_node2+1   i_node2+2
+		 */
+		new_distance	   = distance_map[*node1][node2[ 2]];
+		old_distance_ptr   = node2 + 1;
+
+		delta_distance    += new_distance - *old_distance_ptr;
+
+		*new_distance_ptr  = new_distance;
+
+		*swap_distance_ptr = old_distance_ptr;
+		++swap_distance_ptr;
+
+		if (i_node2 == (i_node1 + 2)) {
+			*swap_distance_ptr = NULL;
+			return delta_distance;
+		}
+	}
+	/*  prev1   →←   distp1   →←   node1   →←   dist1n   →←   next1
+	 *	                                      [X]
+	 * i_node1-2   i_node1-1      i_node1      i_node1+1   i_node1+2
+	 */
+	new_distance	   = distance_map[*node2][node1[ 2]];
+	old_distance_ptr   = node1 + 1;
+
+	delta_distance    += new_distance - *old_distance_ptr;
+
+	++new_distance_ptr;
+	*new_distance_ptr  = new_distance;
+	++new_distance_ptr;
+
+	*swap_distance_ptr = old_distance_ptr;
+	++swap_distance_ptr;
+
+	/*  prev2   →←   distp2   →←   node2   →←   dist2n   →←   next2
+	 *	          [X]
+	 * i_node2-2   i_node2-1      i_node2      i_node2+1   i_node2+2
+	 */
+	new_distance	   = distance_map[node2[-2]][*node1];
+	old_distance_ptr   = node2 - 1;
+
+	delta_distance    += new_distance - *old_distance_ptr;
+
+	*new_distance_ptr  = new_distance;
+
+	*swap_distance_ptr = old_distance_ptr;
+
+	return delta_distance;
 }
 
-static inline int
-swap_paths(struct Path *const restrict path1,
-	   struct Path *const restrict path2)
-{
-	const unsigned int old_next1 = path1->next;
 
-	return do_swap_path(path1,
-			    path2->next)
-	     + do_swap_path(path2,
-			    old_next1);
-}
 
 static inline bool
 make_inferior_transition(const int delta_distance,
@@ -296,8 +420,6 @@ make_inferior_transition(const int delta_distance,
 static inline void
 evaluate(void)
 {
-	struct Path *restrict path1;
-	struct Path *restrict path2;
 	unsigned int old_next2;
 	unsigned int old_distance1;
 	unsigned int old_distance2;
@@ -314,14 +436,14 @@ evaluate(void)
 	temperature = INITIAL_TEMPERATURE;
 
 	do {
-		sample_paths(&path1,
-			     &path2);
+		/* sample_paths(&path1, */
+		/* 	     &path2); */
 
-		old_distance1 = path1->distance;
-		old_distance2 = path2->distance;
+		/* old_distance1 = path1->distance; */
+		/* old_distance2 = path2->distance; */
 
-		delta_distance = swap_paths(path1,
-					    path2);
+		/* delta_distance = swap_paths(path1, */
+		/* 			    path2); */
 
 		/* printf("delta_distance: %d\n", */
 		/*        delta_distance); */
