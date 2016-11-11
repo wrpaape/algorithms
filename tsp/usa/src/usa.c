@@ -558,7 +558,7 @@ main(void)
 {
 	init_tsp_state();
 
-	/* evaluate(); */
+	evaluate();
 
 	write_solution();
 
