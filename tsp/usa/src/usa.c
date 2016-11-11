@@ -5,7 +5,9 @@ static unsigned int distance_map[50][50];
 static const char *location_map[50];
 char *restrict distances_buffer;
 static bool stop_evaluation;
-static int total_distance;
+static unsigned int total_distance;
+
+static unsigned int solution[100];
 
 static sig_t initial_handler;
 
@@ -49,12 +51,14 @@ get_distance_row(unsigned int *restrict distance,
 static inline void
 init_tsp_state(void)
 {
-	unsigned int self;
-	unsigned int next;
+	unsigned int node1;
+	unsigned int node2;
 	unsigned int *restrict row;
 	unsigned int *restrict next_row;
-	struct Path *restrict path;
-	const char *restrict buffer;
+	unsigned int *restrict node1_ptr;
+	unsigned int *restrict node2_ptr;
+	unsigned int *restrict distance;
+	const char *restrict ptr;
 	const char *restrict failure;
 	const char *restrict *restrict location;
 
@@ -63,46 +67,49 @@ init_tsp_state(void)
 				&failure)))
 	    exit_on_failure(failure);
 
+	ptr	  = distances_buffer;
+	location  = &location_map[0];
+	path	  = &path_map[0];
+	row	  = &distance_map[0][0];
+	next_row  = row + 50;
+	node1     = 0u;
+	node2	  = 1u;
+	node1_ptr = &solution[0];
+	distance  = node1_ptr + 1;
+	node2_ptr = node1_ptr + 2;
 
-
-	buffer	 = distances_buffer;
-	location = &location_map[0];
-	path	 = &path_map[0];
-	row	 = &distance_map[0][0];
-	next_row = row + 50;
-	self	 = 0u;
-	next	 = 1u;
+	const unsigned int *const restrict node_until
+	= node1_ptr + 100;
 
 	do {
 		get_location(location,
-			     &buffer);
+			     &ptr);
 
 		get_distance_row(row,
 				 next_row,
-				 (const char **) &buffer);
+				 (const char **) &ptr);
 
-		path->self     = self;
-		path->next     = next;
-		path->distance = row[next];
+		*node1_ptr = node1;
+		*distance  = row[node2];
+		*node2_ptr = node2;
 
-		total_distance += path->distance;
+		total_distance += *distance;
 
 		++location;
-		++path;
 		row = next_row;
 		next_row += 50;
-		self = next;
-		++next;
-	} while (next < 50);
+		node1 = node2;
+		++node2;
+	} while (node2 < 50);
 
 	get_location(location,
-		     &buffer);
+		     &ptr);
 
 	get_distance_row(row,
 			 next_row,
-			 (const char **) &buffer);
+			 (const char **) &ptr);
 
-	path->self     = self;
+	path->node1     = node1;
 	path->next     = 0;
 	path->distance = row[0];
 
@@ -119,7 +126,9 @@ init_tsp_state(void)
 }
 
 static inline void
-put_path(const struct Path *const restrict path,
+put_path(const unsigned int node1,
+	 const unsigned int node2,
+	 const unsigned int distance,
 	 char *restrict *const restrict buffer_ptr)
 {
 	char *restrict buffer;
@@ -127,7 +136,7 @@ put_path(const struct Path *const restrict path,
 	buffer = *buffer_ptr;
 
 	put_location(&buffer,
-		     location_map[path->self]);
+		     location_map[node1]);
 
 	*buffer = '\t'; ++buffer;
 	*buffer = 't';	++buffer;
@@ -135,12 +144,12 @@ put_path(const struct Path *const restrict path,
 	*buffer = '\t'; ++buffer;
 
 	put_location(&buffer,
-		     location_map[path->next]);
+		     location_map[node2]);
 
 	*buffer = '\t'; ++buffer;
 
 	put_uint(&buffer,
-		 path->distance);
+		 distance);
 
 	*buffer = ' ';	++buffer;
 	*buffer = 'k';	++buffer;
@@ -183,23 +192,37 @@ put_total(char *restrict *const restrict buffer_ptr)
 static inline void
 write_solution(void)
 {
-	const struct Path *restrict path;
+	const unsigned int *restrict node1_ptr;
+	const unsigned int *restrict node2_ptr;
+	const unsigned int *restrict distance;
 	char *restrict ptr;
 	const char *restrict failure;
 	static char buffer[SOLUTION_BUFFER_SIZE];
 
+	node1_ptr = &solution[0];
+	distance  = node1_ptr + 1;
+	node2_ptr = node1_ptr + 2;
 
-	const struct Path *const restrict first_path = &path_map[0];
+	const unsigned int *const restrict node_until
+	= node1_ptr + 100;
 
-	path	  = first_path;
-	ptr	  = &buffer[0];
+	ptr = &buffer[0];
 
 	do {
-		put_path(path,
+		put_path(*node1_ptr,
+			 *node2_ptr,
+			 *distance,
 			 &ptr);
 
-		path = &path_map[path->next];
-	} while (path != first_path);
+		distance  += 2;
+		node1_ptr  = node2_ptr;
+		node2_ptr += 2;
+	} while (node2_ptr < node_until);
+
+	put_path(*node1_ptr,
+		 solution[0],
+		 *distance,
+		 &ptr);
 
 	free(distances_buffer);
 
@@ -213,31 +236,19 @@ write_solution(void)
 }
 
 static inline void
-sample_paths(struct Path *restrict *const restrict path1_ptr,
-	     struct Path *restrict *const restrict path2_ptr)
+sample_node_indices(unsigned int *const restrict i_node1_ptr,
+		    unsigned int *const restrict i_node2_ptr);
 {
-	uint32_t i_path2;
-	struct Path *restrict path2;
+	uint32_t i_node2_div2;
+	const uint32_t i_node1_div2 = random_uint32_upto(49u);
 
-	const uint32_t i_path1 = random_uint32_upto(49u);
+	do {
+		i_node2_div2 = random_uint32_upto(49u);
+	} while (i_node2_div2 == i_node1_div2);
 
-	struct Path *const restrict path1 = &path_map[i_path1];
 
-	while (1) {
-		i_path2 = random_uint32_upto(49u);
-
-		if (i_path2 != i_path1) {
-			path2 = &path_map[i_path2];
-
-			if (   (path2->next != i_path1)
-			    && (path1->next != i_path2)) {
-
-				*path1_ptr = path1;
-				*path2_ptr = path2;
-				return;
-			}
-		}
-	}
+	*i_node1_ptr = (unsigned int) (i_node1_div2 * 2u);
+	*i_node2_ptr = (unsigned int) (i_node2_div2 * 2u);
 }
 
 

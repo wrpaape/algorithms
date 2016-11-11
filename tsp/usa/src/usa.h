@@ -20,15 +20,6 @@
 #define INITIAL_TEMPERATURE	1000000.0
 #define DELTA_TEMPERATURE	0.1
 
-
-/* typedefs, struct definitions
- * ────────────────────────────────────────────────────────────────────────── */
-struct Path {
-	unsigned int self;
-	unsigned int next;
-	unsigned int distance;
-};
-
 void
 catch_interrupt(int signal);
 
@@ -41,7 +32,9 @@ static inline void
 init_tsp_state(void);
 
 static inline void
-put_path(const struct Path *const restrict path1,
+put_path(const unsigned int node1,
+	 const unsigned int node2,
+	 const unsigned int distance,
 	 char *restrict *const restrict buffer_ptr);
 
 static inline void
@@ -51,8 +44,8 @@ static inline void
 write_solution(void);
 
 static inline void
-sample_paths(struct Path *restrict *const restrict path1_ptr,
-	     struct Path *restrict *const restrict path2_ptr);
+sample_node_indices(unsigned int *const restrict i_node1_ptr,
+		    unsigned int *const restrict i_node2_ptr);
 
 static inline int
 do_swap_path(struct Path *const restrict path,
