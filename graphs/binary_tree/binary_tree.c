@@ -4,6 +4,9 @@
 node = tree_nth(root, N);						\
 printf("tree_nth(" #N "): %d\n", (node == NULL) ? -1 : node->value)
 
+#define PRINT_IS_SORTED()						\
+printf("is_tree_sorted: %s\n", is_tree_sorted(root) ? "true" : "false")
+
 int
 main(void)
 {
@@ -15,8 +18,10 @@ main(void)
 
 	if (exit_status == 0u) {
 		tree_print(root);
+		PRINT_IS_SORTED();
 		tree_invert(root);
 		tree_print(root);
+		PRINT_IS_SORTED();
 		printf("tree_length: %u\n", tree_length(root));
 		PRINT_NTH(0);
 		PRINT_NTH(-1);
@@ -89,6 +94,37 @@ tree_invert(struct Node *const restrict node)
 		tree_invert(node->left);
 	}
 }
+
+bool
+do_is_tree_sorted(const struct Node *const restrict node,
+		  const unsigned int min_value,
+		  const unsigned int max_value)
+{
+	if (node == NULL)
+		return true;
+
+	const unsigned int node_value = node->value;
+
+	if ((node_value < min_value) || (node_value > max_value))
+		return false;
+
+
+	return do_is_tree_sorted(node->left,
+				 min_value,
+				 node_value)
+	    && do_is_tree_sorted(node->right,
+				 node_value,
+				 max_value);
+}
+
+static inline bool
+is_tree_sorted(const struct Node *const restrict root)
+{
+	return do_is_tree_sorted(root,
+				 0,
+				 UINT_MAX);
+}
+
 
 void
 do_tree_print(struct Node *const restrict node)

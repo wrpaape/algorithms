@@ -5,6 +5,8 @@
  * ────────────────────────────────────────────────────────────────────────── */
 #include <stdlib.h>	/* malloc, free */
 #include <stdio.h>	/* printf, (f)puts */
+#include <stdbool.h>	/* bool */
+#include <limits.h>	/* UINT_MAX */
 
 /* typedefs, struct declarations
  * ────────────────────────────────────────────────────────────────────────── */
@@ -25,6 +27,15 @@ tree_create(struct Node *restrict *const restrict root,
 
 void
 tree_invert(struct Node *const restrict node);
+
+bool
+do_is_tree_sorted(const struct Node *const restrict node,
+		  const unsigned int min_value,
+		  const unsigned int max_value);
+
+static inline bool
+is_tree_sorted(const struct Node *const restrict root);
+
 
 void
 do_tree_print(struct Node *const restrict node);
